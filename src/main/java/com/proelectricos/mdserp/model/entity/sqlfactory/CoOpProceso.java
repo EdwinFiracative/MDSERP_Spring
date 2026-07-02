@@ -11,7 +11,10 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+
+import java.time.LocalDate;
+
+
 
 @Getter
 @Entity
@@ -28,7 +31,7 @@ public class CoOpProceso {
     private Integer op;
 
     @Column(name = "FECHA_I")
-    private Instant fechaI;
+    private LocalDate fechaI;
 
     @Size(max = 20)
     @Column(name = "COD", length = 20)
@@ -60,7 +63,7 @@ public class CoOpProceso {
     private BigDecimal saldo;
 
     @Column(name = "FECHA_T")
-    private Instant fechaT;
+    private LocalDate fechaT;
 
     @Column(name = "costo_apl", precision = 17)
     private BigDecimal costoApl;
@@ -105,13 +108,13 @@ public class CoOpProceso {
     private BigDecimal sumaDecacCant;
 
     @Column(name = "cant_uni", precision = 38, scale = 10)
-    private BigDecimal cantUni;
+    private Integer cantUni;
 
     @Column(name = "sum_cos_unit", precision = 38, scale = 6)
     private BigDecimal sumCosUnit;
 
     @Column(name = "VENCE")
-    private Instant vence;
+    private LocalDate vence;
 
 
 }

@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDate;
 
 /**
@@ -34,7 +34,7 @@ public class CoOpProcesoDto implements Serializable {
     private BigDecimal cantp;
     private BigDecimal cante;
     private BigDecimal saldo;
-    private Instant fechaT;
+    private LocalDate fechaT;
     private BigDecimal costoApl;
     private BigDecimal costoLiq;
     private BigDecimal costoProc;
@@ -53,7 +53,7 @@ public class CoOpProcesoDto implements Serializable {
     private Integer anio;
     private Integer mes;
     private BigDecimal sumaDecacCant;
-    private BigDecimal cantUni;
+    private Integer cantUni;
     private BigDecimal sumCosUnit;
-    private Instant vence;
+    private LocalDate vence;
 }
