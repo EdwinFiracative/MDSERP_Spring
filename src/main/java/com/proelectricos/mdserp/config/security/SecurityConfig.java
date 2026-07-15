@@ -25,8 +25,11 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableConfigurationProperties(SecurityConfigProperties.class)
 public class SecurityConfig {
 
-    public static final String AUTHORITY_ADMIN = "ROLE_UMA_AUTHORIZATION";
-    public static final String AUTHORITY_USER = "ROLE_OFFLINE_ACCESS";
+    public static final String AUTHORITY_ADMIN = "ROLE_ADMIN_MDS_ERP";
+    //public static final String AUTHORITY_USER = "ROLE_OFFLINE_ACCESS";
+
+    public static final String AUTHORITY_USER = "ROLE_CON_VIEW_PROYTABLEROS";
+
     @NonNull
     private final ToolUserAuthenticationEntryPointHandler toolUserAuthenticationEntryPointHandler;
     @NonNull
@@ -51,9 +54,20 @@ public class SecurityConfig {
 
         // restricted URL
 
-        var mvcRequestMatcherForAddEmployee = new MvcRequestMatcher(introspect,
-                "/api/adic");
-        mvcRequestMatcherForAddEmployee.setMethod(HttpMethod.POST);
+        var mvcRequestMatcherForAddEmployeeGet = new MvcRequestMatcher(introspect, "/api/adic");
+        mvcRequestMatcherForAddEmployeeGet.setMethod(HttpMethod.GET);
+
+        var mvcRequestMatcherForAddEmployeePost = new MvcRequestMatcher(introspect, "/api/adic");
+        mvcRequestMatcherForAddEmployeePost.setMethod(HttpMethod.POST);
+
+        var mvcRequestMatcherForAddEmployeePut = new MvcRequestMatcher(introspect, "/api/adic");
+        mvcRequestMatcherForAddEmployeePut.setMethod(HttpMethod.PUT);
+
+        var mvcRequestMatcherForAddEmployeeDelete = new MvcRequestMatcher(introspect, "/api/adic");
+        mvcRequestMatcherForAddEmployeeDelete.setMethod(HttpMethod.DELETE);
+
+        var mvcRequestMatcherForAddEmployeePatch = new MvcRequestMatcher(introspect, "/api/adic");
+        mvcRequestMatcherForAddEmployeePatch.setMethod(HttpMethod.PATCH);
 
         http.cors(Customizer.withDefaults()) // this is added for connection from UI
                 .headers(headers -> headers.frameOptions(
@@ -62,8 +76,12 @@ public class SecurityConfig {
                         .requestMatchers(antPathRequestMatcher)
                         .permitAll()
                         .requestMatchers(mvcRequestMatcher).permitAll()
-                        .requestMatchers(mvcRequestMatcherForAddEmployee).hasAuthority(AUTHORITY_ADMIN)
-                        .anyRequest().hasAnyAuthority(AUTHORITY_USER, AUTHORITY_ADMIN))
+                        .requestMatchers(mvcRequestMatcherForAddEmployeeGet).hasAuthority(AUTHORITY_ADMIN)
+                        .requestMatchers(mvcRequestMatcherForAddEmployeePost).hasAuthority(AUTHORITY_ADMIN)
+                        .requestMatchers(mvcRequestMatcherForAddEmployeePut).hasAuthority(AUTHORITY_ADMIN)
+                        .requestMatchers(mvcRequestMatcherForAddEmployeeDelete).hasAuthority(AUTHORITY_ADMIN)
+                        .requestMatchers(mvcRequestMatcherForAddEmployeePatch).hasAuthority(AUTHORITY_ADMIN)
+                        .anyRequest().hasAnyAuthority(AUTHORITY_USER))
                 .exceptionHandling(
                         httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
                                 .accessDeniedHandler(toolUserAccessDeniedHandler)
