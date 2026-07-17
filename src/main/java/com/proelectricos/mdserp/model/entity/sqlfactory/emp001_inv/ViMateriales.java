@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -39,10 +39,10 @@ public class ViMateriales {
     private String nom_op;
 
     @Column(name = "fecha_ini_op")
-    private Instant fecha_ini_op;
+    private LocalDate fecha_ini_op;
 
     @Column(name = "FECHA_T")
-    private Instant FECHA_T;
+    private LocalDate FECHA_T;
 
     @Size(max = 20)
     @Column(name = "COD", length = 20)

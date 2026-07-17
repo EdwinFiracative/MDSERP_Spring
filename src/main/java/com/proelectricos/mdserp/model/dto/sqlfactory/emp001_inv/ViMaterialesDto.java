@@ -9,12 +9,12 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @JsonPropertyOrder({
-        "id", "OP", "tdespacho", "nom_cliente", "nom_op", "fecha_ini_op", "FECHA_T",
+        "OP", "tdespacho", "nom_cliente", "nom_op", "fecha_ini_op", "FECHA_T",
         "COD", "UBIC", "nom_material", "cantidad_solicitada", "cantidad_comprada",
         "EXIST", "UD", "cantidad_entregada", "dif_cantidad", "cos_est_unitario",
         "cos_real_unitario", "costo_solicitado", "costo_entregado", "dif_costo",
@@ -23,8 +23,8 @@ import java.time.Instant;
 })
 public class ViMaterialesDto implements Serializable {
 
-    @JsonProperty("id")
-    private Long id;
+    /*@JsonProperty("id")
+    private Long id;*/
 
     @JsonProperty("OP")
     private Integer OP;
@@ -42,10 +42,10 @@ public class ViMaterialesDto implements Serializable {
     private String nom_op;
 
     @JsonProperty("fecha_ini_op")
-    private Instant fecha_ini_op;
+    private LocalDate fecha_ini_op;
 
     @JsonProperty("FECHA_T")
-    private Instant FECHA_T;
+    private LocalDate FECHA_T;
 
     @JsonProperty("COD")
     @Size(max = 20)

@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -37,7 +37,7 @@ public class Materiales {
     private BigDecimal CANTE;
 
     @Column(name = "FECHA_I")
-    private Instant FECHA_I;
+    private LocalDate FECHA_I;
 
     @Column(name = "ESTADO")
     private Character ESTADO;

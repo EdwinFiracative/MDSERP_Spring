@@ -9,7 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -25,53 +25,53 @@ public class CoPedPendAprobDto implements Serializable {
 
     @JsonProperty("NUM")
     @Size(max = 7)
-    private String num;
+    private String NUM;
 
     @JsonProperty("ORDEN")
     @Size(max = 50)
-    private String orden;
+    private String ORDEN;
 
     @JsonProperty("FECHA")
-    private Instant fecha;
+    private LocalDate FECHA;
 
     @JsonProperty("CLIENTE")
     @Size(max = 15)
-    private String cliente;
+    private String CLIENTE;
 
     @JsonProperty("NIT")
     @Size(max = 15)
-    private String nit;
+    private String NIT;
 
     @JsonProperty("NOMBRE DEL CLIENTE")
     @Size(max = 120)
-    private String nombreDelCliente;
+    private String NOMBRE_DEL_CLIENTE;
 
     @JsonProperty("CIU")
     @Size(max = 20)
-    private String ciu;
+    private String CIU;
 
     @JsonProperty("VENDEDOR")
     @Size(max = 5)
-    private String vendedor;
+    private String VENDEDOR;
 
     @JsonProperty("NOMBRE DEL VENDEDOR")
     @Size(max = 30)
-    private String nombreDelVendedor;
+    private String NOMBRE_DEL_VENDEDOR;
 
     @JsonProperty("COSTO ITEM")
-    private BigDecimal costoItem;
+    private BigDecimal COSTO_ITEM;
 
     @JsonProperty("ESTADO")
-    private Character estado;
+    private Character ESTADO;
 
     @JsonProperty("Negocio")
     @NotNull
     @Size(max = 30)
-    private String negocio;
+    private String Negocio;
 
     @JsonProperty("Clase")
     @NotNull
     @Size(max = 50)
-    private String clase;
+    private String Clase;
 }
 

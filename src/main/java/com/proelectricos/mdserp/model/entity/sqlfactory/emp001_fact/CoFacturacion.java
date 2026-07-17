@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -27,14 +27,14 @@ public class CoFacturacion {
 
     @Size(max = 4)
     @Column(name = "PREFIJO", length = 4)
-    private String prefijo;
+    private String PREFIJO;
 
     @Size(max = 10)
     @Column(name = "PEDID", length = 10)
-    private String pedid;
+    private String PEDID;
 
     @Column(name = "fftra")
-    private Instant fftra;
+    private LocalDate fftra;
 
     @Size(max = 7)
     @Column(name = "periodo", length = 7)
@@ -50,42 +50,42 @@ public class CoFacturacion {
 
     @Size(max = 15)
     @Column(name = "cod_cliente", length = 15)
-    private String codCliente;
+    private String cod_cliente;
 
     @Size(max = 120)
     @Column(name = "nom_cliente", length = 120)
-    private String nomCliente;
+    private String nom_cliente;
 
     @Column(name = "ESTADO")
-    private Character estado;
+    private Character ESTADO;
 
     @Size(max = 4)
     @Column(name = "DIST", length = 4)
-    private String dist;
+    private String DIST;
 
     @Size(max = 40)
     @Column(name = "nom_dist", length = 40)
-    private String nomDist;
+    private String nom_dist;
 
     @Size(max = 3)
     @Column(name = "ZONA", length = 3)
-    private String zona;
+    private String ZONA;
 
     @Size(max = 20)
     @Column(name = "CIU", length = 20)
-    private String ciu;
+    private String CIU;
 
     @Size(max = 5)
     @Column(name = "cod_vdor", length = 5)
-    private String codVdor;
+    private String cod_vdor;
 
     @Size(max = 30)
     @Column(name = "nom_vdor", length = 30)
-    private String nomVdor;
+    private String nom_vdor;
 
     @Size(max = 20)
     @Column(name = "COD", length = 20)
-    private String cod;
+    private String COD;
 
     @Size(max = 100)
     @Column(name = "descripcion", length = 100)
@@ -93,35 +93,35 @@ public class CoFacturacion {
 
     @Size(max = 100)
     @Column(name = "NOM1", length = 100)
-    private String nom1;
+    private String NOM1;
 
     @Column(name = "cant", precision = 14)
     private BigDecimal cant;
 
     @Column(name = "vlr_unit", precision = 16)
-    private BigDecimal vlrUnit;
+    private BigDecimal vlr_unit;
 
     @Column(name = "subtotal_linea", precision = 31, scale = 8)
-    private BigDecimal subtotalLinea;
+    private BigDecimal subtotal_linea;
 
     @NotNull
     @Column(name = "cant_dev", nullable = false, precision = 38, scale = 4)
-    private BigDecimal cantDev;
+    private BigDecimal cant_dev;
 
     @NotNull
     @Column(name = "valor_devolucion", nullable = false, precision = 38, scale = 8)
-    private BigDecimal valorDevolucion;
+    private BigDecimal valor_devolucion;
 
     @NotNull
     @Column(name = "costo_kardex", nullable = false, precision = 38)
-    private BigDecimal costoKardex;
+    private BigDecimal costo_kardex;
 
     @NotNull
     @Column(name = "costo_dev_kardex", nullable = false, precision = 38)
-    private BigDecimal costoDevKardex;
+    private BigDecimal costo_dev_kardex;
 
     @Column(name = "cst_stand", precision = 16)
-    private BigDecimal cstStand;
+    private BigDecimal cst_stand;
 
     @Size(max = 30)
     @NotNull
@@ -160,13 +160,13 @@ public class CoFacturacion {
     private BigDecimal ventaneta;
 
     @Column(name = "costo_total_final", precision = 38)
-    private BigDecimal costoTotalFinal;
+    private BigDecimal costo_total_final;
 
     @Column(name = "utilidad", precision = 38)
     private BigDecimal utilidad;
 
     @Column(name = "ca_margen", precision = 38, scale = 6)
-    private BigDecimal caMargen;
+    private BigDecimal ca_margen;
 
 
 }

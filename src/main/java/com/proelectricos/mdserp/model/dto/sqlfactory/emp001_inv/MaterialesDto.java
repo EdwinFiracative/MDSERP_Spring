@@ -9,7 +9,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -19,9 +19,6 @@ import java.time.Instant;
         "Negocio", "Clase", "Linea", "Grupo", "Nivel5"
 })
 public class MaterialesDto implements Serializable {
-
-    /*@JsonProperty("id")
-    private Long id;*/
 
     @JsonProperty("OP")
     private Integer OP;
@@ -37,7 +34,7 @@ public class MaterialesDto implements Serializable {
     private BigDecimal CANTE;
 
     @JsonProperty("FECHA_I")
-    private Instant FECHA_I;
+    private LocalDate FECHA_I;
 
     @JsonProperty("ESTADO")
     private Character ESTADO;

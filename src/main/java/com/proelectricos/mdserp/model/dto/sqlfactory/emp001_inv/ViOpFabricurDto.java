@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * DTO for {@link com.proelectricos.mdserp.model.entity.sqlfactory.emp001_inv.ViOpFabricur}
@@ -15,36 +15,36 @@ import java.time.Instant;
 @Getter
 @Setter
 public class ViOpFabricurDto implements Serializable {
-    private Integer op;
-    private Character modelo;
+    private Integer OP;
+    private Character MODELO;
     @Size(max = 20)
-    private String cod;
+    private String COD;
     @Size(max = 100)
-    private String nom;
+    private String NOM;
     @Size(max = 2)
-    private String ud;
+    private String UD;
     @Size(max = 2)
-    private String grup;
-    private BigDecimal cantp;
-    private BigDecimal cante;
-    private Instant fechaI;
-    private Instant fechaT;
-    private Character estado;
+    private String GRUP;
+    private BigDecimal CANTP;
+    private BigDecimal CANTE;
+    private LocalDate FECHA_I;
+    private LocalDate FECHA_T;
+    private Character ESTADO;
     @NotNull
     @Size(max = 50)
-    private String caClaNi4Nombre;
+    private String ca_cla_ni4_nombre;
     @Size(max = 20)
     private String codmp;
     @Size(max = 100)
-    private String nomMp;
+    private String NOM_MP;
     @Size(max = 2)
-    private String udMp;
+    private String UD_MP;
     @Size(max = 2)
-    private String grpMp;
-    private BigDecimal cant;
+    private String GRP_MP;
+    private BigDecimal CANT;
     @Size(max = 20)
-    private String codK;
-    private BigDecimal sumCantK;
+    private String CodK;
+    private BigDecimal SumCantK;
 }
 
 

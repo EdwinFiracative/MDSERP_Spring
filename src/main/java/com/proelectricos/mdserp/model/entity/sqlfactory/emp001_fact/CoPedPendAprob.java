@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -25,56 +25,56 @@ public class CoPedPendAprob {
 
     @Size(max = 7)
     @Column(name = "NUM", length = 7)
-    private String num;
+    private String NUM;
 
     @Size(max = 50)
     @Column(name = "ORDEN", length = 50)
-    private String orden;
+    private String ORDEN;
 
     @Column(name = "FECHA")
-    private Instant fecha;
+    private LocalDate FECHA;
 
     @Size(max = 15)
     @Column(name = "CLIENTE", length = 15)
-    private String cliente;
+    private String CLIENTE;
 
     @Size(max = 15)
     @Column(name = "NIT", length = 15)
-    private String nit;
+    private String NIT;
 
     @Size(max = 120)
     @Column(name = "\"NOMBRE DEL CLIENTE\"", length = 120)
-    private String nombreDelCliente;
+    private String NOMBRE_DEL_CLIENTE;
 
     @Size(max = 20)
     @Column(name = "CIU", length = 20)
-    private String ciu;
+    private String CIU;
 
     @Size(max = 5)
     @Column(name = "VENDEDOR", length = 5)
-    private String vendedor;
+    private String VENDEDOR;
 
     @Size(max = 30)
     @Column(name = "\"NOMBRE DEL VENDEDOR\"", length = 30)
-    private String nombreDelVendedor;
+    private String NOMBRE_DEL_VENDEDOR;
 
     @Column(name = "\"COSTO ITEM\"", precision = 38, scale = 8)
-    private BigDecimal costoItem;
+    private BigDecimal COSTO_ITEM;
 
     @Column(name = "ESTADO")
-    private Character estado;
+    private Character ESTADO;
 
     @Size(max = 30)
     @NotNull
     @Nationalized
     @Column(name = "Negocio", nullable = false, length = 30)
-    private String negocio;
+    private String Negocio;
 
     @Size(max = 50)
     @NotNull
     @Nationalized
     @Column(name = "Clase", nullable = false, length = 50)
-    private String clase;
+    private String Clase;
 
 
 }
