@@ -9,7 +9,7 @@ import lombok.Value;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * DTO for {@link CoFacturacion}
@@ -20,50 +20,50 @@ public class CoFacturacionDto implements Serializable {
     Long id;
     Integer factura;
     @Size(max = 4)
-    String prefijo;
+    String PREFIJO;
     @Size(max = 10)
-    String pedid;
-    Instant fftra;
+    String PEDID;
+    LocalDate fftra;
     @Size(max = 7)
     String periodo;
     Integer año;
     @Size(max = 30)
     String mes;
     @Size(max = 15)
-    String codCliente;
+    String cod_cliente;
     @Size(max = 120)
-    String nomCliente;
-    Character estado;
+    String nom_cliente;
+    Character ESTADO;
     @Size(max = 4)
-    String dist;
+    String DIST;
     @Size(max = 40)
-    String nomDist;
+    String nom_dist;
     @Size(max = 3)
-    String zona;
+    String ZONA;
     @Size(max = 20)
-    String ciu;
+    String CIU;
     @Size(max = 5)
-    String codVdor;
+    String cod_vdor;
     @Size(max = 30)
-    String nomVdor;
+    String nom_vdor;
     @Size(max = 20)
-    String cod;
+    String COD;
     @Size(max = 100)
     String descripcion;
     @Size(max = 100)
-    String nom1;
+    String NOM1;
     BigDecimal cant;
-    BigDecimal vlrUnit;
-    BigDecimal subtotalLinea;
+    BigDecimal vlr_unit;
+    BigDecimal subtotal_linea;
     @NotNull
-    BigDecimal cantDev;
+    BigDecimal cant_dev;
     @NotNull
-    BigDecimal valorDevolucion;
+    BigDecimal valor_devolucion;
     @NotNull
-    BigDecimal costoKardex;
+    BigDecimal costo_kardex;
     @NotNull
-    BigDecimal costoDevKardex;
-    BigDecimal cstStand;
+    BigDecimal costo_dev_kardex;
+    BigDecimal cst_stand;
     @NotNull
     @Size(max = 30)
     String negocio;
@@ -81,8 +81,8 @@ public class CoFacturacionDto implements Serializable {
     String nivel;
     BigDecimal total;
     BigDecimal ventaneta;
-    BigDecimal costoTotalFinal;
+    BigDecimal costo_total_final;
     BigDecimal utilidad;
-    BigDecimal caMargen;
+    BigDecimal ca_margen;
 }
 

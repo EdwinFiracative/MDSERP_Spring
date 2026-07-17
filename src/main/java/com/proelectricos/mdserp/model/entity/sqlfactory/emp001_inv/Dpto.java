@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -84,7 +84,7 @@ public class Dpto {
     private BigDecimal INACTIVA;
 
     @Column(name = "FINACTIVA")
-    private Instant FINACTIVA;
+    private LocalDate FINACTIVA;
 
     @Column(name = "PROAREA", precision = 2)
     private BigDecimal PROAREA;

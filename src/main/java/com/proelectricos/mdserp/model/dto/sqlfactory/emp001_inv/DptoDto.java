@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -88,7 +88,7 @@ public class DptoDto implements Serializable {
     private BigDecimal INACTIVA;
 
     @JsonProperty("FINACTIVA")
-    private Instant FINACTIVA;
+    private LocalDate FINACTIVA;
 
     @JsonProperty("PROAREA")
     private BigDecimal PROAREA;
