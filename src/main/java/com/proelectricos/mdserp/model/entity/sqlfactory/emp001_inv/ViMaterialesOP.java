@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -40,8 +41,10 @@ public class ViMaterialesOP {
     @Column(name = "OP")
     private Integer OP;
 
-    @Column(name = "Mat_Elec_Plan")
-    private Instant Mat_Elec_Plan;
+    // Esta columna en la vista puede contener valores no convertibles a fecha en SQL Server.
+    // Se deja fuera del mapeo JPA para evitar que falle la consulta completa.
+    @Transient
+    private LocalDate Mat_Elec_Plan;
 
     @Size(max = 7)
     @Column(name = "pedido", length = 7)
@@ -85,10 +88,10 @@ public class ViMaterialesOP {
     private String cliente;
 
     @Column(name = "fecha_ini_op")
-    private Instant fecha_ini_op;
+    private LocalDate fecha_ini_op;
 
     @Column(name = "FECHA_T")
-    private Instant FECHA_T;
+    private LocalDate FECHA_T;
 
     @Column(name = "CANTP", precision = 14, scale = 4)
     private BigDecimal CANTP;
