@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -20,47 +20,47 @@ import java.time.Instant;
 public class ViOpFabricur {
     @Id
     @Column(name = "OP")
-    private Integer op;
+    private Integer OP;
 
     @Column(name = "MODELO")
-    private Character modelo;
+    private Character MODELO;
 
     @Size(max = 20)
     @Column(name = "COD", length = 20)
-    private String cod;
+    private String COD;
 
     @Size(max = 100)
     @Column(name = "NOM", length = 100)
-    private String nom;
+    private String NOM;
 
     @Size(max = 2)
     @Column(name = "UD", length = 2)
-    private String ud;
+    private String UD;
 
     @Size(max = 2)
     @Column(name = "GRUP", length = 2)
-    private String grup;
+    private String GRUP;
 
     @Column(name = "CANTP", precision = 14, scale = 4)
-    private BigDecimal cantp;
+    private BigDecimal CANTP;
 
     @Column(name = "CANTE", precision = 14, scale = 4)
-    private BigDecimal cante;
+    private BigDecimal CANTE;
 
     @Column(name = "FECHA_I")
-    private Instant fechaI;
+    private LocalDate FECHA_I;
 
     @Column(name = "FECHA_T")
-    private Instant fechaT;
+    private LocalDate FECHA_T;
 
     @Column(name = "ESTADO")
-    private Character estado;
+    private Character ESTADO;
 
     @Size(max = 50)
     @NotNull
     @Nationalized
     @Column(name = "\"ca_cla-ni4_nombre\"", nullable = false, length = 50)
-    private String caClaNi4Nombre;
+    private String ca_cla_ni4_nombre;
 
     @Size(max = 20)
     @Column(name = "codmp", length = 20)
@@ -68,25 +68,25 @@ public class ViOpFabricur {
 
     @Size(max = 100)
     @Column(name = "\"NOM MP\"", length = 100)
-    private String nomMp;
+    private String NOM_MP;
 
     @Size(max = 2)
     @Column(name = "\"UD MP\"", length = 2)
-    private String udMp;
+    private String UD_MP;
 
     @Size(max = 2)
     @Column(name = "\"GRP MP\"", length = 2)
-    private String grpMp;
+    private String GRP_MP;
 
     @Column(name = "CANT", precision = 14, scale = 4)
-    private BigDecimal cant;
+    private BigDecimal CANT;
 
     @Size(max = 20)
     @Column(name = "CodK", length = 20)
-    private String codK;
+    private String CodK;
 
     @Column(name = "SumCantK", precision = 38, scale = 4)
-    private BigDecimal sumCantK;
+    private BigDecimal SumCantK;
 
 
 }

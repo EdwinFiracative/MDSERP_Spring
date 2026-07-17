@@ -11,7 +11,6 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
@@ -25,77 +24,77 @@ public class CoCarteraNegocio {
 
     @Size(max = 120)
     @Column(name = "NOMBRE", length = 120)
-    private String nombre;
+    private String NOMBRE;
 
     @Size(max = 15)
     @Column(name = "CLIENTE", length = 15)
-    private String cliente;
+    private String CLIENTE;
 
     @Size(max = 15)
     @Column(name = "NIT", length = 15)
-    private String nit;
+    private String NIT;
 
     @Size(max = 7)
     @Column(name = "PEDIDO", length = 7)
-    private String pedido;
+    private String PEDIDO;
 
     @Size(max = 17)
     @NotNull
     @Column(name = "CONCEPTO", nullable = false, length = 17)
-    private String concepto;
+    private String CONCEPTO;
 
     @Size(max = 4)
     @Column(name = "PREFIJO", length = 4)
-    private String prefijo;
+    private String PREFIJO;
 
     @Column(name = "NUMERO")
-    private Integer numero;
+    private Integer NUMERO;
 
     @Column(name = "FECHA")
-    private LocalDate fecha;
+    private LocalDate FECHA;
 
     @Column(name = "VENCE")
-    private LocalDate vence;
+    private LocalDate VENCE;
 
     @Column(name = "\"DIAS VENCIDO\"")
-    private Integer diasVencido;
+    private Integer DIAS_VENCIDO;
 
     @Column(name = "\"DIAS TOTALES\"")
-    private Integer diasTotales;
+    private Integer DIAS_TOTALES;
 
     @Column(name = "\"VALOR TOTAL\"", precision = 16, scale = 4)
-    private BigDecimal valorTotal;
+    private BigDecimal VALOR_TOTAL;
 
     @Size(max = 50)
     @Nationalized
     @Column(name = "NEGOCIO", length = 50)
-    private String negocio;
+    private String NEGOCIO;
 
     @Column(name = "\"PORCENTAJE NEGOCIO\"", precision = 38, scale = 6)
-    private BigDecimal porcentajeNegocio;
+    private BigDecimal PORCENTAJE_NEGOCIO;
 
     @Column(name = "\"VALOR PONDERADO\"", precision = 38, scale = 6)
-    private BigDecimal valorPonderado;
+    private BigDecimal VALOR_PONDERADO;
 
     @Column(name = "\"ABONO TOTAL\"", precision = 16, scale = 4)
-    private BigDecimal abonoTotal;
+    private BigDecimal ABONO_TOTAL;
 
     @Column(name = "\"ABONO PONDERADO\"", precision = 38, scale = 6)
-    private BigDecimal abonoPonderado;
+    private BigDecimal ABONO_PONDERADO;
 
     @Column(name = "SALDO", precision = 17, scale = 4)
-    private BigDecimal saldo;
+    private BigDecimal SALDO;
 
     @Column(name = "\"SALDO PONDERADO\"", precision = 38, scale = 6)
-    private BigDecimal saldoPonderado;
+    private BigDecimal SALDO_PONDERADO;
 
     @Size(max = 20)
     @Column(name = "CIU", length = 20)
-    private String ciu;
+    private String CIU;
 
     @Size(max = 30)
     @Column(name = "VENDEDOR", length = 30)
-    private String vendedor;
+    private String VENDEDOR;
 
 
 }
