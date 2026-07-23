@@ -7,7 +7,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
@@ -54,14 +53,8 @@ public class CoInvNetoMp {
     @Column(name = "EXIST", precision = 14, scale = 4)
     private BigDecimal EXIST;
 
-    @Column(name = "CANT_OC", precision = 38, scale = 4)
-    private BigDecimal CANT_OC;
-
     @Column(name = "SMAX", precision = 14, scale = 4)
     private BigDecimal SMAX;
-
-    @Column(name = "COMPRAR", precision = 38, scale = 4)
-    private BigDecimal COMPRAR;
 
     @Column(name = "\"VALOR Existencia\"", precision = 14)
     private BigDecimal VALOR_Existencia;
@@ -80,26 +73,31 @@ public class CoInvNetoMp {
 
     @Size(max = 30)
     @NotNull
+    @Nationalized
     @Column(name = "Negocio", nullable = false, length = 30)
     private String Negocio;
 
     @Size(max = 50)
     @NotNull
+    @Nationalized
     @Column(name = "Linea", nullable = false, length = 50)
     private String Linea;
 
     @Size(max = 80)
     @NotNull
+    @Nationalized
     @Column(name = "Clase", nullable = false, length = 80)
     private String Clase;
 
     @Size(max = 50)
     @NotNull
+    @Nationalized
     @Column(name = "Grupo", nullable = false, length = 50)
     private String Grupo;
 
     @Size(max = 60)
     @NotNull
+    @Nationalized
     @Column(name = "Nivel5", nullable = false, length = 60)
     private String Nivel5;
 
