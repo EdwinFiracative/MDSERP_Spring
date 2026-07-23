@@ -53,14 +53,8 @@ public class CoInvNetoMp {
     @Column(name = "EXIST", precision = 14, scale = 4)
     private BigDecimal EXIST;
 
-    @Column(name = "CANT_OC", precision = 14, scale = 4)
-    private BigDecimal CANT_OC;
-
     @Column(name = "SMAX", precision = 14, scale = 4)
     private BigDecimal SMAX;
-
-    @Column(name = "COMPRAR", precision = 38, scale = 4)
-    private BigDecimal COMPRAR;
 
     @Column(name = "\"VALOR Existencia\"", precision = 14)
     private BigDecimal VALOR_Existencia;
