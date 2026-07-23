@@ -20,8 +20,6 @@ import java.math.BigDecimal;
 })
 public class CoInvNetoMpDto implements Serializable {
 
-
-
     @JsonProperty("COD")
     @Size(max = 20)
     private String COD;
@@ -114,4 +112,3 @@ public class CoInvNetoMpDto implements Serializable {
     @JsonProperty("DESVSTD")
     private Double DESVSTD;
 }
-
