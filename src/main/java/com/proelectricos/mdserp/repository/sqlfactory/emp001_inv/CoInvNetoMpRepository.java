@@ -7,5 +7,3 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CoInvNetoMpRepository extends JpaRepository<CoInvNetoMp, String> {
 }
-
-
