@@ -51,7 +51,7 @@ class PedidoController {
     public List<PedidoDto> getPedidoFiltered(
             @RequestBody(required = false) PedidoFilterRequest filter,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "100") int size,
+            @RequestParam(defaultValue = "1000000") int size,
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
         String[] sortParts = sort.split(",");
@@ -60,7 +60,7 @@ class PedidoController {
                 ? Sort.Direction.fromOptionalString(sortParts[1].trim()).orElse(Sort.Direction.ASC)
                 : Sort.Direction.ASC;
 
-        int cappedSize = Math.min(Math.max(size, 1), 500);
+        int cappedSize = Math.min(Math.max(size, 1), 55500);
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), cappedSize, Sort.by(direction, sortField));
 
         return PedidoService.findAllPedidos(pageRequest, filter)
