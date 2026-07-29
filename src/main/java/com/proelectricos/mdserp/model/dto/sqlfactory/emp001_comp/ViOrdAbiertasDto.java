@@ -9,12 +9,12 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 
-@JsonPropertyOrder({ "COD","NOM","UD", "TIPO_OC", "FAPER", "OC", "PROVEEDOR", "FPROM", "OP", "PENDIENTE", "ESTADO", "CANTP", "CANTE", "COSTO_ESTANDAR", "COST_UNITARIO", "VENCTTO", "COS_PEDIDO", "COS_ENTREGADO", "COS_PENDIENTE", "AUTOFIN", "USR", "FAPROFIN", "CA_CLA_NI1_NOMBRE", "CA_CLA_NI2_NOMBRE", "CA_CLA_NI3_NOMBRE", "CA_CLA_NI4_NOMBRE", "CA_CLA_NI5_NOMBRE"
+@JsonPropertyOrder({ "COD","NOM","UD", "TIPO_OC", "FAPER", "OC", "vca_rco_proveedor", "FPROM", "OP", "pendiente", "ESTADO", "CANTP", "CANTE", "COSTO ESTANDAR", "cost_unitario", "venctto", "cos_pedido", "cos_entregado", "cos_pendiente", "AUTOFIN", "USR", "FAPROFIN", "CA_CLA_NI1_NOMBRE", "CA_CLA_NI2_NOMBRE", "CA_CLA_NI3_NOMBRE", "CA_CLA_NI4_NOMBRE", "CA_CLA_NI5_NOMBRE"
 })
 public class ViOrdAbiertasDto implements Serializable {
 
@@ -27,7 +27,7 @@ public class ViOrdAbiertasDto implements Serializable {
     private String tipoOc;
 
     @JsonProperty("FAPER")
-    private Instant faper;
+    private LocalDate faper;
 
     @JsonProperty("OC")
     private Integer oc;
@@ -45,10 +45,10 @@ public class ViOrdAbiertasDto implements Serializable {
     private String nom;
 
     @JsonProperty("FPROM")
-    private Instant fprom;
+    private LocalDate fprom;
 
     @JsonProperty("OP")
-    private Integer op;
+    private String op;
 
     @JsonProperty("pendiente")
     private BigDecimal pendiente;
@@ -93,7 +93,7 @@ public class ViOrdAbiertasDto implements Serializable {
     private String usr;
 
     @JsonProperty("FAPROFIN")
-    private Instant faprofin;
+    private LocalDate faprofin;
 
     @JsonProperty("ca_cla-ni1_nombre")
     @Size(max = 30)

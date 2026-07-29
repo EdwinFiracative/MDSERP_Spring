@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -29,7 +29,7 @@ public class ViOrdAbiertas {
     private String tipoOc;
 
     @Column(name = "FAPER")
-    private Instant faper;
+    private LocalDate faper;
 
     @Column(name = "OC")
     private Integer oc;
@@ -47,10 +47,10 @@ public class ViOrdAbiertas {
     private String nom;
 
     @Column(name = "FPROM")
-    private Instant fprom;
+    private LocalDate fprom;
 
     @Column(name = "OP")
-    private Integer op;
+    private String op;
 
     @Column(name = "pendiente", precision = 15, scale = 4)
     private BigDecimal pendiente;
@@ -95,7 +95,7 @@ public class ViOrdAbiertas {
     private String usr;
 
     @Column(name = "FAPROFIN")
-    private Instant faprofin;
+    private LocalDate faprofin;
 
     @Size(max = 30)
     @Nationalized
