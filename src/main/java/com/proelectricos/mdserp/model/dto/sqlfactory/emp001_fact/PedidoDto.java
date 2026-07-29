@@ -25,7 +25,7 @@ public class PedidoDto implements Serializable {
     @Size(max = 7)
     String num;
     @Size(max = 15)
-    String cliente;
+    ClienteDto cliente;
     Instant fecha;
     @Size(max = 20)
     String cod;

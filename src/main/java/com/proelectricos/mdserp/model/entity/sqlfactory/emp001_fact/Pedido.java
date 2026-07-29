@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+
 @Getter
 @Setter
 @Entity
@@ -31,9 +32,10 @@ public class Pedido {
     @Column(name = "NUM", length = 7)
     private String num;
 
-    @Size(max = 15)
-    @Column(name = "CLIENTE", length = 15)
-    private String cliente;
+
+    @JoinColumn(name = "CLIENTE")
+    @ManyToOne
+    private Cliente cliente;
 
     @Column(name = "FECHA")
     private Instant fecha;
