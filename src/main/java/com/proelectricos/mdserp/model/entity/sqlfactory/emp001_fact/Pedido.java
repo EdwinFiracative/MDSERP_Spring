@@ -104,5 +104,26 @@ public class Pedido {
     @Column(name = "CONDIC", length = 30)
     private String condic;
 
+    @PostLoad
+    private void trimStrings() {
+        this.destinat = trimAll(this.destinat);
+        this.tdespacho = trimAll(this.tdespacho);
+        this.num = trimAll(this.num);
+        this.cod = trimAll(this.cod);
+        this.nom = trimAll(this.nom);
+        this.ud = trimAll(this.ud);
+        this.zona = trimAll(this.zona);
+        this.vendedor = trimAll(this.vendedor);
+        this.orden = trimAll(this.orden);
+        this.ncod = trimAll(this.ncod);
+        this.sys2015 = trimAll(this.sys2015);
+        this.condic = trimAll(this.condic);
+    }
+
+    private String trimAll(String value) {
+        if (value == null) return null;
+        // Removes all Unicode whitespace including NBSP)
+        return value.replaceAll("^[\\s\\u00A0]+|[\\s\\u00A0]+$", "");
+    }
 
 }

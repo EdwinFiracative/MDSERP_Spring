@@ -3,6 +3,7 @@ package com.proelectricos.mdserp.model.entity.sqlfactory.emp001_fact;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -63,5 +64,23 @@ public class Cliente {
     @Column(name = "NCOD", length = 6)
     private String ncod;
 
+    @PostLoad
+    private void trimStrings() {
+
+        this.nom = trimAll(this.nom);
+        this.dir = trimAll(this.dir);
+        this.ciu = trimAll(this.ciu);
+        this.depto = trimAll(this.depto);
+        this.nit = trimAll(this.nit);
+        this.dist = trimAll(this.dist);
+        this.condic = trimAll(this.condic);
+        this.zona = trimAll(this.zona);
+    }
+
+    private String trimAll(String value) {
+        if (value == null) return null;
+        // Removes all Unicode whitespace including NBSP)
+        return value.replaceAll("^[\\s\\u00A0]+|[\\s\\u00A0]+$", "");
+    }
 
 }
