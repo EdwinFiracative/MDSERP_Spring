@@ -29,8 +29,9 @@ public class ViewErpPedidoHeader {
     private String tdespacho;
 
     @Size(max = 15)
-    @Column(name = "cliente", length = 15)
-    private String cliente;
+    @JoinColumn(name = "CLIENTE")
+    @ManyToOne
+    private Cliente cliente;
 
     @Column(name = "fecha")
     private Instant fecha;
@@ -69,7 +70,6 @@ public class ViewErpPedidoHeader {
     private void trimStrings() {
         this.destinat = trimAll(this.destinat);
         this.tdespacho = trimAll(this.tdespacho);
-        this.cliente = trimAll(this.cliente);
         this.vendedor = trimAll(this.vendedor);
         this.orden = trimAll(this.orden);
         this.ncod = trimAll(this.ncod);

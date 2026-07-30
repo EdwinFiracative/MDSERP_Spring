@@ -23,7 +23,7 @@ public class ViewErpPedidoHeaderDto implements Serializable {
     @Size(max = 250)
     String tdespacho;
     @Size(max = 15)
-    String cliente;
+    ClienteDto cliente;
     Instant fecha;
     @Size(max = 5)
     String vendedor;
