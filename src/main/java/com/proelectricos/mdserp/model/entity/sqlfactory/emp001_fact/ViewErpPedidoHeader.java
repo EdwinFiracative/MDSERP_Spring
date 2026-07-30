@@ -62,6 +62,9 @@ public class ViewErpPedidoHeader {
     @OneToMany(mappedBy = "num", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<ViewErpPedidoReference> references;
 
+    @OneToMany(mappedBy = "num", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<ViewErpPedidoNote> notes;
+
     @PostLoad
     private void trimStrings() {
         this.destinat = trimAll(this.destinat);
