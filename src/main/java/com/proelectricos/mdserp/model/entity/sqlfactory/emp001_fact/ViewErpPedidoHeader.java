@@ -13,7 +13,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Immutable
-@Table(name = "viewErpPedidoHeader", catalog = "EMP001_FACT", schema = "dbo")
+@Table(name = "tabErpPedidoHeader", catalog = "EMP001_FACT", schema = "dbo")
 public class ViewErpPedidoHeader {
     @Id
     @Size(max = 7)

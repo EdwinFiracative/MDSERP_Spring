@@ -15,7 +15,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Immutable
-@Table(name = "viewErpPedidoReferences", catalog = "EMP001_FACT", schema = "dbo")
+@Table(name = "tabErpPedidoReferences", catalog = "EMP001_FACT", schema = "dbo")
 public class ViewErpPedidoReference {
     @Id
     @Column(name = "id")

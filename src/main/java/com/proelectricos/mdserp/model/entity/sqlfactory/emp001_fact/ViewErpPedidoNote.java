@@ -11,7 +11,7 @@ import org.hibernate.annotations.Immutable;
 @Setter
 @Entity
 @Immutable
-@Table(name = "viewErpPedidoNotes", catalog = "EMP001_FACT", schema = "dbo")
+@Table(name = "tabErpPedidoNotes", catalog = "EMP001_FACT", schema = "dbo")
 public class ViewErpPedidoNote {
     @Id
     @Column(name = "id")
