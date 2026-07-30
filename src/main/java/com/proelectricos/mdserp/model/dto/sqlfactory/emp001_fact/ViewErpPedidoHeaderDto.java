@@ -37,4 +37,5 @@ public class ViewErpPedidoHeaderDto implements Serializable {
     @NotNull
     Integer factoryId;
     List<ViewErpPedidoReferenceDto> references;
+    List<ViewErpPedidoNoteDto> notes;
 }

@@ -1,27 +1,26 @@
 package com.proelectricos.mdserp.model.entity.sqlfactory.emp001_fact;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 @Getter
+@Setter
 @Entity
 @Immutable
-@Table(name = "viewErpPedidoNotes")
+@Table(name = "viewErpPedidoNotes", catalog = "EMP001_FACT", schema = "dbo")
 public class ViewErpPedidoNote {
     @Id
     @Column(name = "id")
     private Long id;
 
     @Size(max = 7)
-    @Column(name = "NUM", length = 7)
-    private String num;
+    @ManyToOne
+    @JoinColumn(name = "NUM")
+    private ViewErpPedidoHeader num;
 
     @Column(name = "POS")
     private Long pos;
@@ -40,7 +39,7 @@ public class ViewErpPedidoNote {
 
     @PostLoad
     private void trimStrings() {
-        this.num = trimAll(this.num);
+
         this.cod = trimAll(this.cod);
         this.nom = trimAll(this.nom);
     }

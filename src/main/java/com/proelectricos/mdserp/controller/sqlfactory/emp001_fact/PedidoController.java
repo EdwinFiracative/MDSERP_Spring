@@ -86,7 +86,7 @@ class PedidoController {
             @RequestParam(defaultValue = "1000000") int size,
 
 
-            @RequestParam(defaultValue = "id,asc") String sort
+            @RequestParam(defaultValue = "num,asc") String sort
     ) {
         String[] sortParts = sort.split(",");
         String sortField = sortParts[0].trim();
