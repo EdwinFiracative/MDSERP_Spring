@@ -22,11 +22,11 @@ public class ViewErpPedidoHeader {
 
     @Size(max = 15)
     @Column(name = "DESTINAT", length = 15)
-    private String destinat;
+    private String oferta;
 
     @Size(max = 250)
     @Column(name = "TDESPACHO", length = 250)
-    private String tdespacho;
+    private String proyecto;
 
     @Size(max = 15)
     @JoinColumn(name = "CLIENTE")
@@ -37,8 +37,9 @@ public class ViewErpPedidoHeader {
     private Instant fecha;
 
     @Size(max = 5)
-    @Column(name = "vendedor", length = 5)
-    private String vendedor;
+    @JoinColumn(name = "vendedor")
+    @ManyToOne
+    private Vendedor vendedor;
 
     @Size(max = 50)
     @Column(name = "orden", length = 50)
@@ -68,9 +69,8 @@ public class ViewErpPedidoHeader {
 
     @PostLoad
     private void trimStrings() {
-        this.destinat = trimAll(this.destinat);
-        this.tdespacho = trimAll(this.tdespacho);
-        this.vendedor = trimAll(this.vendedor);
+        this.oferta = trimAll(this.oferta);
+        this.proyecto = trimAll(this.proyecto);
         this.orden = trimAll(this.orden);
         this.ncod = trimAll(this.ncod);
         this.detalle = trimAll(this.detalle);
