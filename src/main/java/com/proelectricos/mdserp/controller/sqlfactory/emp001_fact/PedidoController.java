@@ -79,7 +79,7 @@ class PedidoController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/filter2")
+    @PostMapping("/filtererp")
     public List<ViewErpPedidoHeaderDto> getPedidoFiltered2(
             @RequestBody(required = false) PedidoFilterRequest filter,
             @RequestParam(defaultValue = "0") int page,
@@ -104,11 +104,12 @@ class PedidoController {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-
+    //method to convert the entity to dto using modelmapper
     private PedidoDto convertToDto(Pedido entity) {
         return mapper.map(entity, PedidoDto.class);
     }
 
+    //method overloading of the function convertToDto with different argument type
     private ViewErpPedidoHeaderDto convertToDto(ViewErpPedidoHeader entity) {
         return mapper.map(entity, ViewErpPedidoHeaderDto.class);
     }

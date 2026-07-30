@@ -1,5 +1,6 @@
 package com.proelectricos.mdserp.model.entity.sqlfactory.emp001_fact;
 
+import com.proelectricos.mdserp.model.entity.sqlfactory.emp001_inv.Referencia;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -29,8 +30,9 @@ public class ViewErpPedidoReference {
     private Long pos;
 
     @Size(max = 20)
-    @Column(name = "COD", length = 20)
-    private String cod;
+    @ManyToOne
+    @JoinColumn(name = "COD", referencedColumnName = "COD")
+    private Referencia cod;
 
     @Size(max = 200)
     @Column(name = "NOM", length = 200)
@@ -64,7 +66,6 @@ public class ViewErpPedidoReference {
 
     @PostLoad
     private void trimStrings() {
-        this.cod = trimAll(this.cod);
         this.nom = trimAll(this.nom);
         this.ud = trimAll(this.ud);
     }
