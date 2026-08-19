@@ -37,6 +37,10 @@ public class Cliente {
     @Column(name = "CIU", length = 20)
     private String ciu;
 
+    @Size(max = 20)
+    @Column(name = "AA", length = 20)
+    private String aa;
+
     @Size(max = 30)
     @Column(name = "DEPTO", length = 30)
     private String depto;
@@ -67,6 +71,7 @@ public class Cliente {
     @PostLoad
     private void trimStrings() {
 
+        this.cod = trimAll(this.cod);
         this.nom = trimAll(this.nom);
         this.dir = trimAll(this.dir);
         this.ciu = trimAll(this.ciu);
