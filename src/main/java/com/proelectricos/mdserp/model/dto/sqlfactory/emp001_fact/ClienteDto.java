@@ -23,6 +23,8 @@ public class ClienteDto implements Serializable {
     String dir;
     @Size(max = 20)
     String ciu;
+    @Size(max = 20)
+    String aa;
     @Size(max = 30)
     String depto;
     @Size(max = 15)

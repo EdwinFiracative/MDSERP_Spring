@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class CoProyTableroDto implements Serializable {
-    Long id;
+    //Long id;
     @Size(max = 7)
     String pedido;
     Integer op;
