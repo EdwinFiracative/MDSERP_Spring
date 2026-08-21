@@ -1,4 +1,4 @@
-package com.proelectricos.mdserp.model.entity.sqlfactory.ErpDb;
+package com.proelectricos.mdserp.model.entity.sqlfactory.erpdb;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

@@ -1,4 +1,4 @@
-package com.proelectricos.mdserp.model.entity.sqlfactory.ErpDb;
+package com.proelectricos.mdserp.model.entity.sqlfactory.erpdb;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import org.hibernate.annotations.Nationalized;
 @Getter
 @Setter
 @Entity
-@Table(name = "ReferClassification")
+@Table(name = "ReferClassification", catalog = "ErpDb", schema = "dbo")
 public class ReferClassification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
