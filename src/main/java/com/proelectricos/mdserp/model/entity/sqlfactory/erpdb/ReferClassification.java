@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -37,5 +40,7 @@ public class ReferClassification {
     @Column(name = "referClassGroupFactory", length = 11)
     private String referClassGroupFactory;
 
+    @OneToMany(mappedBy = "referClassFather")
+    private Set<ReferClassification> ReferClassificationSons = new LinkedHashSet<>();
 
 }
