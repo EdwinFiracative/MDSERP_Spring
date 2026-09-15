@@ -16,7 +16,10 @@ public class ViMaterialesOPService {
     public List<ViMaterialesOP> findAll() {
         return repository.findAll();
     }
-}
 
+    public List<ViMaterialesOP> findByOP(Integer OP) {
+        return repository.findByOP(OP);
+    }
+}
 
 
