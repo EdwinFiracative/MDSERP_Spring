@@ -40,7 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain resourceServerFilterChain(final HttpSecurity http,
                                                          HandlerMappingIntrospector introspect) throws Exception {
 
-        String[] allowedPaths = securityConfigProperties.allowedPaths().toArray(String[]::new);
+        String[] allowedPaths = securityConfigProperties.allowedPaths().toArray(String[]::new); // String array with the allowed paths defined into the properties file and securityConfigProperties class
 
 
         http.cors(Customizer.withDefaults()) // this is added for connection from UI
