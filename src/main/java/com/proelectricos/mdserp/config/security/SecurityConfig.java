@@ -14,8 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 
@@ -42,45 +40,15 @@ public class SecurityConfig {
     public SecurityFilterChain resourceServerFilterChain(final HttpSecurity http,
                                                          HandlerMappingIntrospector introspect) throws Exception {
 
-        // ant matcher urls
-        var antPathRequestMatcher = securityConfigProperties.allowedPaths().stream()
-                .map(AntPathRequestMatcher::new)
-                .toArray(AntPathRequestMatcher[]::new);
+        String[] allowedPaths = securityConfigProperties.allowedPaths().toArray(String[]::new);
 
-        // mvc url
-
-        var mvcRequestMatcher = new MvcRequestMatcher(introspect, "/**");
-        mvcRequestMatcher.setMethod(HttpMethod.OPTIONS);
-
-        // restricted URL
-
-        var mvcRequestMatcherForAddEmployeeGet = new MvcRequestMatcher(introspect, "/api/adic");
-        mvcRequestMatcherForAddEmployeeGet.setMethod(HttpMethod.GET);
-
-        var mvcRequestMatcherForAddEmployeePost = new MvcRequestMatcher(introspect, "/api/adic");
-        mvcRequestMatcherForAddEmployeePost.setMethod(HttpMethod.POST);
-
-        var mvcRequestMatcherForAddEmployeePut = new MvcRequestMatcher(introspect, "/api/adic");
-        mvcRequestMatcherForAddEmployeePut.setMethod(HttpMethod.PUT);
-
-        var mvcRequestMatcherForAddEmployeeDelete = new MvcRequestMatcher(introspect, "/api/adic");
-        mvcRequestMatcherForAddEmployeeDelete.setMethod(HttpMethod.DELETE);
-
-        var mvcRequestMatcherForAddEmployeePatch = new MvcRequestMatcher(introspect, "/api/adic");
-        mvcRequestMatcherForAddEmployeePatch.setMethod(HttpMethod.PATCH);
 
         http.cors(Customizer.withDefaults()) // this is added for connection from UI
                 .headers(headers -> headers.frameOptions(
                         FrameOptionsConfig::sameOrigin)) // this line is added to h2 UI
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(antPathRequestMatcher)
-                        .permitAll()
-                        .requestMatchers(mvcRequestMatcher).permitAll()
-                        .requestMatchers(mvcRequestMatcherForAddEmployeeGet).hasAuthority(AUTHORITY_ADMIN)
-                        .requestMatchers(mvcRequestMatcherForAddEmployeePost).hasAuthority(AUTHORITY_ADMIN)
-                        .requestMatchers(mvcRequestMatcherForAddEmployeePut).hasAuthority(AUTHORITY_ADMIN)
-                        .requestMatchers(mvcRequestMatcherForAddEmployeeDelete).hasAuthority(AUTHORITY_ADMIN)
-                        .requestMatchers(mvcRequestMatcherForAddEmployeePatch).hasAuthority(AUTHORITY_ADMIN)
+                        .requestMatchers(allowedPaths).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // permit connexions for CORS preflight requests
                         .anyRequest().hasAnyAuthority(AUTHORITY_USER))
                 .exceptionHandling(
                         httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
