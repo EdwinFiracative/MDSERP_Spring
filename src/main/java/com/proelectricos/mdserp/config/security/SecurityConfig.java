@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,12 +22,10 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties(SecurityConfigProperties.class)
+@EnableMethodSecurity // enables @PreAuthorize, @PostAuthorize, @Secured
 public class SecurityConfig {
 
-    public static final String AUTHORITY_ADMIN = "ROLE_ADMIN_MDS_ERP";
-    //public static final String AUTHORITY_USER = "ROLE_OFFLINE_ACCESS";
 
-    public static final String AUTHORITY_USER = "ROLE_CON_VIEW_PROYTABLEROS";
 
     @NonNull
     private final ToolUserAuthenticationEntryPointHandler toolUserAuthenticationEntryPointHandler;
@@ -49,16 +48,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(allowedPaths).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // permit connexions for CORS preflight requests
-                        .anyRequest().hasAnyAuthority(AUTHORITY_USER))
+                        .anyRequest().authenticated())
                 .exceptionHandling(
                         httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
                                 .accessDeniedHandler(toolUserAccessDeniedHandler)
                                 .authenticationEntryPoint(toolUserAuthenticationEntryPointHandler))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(toolUserAuthenticationEntryPointHandler))
-                // sonar can cause issue
                 .csrf(AbstractHttpConfigurer::disable)
-                // sonar can cause issue
                 .sessionManagement(
                         sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS))

@@ -6,6 +6,7 @@ import com.proelectricos.mdserp.model.entity.sqlfactory.erpdb.ReferClassificatio
 import com.proelectricos.mdserp.service.sqlfactory.erpdb.ReferClassificationService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +17,14 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/referclassificationsons")
+
 public class ReferClassificationSonsController {
 
     private final ReferClassificationService ReferClassificationService;
     private final ModelMapper mapper;
-
+    @PreAuthorize("hasAuthority('ROLE_GETALLREFERCLASSIFICATIONSONS')")
     @GetMapping
-    public List<ReferClassificationSonsDto> getAllReferClassification() {
+    public List<ReferClassificationSonsDto> getAllReferClassificationSons() {
         return ReferClassificationService.findAll()
                 .stream()
                 .map(this::convertToDto)
