@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Nationalized;
+import org.hibernate.type.SqlTypes;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -13,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "Branch")
+@Table(name = "Branch", catalog = "ErpDb", schema = "dbo")
 public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +46,7 @@ public class Branch {
     @Size(max = 2)
     @NotNull
     @Nationalized
+    @JdbcTypeCode(SqlTypes.NCHAR)
     @Column(name = "branchCode", nullable = false, length = 2)
     private String branchCode;
 

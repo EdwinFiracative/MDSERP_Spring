@@ -43,4 +43,7 @@ public class ReferClassification {
     @OneToMany(mappedBy = "referClassFather")
     private Set<ReferClassification> ReferClassificationSons = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "referClassification")
+    private Set<Reference> references = new LinkedHashSet<>();
+
 }

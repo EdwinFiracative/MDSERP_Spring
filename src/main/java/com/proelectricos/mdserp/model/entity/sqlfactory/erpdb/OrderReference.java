@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Nationalized;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,7 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "OrderReference")
+@Table(name = "OrderReference", catalog = "ErpDb", schema = "dbo")
 public class OrderReference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +46,7 @@ public class OrderReference {
 
     @Size(max = 1)
     @Nationalized
+    @JdbcTypeCode(SqlTypes.NCHAR)
     @Column(name = "orderReferApproState", length = 1)
     private String orderReferApproState;
 
