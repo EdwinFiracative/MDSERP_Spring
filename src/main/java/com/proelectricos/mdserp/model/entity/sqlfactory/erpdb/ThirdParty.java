@@ -10,7 +10,7 @@ import org.hibernate.annotations.Nationalized;
 @Getter
 @Setter
 @Entity
-@Table(name = "ThirdParty")
+@Table(name = "ThirdParty", catalog = "ErpDb", schema = "dbo")
 public class ThirdParty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -25,10 +25,10 @@ public class ViCostosCargadosGarDto implements Serializable {
     private String cliente;
 
     @JsonProperty("FechaInicio")
-    private Instant fechaInicio;
+    private Instant fechaInicio;*/
 
     @JsonProperty("FechaCierre")
-    private Instant fechaCierre;*/
+    private Instant fechaCierre;
 
     @JsonProperty("ValorTotal")
     private BigDecimal valorTotal;

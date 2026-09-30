@@ -14,7 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "Client")
+@Table(name = "Client", catalog = "ErpDb", schema = "dbo")
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

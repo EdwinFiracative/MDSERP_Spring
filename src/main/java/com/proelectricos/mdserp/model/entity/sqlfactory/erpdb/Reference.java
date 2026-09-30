@@ -9,11 +9,13 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "Reference")
+@Table(name = "Reference", catalog = "ErpDb", schema = "dbo")
 public class Reference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,6 +82,9 @@ public class Reference {
     @NotNull
     @Column(name = "referWithholding", nullable = false, precision = 8, scale = 4)
     private BigDecimal referWithholding;
+
+    @OneToMany(mappedBy = "orderReferReference")
+    private Set<OrderReference> orderReferences = new LinkedHashSet<>();
 
 
 }

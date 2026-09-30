@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "MeasurUnit")
+@Table(name = "MeasurUnit", catalog = "ErpDb", schema = "dbo")
 public class MeasurUnit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +38,8 @@ public class MeasurUnit {
     @Column(name = "measuUnitDianCode", nullable = false, length = 10)
     private String measuUnitDianCode;
 
-    @OneToMany(mappedBy = "referMeasuUnit")
-    private Set<Reference> references = new LinkedHashSet<>();
+   /* @OneToMany(mappedBy = "referMeasuUnit")
+    private Set<Reference> references = new LinkedHashSet<>();*/
 
 
 }
