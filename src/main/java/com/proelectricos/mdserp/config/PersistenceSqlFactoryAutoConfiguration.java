@@ -22,7 +22,14 @@ import java.util.HashMap;
 @Configuration
 //@PropertySource({"classpath:persistence-multiple-db-boot.properties"})
 @EnableJpaRepositories(
-        basePackages = "com.proelectricos.mdserp.repository.sqlfactory",
+        basePackages = {
+                "com.proelectricos.mdserp.erpdb",
+                "com.proelectricos.mdserp.emp001_comp",
+                "com.proelectricos.mdserp.emp001_fact",
+                "com.proelectricos.mdserp.emp001_inv",
+                "com.proelectricos.mdserp.emp001_ofer",
+                "com.proelectricos.mdserp.emp004_inv",
+                "com.proelectricos.mdserp.mds_erp"},
         entityManagerFactoryRef = "sqlFactoryEntityManager",
         transactionManagerRef = "sqlFactoryTransactionManager")
 public class PersistenceSqlFactoryAutoConfiguration {
@@ -46,7 +53,14 @@ public class PersistenceSqlFactoryAutoConfiguration {
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(sqlFactoryDataSource());
         em.setPackagesToScan(
-                new String[] { "com.proelectricos.mdserp.model.entity.sqlfactory" });
+                new String[] {
+                "com.proelectricos.mdserp.erpdb",
+                "com.proelectricos.mdserp.emp001_comp",
+                "com.proelectricos.mdserp.emp001_fact",
+                "com.proelectricos.mdserp.emp001_inv",
+                "com.proelectricos.mdserp.emp001_ofer",
+                "com.proelectricos.mdserp.emp004_inv",
+                "com.proelectricos.mdserp.mds_erp" });
 
         HibernateJpaVendorAdapter vendorAdapter
                 = new HibernateJpaVendorAdapter();

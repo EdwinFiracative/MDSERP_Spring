@@ -20,6 +20,9 @@ target/
 *.iml
 *.ipr
 
+### Carpeta de Logs ###
+logs/*
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
