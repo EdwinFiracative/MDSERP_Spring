@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * Linea de un pedido de ErpDb.
@@ -13,12 +14,13 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class OrderDetailReferenceDto implements Serializable {
+    Long id;
     Integer item;
-    String codigoReferencia;
-    String nombre;
-    String ud;
+    ReferenceDto referencia;
     Integer cantidad;
     BigDecimal valorUnitario;
     /** Cantidad * valor unitario (sin impuestos). */
     BigDecimal valorTotal;
+    String estadoAprobacion;
+    LocalDate fechaEntrega;
 }

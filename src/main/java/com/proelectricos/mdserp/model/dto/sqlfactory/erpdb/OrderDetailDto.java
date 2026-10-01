@@ -9,29 +9,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Detalle de un pedido de ErpDb: encabezado, referencias y notas.
+ * Detalle de un pedido de ErpDb: encabezado, sede, cliente, vendedor, referencias y notas.
  * Construido desde {@link com.proelectricos.mdserp.model.entity.sqlfactory.erpdb.OrderHeader}.
  */
 @Getter
 @Setter
 public class OrderDetailDto implements Serializable {
+    Long id;
     Integer pedido;
     LocalDate fecha;
     String ordenCliente;
-    String sede;
-    String cliente;
-    String direccion;
-    String ciudad;
-    /** Numero de identificacion + "-" + digito de verificacion (si existe). */
-    String nit;
-    String condicionCliente;
+    String proyecto;
     String condicionPagoPedido;
-    /** Vendedor del pedido; si no tiene, el de la sede. */
-    String codigoVendedor;
-    String vendedor;
     String descripcion;
-    /** Notas concatenadas con un espacio en orden de posicion. */
-    String notasUnificadas;
+    BranchDto sede;
+    ClientDto cliente;
+    /** Vendedor del pedido; si no tiene, el de la sede. */
+    VendorDto vendedor;
     List<OrderDetailReferenceDto> referencias = new ArrayList<>();
     List<OrderDetailNoteDto> notas = new ArrayList<>();
 }

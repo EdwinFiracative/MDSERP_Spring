@@ -1,8 +1,6 @@
 package com.proelectricos.mdserp.service.sqlfactory.erpdb;
 
-import com.proelectricos.mdserp.model.dto.sqlfactory.erpdb.OrderDetailDto;
-import com.proelectricos.mdserp.model.dto.sqlfactory.erpdb.OrderDetailNoteDto;
-import com.proelectricos.mdserp.model.dto.sqlfactory.erpdb.OrderDetailReferenceDto;
+import com.proelectricos.mdserp.model.dto.sqlfactory.erpdb.*;
 import com.proelectricos.mdserp.model.entity.sqlfactory.erpdb.*;
 import com.proelectricos.mdserp.repository.sqlfactory.erpdb.OrderHeaderRepository;
 import com.proelectricos.mdserp.repository.sqlfactory.erpdb.OrderNoteRepository;
@@ -58,45 +56,36 @@ public class OrderDetailService {
 
     private OrderDetailDto toDto(OrderHeader header, List<OrderReference> lines, List<OrderNote> orderNotes) {
         Branch branch = header.getOrderHeaderBranch();
-        ThirdParty client = branch.getBranchClient().getClientThirdParty();
         Vendor vendor = header.getOrderHeaderVendor() != null ? header.getOrderHeaderVendor() : branch.getBranchVendor();
 
         OrderDetailDto dto = new OrderDetailDto();
+        dto.setId(header.getId());
         dto.setPedido(header.getOrderHeaderNumber());
         dto.setFecha(header.getOrderHeaderDate());
         dto.setOrdenCliente(header.getOrderHeaderClientOrder());
-        dto.setSede(branch.getBranchCode().stripTrailing());
-        dto.setCliente(client.getThirdPartyName());
-        dto.setDireccion(branch.getBranchAddress());
-        dto.setCiudad(branch.getBranchCity());
-        dto.setNit(nit(client));
-        dto.setCondicionCliente(branch.getBranchClient().getClientCrediCondition());
+        dto.setProyecto(header.getOrderHeaderProject());
         dto.setCondicionPagoPedido(header.getOrderHeaderPaymeConditions());
-        if (vendor != null) {
-            dto.setCodigoVendedor(vendor.getVendorCode());
-            dto.setVendedor(vendor.getVendorThirdParty().getThirdPartyName());
-        }
         dto.setDescripcion(header.getOrderHeaderDescription());
+        dto.setSede(toBranchDto(branch));
+        dto.setCliente(toClientDto(branch.getBranchClient()));
+        dto.setVendedor(vendor != null ? toVendorDto(vendor) : null);
 
-        dto.setReferencias(lines.stream().map(this::toReferenceDto).toList());
+        dto.setReferencias(lines.stream().map(this::toReferenceLineDto).toList());
 
-        List<OrderDetailNoteDto> notes = orderNotes.stream().map(this::toNoteDto).toList();
-        dto.setNotas(notes);
-        dto.setNotasUnificadas(notes.isEmpty() ? null
-                : notes.stream().map(OrderDetailNoteDto::getNota).collect(Collectors.joining(" ")));
+        dto.setNotas(orderNotes.stream().map(this::toNoteDto).toList());
         return dto;
     }
 
-    private OrderDetailReferenceDto toReferenceDto(OrderReference line) {
-        Reference reference = line.getOrderReferReference();
+    private OrderDetailReferenceDto toReferenceLineDto(OrderReference line) {
         OrderDetailReferenceDto dto = new OrderDetailReferenceDto();
+        dto.setId(line.getId());
         dto.setItem(line.getOrderReferPosition());
-        dto.setCodigoReferencia(reference.getReferCod());
-        dto.setNombre(reference.getReferName());
-        dto.setUd(reference.getReferMeasuUnit().getMeasuUnitCode());
+        dto.setReferencia(toReferenceDto(line.getOrderReferReference()));
         dto.setCantidad(line.getOrderReferQuantity());
         dto.setValorUnitario(line.getOrderReferUnitPrice());
         dto.setValorTotal(line.getOrderReferUnitPrice().multiply(BigDecimal.valueOf(line.getOrderReferQuantity())));
+        dto.setEstadoAprobacion(line.getOrderReferApproState());
+        dto.setFechaEntrega(line.getOrderReferDelivDate());
         return dto;
     }
 
@@ -104,6 +93,67 @@ public class OrderDetailService {
         OrderDetailNoteDto dto = new OrderDetailNoteDto();
         dto.setPosicion(note.getOrderNotePosition());
         dto.setNota(note.getOrderNoteText());
+        return dto;
+    }
+
+    private BranchDto toBranchDto(Branch branch) {
+        BranchDto dto = new BranchDto();
+        dto.setId(branch.getId());
+        dto.setBranchCode(branch.getBranchCode().stripTrailing());
+        dto.setBranchCity(branch.getBranchCity());
+        dto.setBranchAddress(branch.getBranchAddress());
+        return dto;
+    }
+
+    private ClientDto toClientDto(Client client) {
+        ClientDto dto = new ClientDto();
+        dto.setId(client.getId());
+        dto.setClientThirdParty(toThirdPartyDto(client.getClientThirdParty()));
+        dto.setClientClassification(client.getClientClassification());
+        dto.setClientCrediLimit(client.getClientCrediLimit());
+        dto.setClientCrediCondition(client.getClientCrediCondition());
+        return dto;
+    }
+
+    private VendorDto toVendorDto(Vendor vendor) {
+        VendorDto dto = new VendorDto();
+        dto.setId(vendor.getId());
+        dto.setVendorThirdParty(toThirdPartyDto(vendor.getVendorThirdParty()));
+        dto.setVendorCode(vendor.getVendorCode());
+        return dto;
+    }
+
+    private ThirdPartyDto toThirdPartyDto(ThirdParty thirdParty) {
+        ThirdPartyDto dto = new ThirdPartyDto();
+        dto.setId(thirdParty.getId());
+        dto.setThirdPartyIdentNumber(thirdParty.getThirdPartyIdentNumber());
+        dto.setThirdPartyVerifDigit(thirdParty.getThirdPartyVerifDigit());
+        dto.setNit(nit(thirdParty));
+        dto.setThirdPartyName(thirdParty.getThirdPartyName());
+        dto.setThirdPartyCity(thirdParty.getThirdPartyCity());
+        dto.setThirdPartyAddress(thirdParty.getThirdPartyAddress());
+        dto.setThirdPartyPhoneNumber(thirdParty.getThirdPartyPhoneNumber());
+        dto.setThirdPartyEmail(thirdParty.getThirdPartyEmail());
+        return dto;
+    }
+
+    private ReferenceDto toReferenceDto(Reference reference) {
+        ReferenceDto dto = new ReferenceDto();
+        dto.setId(reference.getId());
+        dto.setReferCod(reference.getReferCod());
+        dto.setReferCod2(reference.getReferCod2());
+        dto.setReferName(reference.getReferName());
+        dto.setReferDescription(reference.getReferDescription());
+        dto.setReferMeasuUnit(toMeasurUnitDto(reference.getReferMeasuUnit()));
+        return dto;
+    }
+
+    private MeasurUnitDto toMeasurUnitDto(MeasurUnit unit) {
+        MeasurUnitDto dto = new MeasurUnitDto();
+        dto.setId(unit.getId());
+        dto.setMeasuUnitCode(unit.getMeasuUnitCode());
+        dto.setMeasuUnitName(unit.getMeasuUnitName());
+        dto.setMeasuUnitDianCode(unit.getMeasuUnitDianCode());
         return dto;
     }
 

@@ -35,10 +35,7 @@ class OrderDetailServiceTest {
                    CAST(tc.thirdPartyIdentNumber AS nvarchar(20))
                      + ISNULL(N'-' + CAST(tc.thirdPartyVerifDigit AS nvarchar(1)), N''),
                    c.clientCrediCondition, h.orderHeaderPaymeConditions, v.vendorCode, tv.thirdPartyName,
-                   h.orderHeaderDescription,
-                   STUFF((SELECT N' ' + n.orderNoteText FROM ErpDb.dbo.OrderNote AS n
-                          WHERE n.orderNoteOrderHeader = h.orderHeaderId ORDER BY n.orderNotePosition
-                          FOR XML PATH(''), TYPE).value('.', 'nvarchar(max)'), 1, 1, N'')
+                   h.orderHeaderDescription
             FROM ErpDb.dbo.OrderHeader AS h
             INNER JOIN ErpDb.dbo.Branch     AS b  ON b.branchId      = h.orderHeaderBranch
             INNER JOIN ErpDb.dbo.Client     AS c  ON c.clientId      = b.branchClient
@@ -88,7 +85,7 @@ class OrderDetailServiceTest {
         assertThat(numbers).as("pedido sin vendedor con sede con vendedor").isNotEmpty();
 
         OrderDetailDto dto = assertHeaderMatchesSql(((Number) numbers.get(0)).intValue());
-        assertThat(dto.getCodigoVendedor()).isNotNull();
+        assertThat(dto.getVendedor()).isNotNull();
     }
 
     @Test
@@ -101,9 +98,9 @@ class OrderDetailServiceTest {
             Object[] row = rows.get(i);
             OrderDetailReferenceDto line = dto.getReferencias().get(i);
             assertThat(line.getItem()).isEqualTo(((Number) row[0]).intValue());
-            assertThat(line.getCodigoReferencia()).isEqualTo(row[1]);
-            assertThat(line.getNombre()).isEqualTo(row[2]);
-            assertThat(line.getUd()).isEqualTo(row[3]);
+            assertThat(line.getReferencia().getReferCod()).isEqualTo(row[1]);
+            assertThat(line.getReferencia().getReferName()).isEqualTo(row[2]);
+            assertThat(line.getReferencia().getReferMeasuUnit().getMeasuUnitCode()).isEqualTo(row[3]);
             assertThat(line.getCantidad()).isEqualTo(((Number) row[4]).intValue());
             assertThat(line.getValorUnitario()).isEqualByComparingTo((BigDecimal) row[5]);
             assertThat(line.getValorTotal()).isEqualByComparingTo((BigDecimal) row[6]);
@@ -160,17 +157,16 @@ class OrderDetailServiceTest {
         assertThat(dto.getPedido()).isEqualTo(((Number) row[0]).intValue());
         assertThat(dto.getFecha()).isEqualTo(((Date) row[1]).toLocalDate());
         assertThat(dto.getOrdenCliente()).isEqualTo(row[2]);
-        assertThat(dto.getSede()).isEqualTo(row[3]);
-        assertThat(dto.getCliente()).isEqualTo(row[4]);
-        assertThat(dto.getDireccion()).isEqualTo(row[5]);
-        assertThat(dto.getCiudad()).isEqualTo(row[6]);
-        assertThat(dto.getNit()).isEqualTo(row[7]);
-        assertThat(dto.getCondicionCliente()).isEqualTo(row[8]);
+        assertThat(dto.getSede().getBranchCode()).isEqualTo(row[3]);
+        assertThat(dto.getCliente().getClientThirdParty().getThirdPartyName()).isEqualTo(row[4]);
+        assertThat(dto.getSede().getBranchAddress()).isEqualTo(row[5]);
+        assertThat(dto.getSede().getBranchCity()).isEqualTo(row[6]);
+        assertThat(dto.getCliente().getClientThirdParty().getNit()).isEqualTo(row[7]);
+        assertThat(dto.getCliente().getClientCrediCondition()).isEqualTo(row[8]);
         assertThat(dto.getCondicionPagoPedido()).isEqualTo(row[9]);
-        assertThat(dto.getCodigoVendedor()).isEqualTo(row[10]);
-        assertThat(dto.getVendedor()).isEqualTo(row[11]);
+        assertThat(dto.getVendedor() == null ? null : dto.getVendedor().getVendorCode()).isEqualTo(row[10]);
+        assertThat(dto.getVendedor() == null ? null : dto.getVendedor().getVendorThirdParty().getThirdPartyName()).isEqualTo(row[11]);
         assertThat(dto.getDescripcion()).isEqualTo(row[12]);
-        assertThat(dto.getNotasUnificadas()).isEqualTo(row[13]);
         return dto;
     }
 
