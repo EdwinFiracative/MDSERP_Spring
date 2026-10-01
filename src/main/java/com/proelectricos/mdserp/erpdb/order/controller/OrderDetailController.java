@@ -33,7 +33,7 @@ public class OrderDetailController {
                 ? Sort.Direction.fromOptionalString(sortParts[1].trim()).orElse(Sort.Direction.ASC)
                 : Sort.Direction.ASC;
 
-        int cappedSize = Math.min(Math.max(size, 1), 500);
+        int cappedSize = Math.min(Math.max(size, 1), 1000);
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), cappedSize, Sort.by(direction, sortField));
 
         return OrderDetailService.findLastDays(Math.max(dias, 0), pageRequest);
