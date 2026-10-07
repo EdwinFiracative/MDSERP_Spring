@@ -14,4 +14,7 @@ docker --context $ctx build -t  mdserp:1.0.0 .
 
 # Run the container in detached mode and restart it automatically unless stopped manually.
 # The logs volume persists application logs on the host across container rebuilds.
-docker --context $ctx run -d --name mdsback-container --restart unless-stopped -p 8181:8181 -v mdserp-logs:/app/logs mdserp:1.0.0
+# The local .env file (chatbot secrets, not versioned) is passed as environment variables when it exists.
+$envFile = @()
+if (Test-Path ".env") { $envFile = @("--env-file", ".env") }
+docker --context $ctx run -d --name mdsback-container --restart unless-stopped -p 8181:8181 -v mdserp-logs:/app/logs @envFile mdserp:1.0.0
