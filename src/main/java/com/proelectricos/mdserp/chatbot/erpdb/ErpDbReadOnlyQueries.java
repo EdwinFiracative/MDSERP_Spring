@@ -63,12 +63,15 @@ public class ErpDbReadOnlyQueries {
                  , r.orderReferQuantity AS Cantidad
                  , r.orderReferUnitPrice AS ValorUnitario
                  , r.orderReferQuantity * r.orderReferUnitPrice AS ValorTotal
-                 , r.orderReferApproState AS Estado
+                 , s.orderReferStatusName AS Estado
+                 , p.projeName AS Proyecto
                  , r.orderReferDelivDate AS FechaEntrega
             FROM dbo.OrderReference AS r
             INNER JOIN dbo.OrderHeader AS h ON h.orderHeaderId = r.orderReferOrderHeader
             INNER JOIN dbo.Reference AS ref ON ref.referId = r.orderReferReference
             INNER JOIN dbo.MeasurUnit AS mu ON mu.measuUnitId = ref.referMeasuUnit
+            INNER JOIN dbo.OrderReferStatus AS s ON s.orderReferStatusId = r.orderReferStatus
+            LEFT JOIN dbo.Project AS p ON p.projeId = r.orderReferProject
             WHERE h.orderHeaderNumber = ?
             ORDER BY r.orderReferPosition""";
 

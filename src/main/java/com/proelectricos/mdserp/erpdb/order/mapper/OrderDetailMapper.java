@@ -8,10 +8,14 @@ import com.proelectricos.mdserp.erpdb.measurunit.MeasurUnit;
 import com.proelectricos.mdserp.erpdb.measurunit.dto.MeasurUnitDto;
 import com.proelectricos.mdserp.erpdb.order.OrderHeader;
 import com.proelectricos.mdserp.erpdb.order.OrderNote;
+import com.proelectricos.mdserp.erpdb.order.OrderReferStatus;
 import com.proelectricos.mdserp.erpdb.order.OrderReference;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
+import com.proelectricos.mdserp.erpdb.order.dto.OrderReferStatusDto;
+import com.proelectricos.mdserp.erpdb.project.Project;
+import com.proelectricos.mdserp.erpdb.project.dto.ProjectDto;
 import com.proelectricos.mdserp.erpdb.reference.Reference;
 import com.proelectricos.mdserp.erpdb.reference.dto.ReferenceDto;
 import com.proelectricos.mdserp.erpdb.thirdparty.ThirdParty;
@@ -61,6 +65,10 @@ public class OrderDetailMapper {
                         .addMapping(MeasurUnit::getId, MeasurUnitDto::setMeasuUnitId),
                 modelMapper.createTypeMap(Reference.class, ReferenceDto.class, strict)
                         .addMapping(Reference::getId, ReferenceDto::setReferId),
+                modelMapper.createTypeMap(Project.class, ProjectDto.class, strict)
+                        .addMapping(Project::getId, ProjectDto::setProjeId),
+                modelMapper.createTypeMap(OrderReferStatus.class, OrderReferStatusDto.class, strict)
+                        .addMapping(OrderReferStatus::getId, OrderReferStatusDto::setOrderReferStatusId),
                 modelMapper.createTypeMap(OrderReference.class, OrderDetailReferenceDto.class, strict)
                         .addMapping(OrderReference::getId, OrderDetailReferenceDto::setOrderReferId)
                         .addMappings(m -> m.skip(OrderDetailReferenceDto::setValorTotal)),

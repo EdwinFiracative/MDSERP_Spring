@@ -45,11 +45,6 @@ public class OrderHeader {
     @JoinColumn(name = "orderHeaderBranch", nullable = false)
     private Branch orderHeaderBranch;
 
-    @Size(max = 250)
-    @Nationalized
-    @Column(name = "orderHeaderProject", length = 250)
-    private String orderHeaderProject;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderHeaderVendor")
     private Vendor orderHeaderVendor;

@@ -726,3 +726,124 @@ ORDER BY Mes;}
 2026-10-07T12:35:35.403-05:00  INFO 16612 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
 2026-10-07T12:35:35.404-05:00  INFO 16612 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
 2026-10-07T12:35:35.405-05:00  INFO 16612 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-08T15:39:55.277-05:00  INFO 15340 --- [MDSERP] [main] c.p.m.e.adic.service.AdicServiceTest     : Starting AdicServiceTest using Java 17.0.11 with PID 15340 (started by GERTEC in C:\Users\GERTEC\IdeaProjects\MDSERP)
+2026-10-08T15:39:55.279-05:00  INFO 15340 --- [MDSERP] [main] c.p.m.e.adic.service.AdicServiceTest     : No active profile set, falling back to 1 default profile: "default"
+2026-10-08T15:39:55.960-05:00  INFO 15340 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-08T15:39:56.004-05:00  INFO 15340 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 34 ms. Found 1 JPA repository interface.
+2026-10-08T15:39:56.006-05:00  INFO 15340 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-08T15:39:56.188-05:00  INFO 15340 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 179 ms. Found 50 JPA repository interfaces.
+2026-10-08T15:39:57.198-05:00  INFO 15340 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-08T15:39:57.265-05:00  INFO 15340 --- [MDSERP] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2026-10-08T15:39:57.310-05:00  INFO 15340 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-08T15:39:57.734-05:00  INFO 15340 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-08T15:39:57.769-05:00  INFO 15340 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-08T15:39:58.109-05:00  INFO 15340 --- [MDSERP] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 282c5d83-15f1-489a-9f6a-d543bfa79d6e
+2026-10-08T15:39:58.111-05:00  INFO 15340 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-08T15:39:58.196-05:00  INFO 15340 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-08T15:39:58.991-05:00  INFO 15340 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-08T15:39:58.994-05:00  INFO 15340 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-08T15:39:59.046-05:00  INFO 15340 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-08T15:39:59.049-05:00  INFO 15340 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-08T15:39:59.067-05:00  INFO 15340 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-08T15:39:59.068-05:00  INFO 15340 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-10-08T15:39:59.129-05:00  INFO 15340 --- [MDSERP] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection ConnectionID:11 ClientConnectionId: aecf2bd1-0470-4471-b5b3-a83b3876d661
+2026-10-08T15:39:59.130-05:00  INFO 15340 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-10-08T15:39:59.134-05:00  WARN 15340 --- [MDSERP] [main] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-08T15:39:59.139-05:00  INFO 15340 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-08T15:40:00.020-05:00  INFO 15340 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-08T15:40:00.020-05:00  INFO 15340 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-08T15:40:01.092-05:00  INFO 15340 --- [MDSERP] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-08T15:40:02.269-05:00  WARN 15340 --- [MDSERP] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-08T15:40:02.961-05:00  INFO 15340 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-08T15:40:03.253-05:00  INFO 15340 --- [MDSERP] [main] c.p.m.e.adic.service.AdicServiceTest     : Started AdicServiceTest in 8.278 seconds (process running for 9.472)
+2026-10-08T15:40:05.005-05:00  INFO 15340 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.erpdb.ErpDbEntityMappingTest]: ErpDbEntityMappingTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-08T15:40:05.061-05:00  INFO 15340 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.erpdb.ErpDbEntityMappingTest
+2026-10-08T15:40:06.691-05:00  INFO 15340 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: erpDbSchemaValidation]
+2026-10-08T15:40:06.696-05:00  INFO 15340 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-08T15:40:06.711-05:00  INFO 15340 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-08T15:40:06.727-05:00  WARN 15340 --- [MDSERP] [main] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-08T15:40:06.731-05:00  INFO 15340 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-08T15:40:06.777-05:00  INFO 15340 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-08T15:40:06.933-05:00  INFO 15340 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'erpDbSchemaValidation'
+2026-10-08T15:40:06.933-05:00  INFO 15340 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'erpDbSchemaValidation'
+2026-10-08T15:40:07.165-05:00  INFO 15340 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.erpdb.order.service.OrderDetailServiceTest]: OrderDetailServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-08T15:40:07.218-05:00  INFO 15340 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.erpdb.order.service.OrderDetailServiceTest
+2026-10-08T15:40:08.311-05:00  INFO 15340 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.MdserpApplicationTests]: MdserpApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-08T15:40:08.348-05:00  INFO 15340 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.MdserpApplicationTests
+2026-10-08T15:40:08.384-05:00  INFO 15340 --- [MDSERP] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-08T15:40:08.385-05:00  INFO 15340 --- [MDSERP] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-08T15:40:08.385-05:00  INFO 15340 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-08T15:40:08.388-05:00  INFO 15340 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-08T15:40:08.388-05:00  INFO 15340 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-08T15:40:08.390-05:00  INFO 15340 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-08T15:44:19.258-05:00  INFO 3116 --- [MDSERP] [main] c.p.mdserp.MdserpApplication             : Starting MdserpApplication using Java 17.0.11 with PID 3116 (C:\Users\GERTEC\IdeaProjects\MDSERP\target\classes started by GERTEC in C:\Users\GERTEC\IdeaProjects\MDSERP)
+2026-10-08T15:44:19.260-05:00  INFO 3116 --- [MDSERP] [main] c.p.mdserp.MdserpApplication             : No active profile set, falling back to 1 default profile: "default"
+2026-10-08T15:44:19.963-05:00  INFO 3116 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-08T15:44:20.002-05:00  INFO 3116 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 1 JPA repository interface.
+2026-10-08T15:44:20.003-05:00  INFO 3116 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-08T15:44:20.152-05:00  INFO 3116 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 146 ms. Found 50 JPA repository interfaces.
+2026-10-08T15:44:20.911-05:00  INFO 3116 --- [MDSERP] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8181 (http)
+2026-10-08T15:44:20.921-05:00  INFO 3116 --- [MDSERP] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-08T15:44:20.921-05:00  INFO 3116 --- [MDSERP] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.44]
+2026-10-08T15:44:20.973-05:00  INFO 3116 --- [MDSERP] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-08T15:44:20.974-05:00  INFO 3116 --- [MDSERP] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1679 ms
+2026-10-08T15:44:21.173-05:00  INFO 3116 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-08T15:44:21.233-05:00  INFO 3116 --- [MDSERP] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2026-10-08T15:44:21.271-05:00  INFO 3116 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-08T15:44:21.659-05:00  INFO 3116 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-08T15:44:21.684-05:00  INFO 3116 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-08T15:44:21.939-05:00  INFO 3116 --- [MDSERP] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: f595afd0-2508-4793-a511-b47ee6ca0492
+2026-10-08T15:44:21.942-05:00  INFO 3116 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-08T15:44:22.005-05:00  INFO 3116 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-08T15:44:22.667-05:00  INFO 3116 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-08T15:44:22.670-05:00  INFO 3116 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-08T15:44:22.704-05:00  INFO 3116 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-08T15:44:22.709-05:00  INFO 3116 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-08T15:44:22.794-05:00  INFO 3116 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-08T15:44:22.794-05:00  INFO 3116 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-10-08T15:44:22.851-05:00  INFO 3116 --- [MDSERP] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection ConnectionID:11 ClientConnectionId: b6b9710d-b54f-40d7-8ebb-f3f37a506158
+2026-10-08T15:44:22.851-05:00  INFO 3116 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-10-08T15:44:22.855-05:00  WARN 3116 --- [MDSERP] [main] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-08T15:44:22.859-05:00  INFO 3116 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-08T15:44:23.504-05:00  INFO 3116 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-08T15:44:23.504-05:00  INFO 3116 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-08T15:44:24.436-05:00  INFO 3116 --- [MDSERP] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-08T15:44:25.355-05:00  WARN 3116 --- [MDSERP] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-08T15:44:25.759-05:00  INFO 3116 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-08T15:44:26.018-05:00  INFO 3116 --- [MDSERP] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8181 (http) with context path '/'
+2026-10-08T15:44:26.027-05:00  INFO 3116 --- [MDSERP] [main] c.p.mdserp.MdserpApplication             : Started MdserpApplication in 7.29 seconds (process running for 7.935)

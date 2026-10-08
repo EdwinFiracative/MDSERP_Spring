@@ -5,7 +5,9 @@ import com.proelectricos.mdserp.erpdb.client.Client;
 import com.proelectricos.mdserp.erpdb.measurunit.MeasurUnit;
 import com.proelectricos.mdserp.erpdb.order.OrderHeader;
 import com.proelectricos.mdserp.erpdb.order.OrderNote;
+import com.proelectricos.mdserp.erpdb.order.OrderReferStatus;
 import com.proelectricos.mdserp.erpdb.order.OrderReference;
+import com.proelectricos.mdserp.erpdb.project.Project;
 import com.proelectricos.mdserp.erpdb.referclassification.ReferClassification;
 import com.proelectricos.mdserp.erpdb.reference.Reference;
 import com.proelectricos.mdserp.erpdb.thirdparty.ThirdParty;
@@ -63,17 +65,19 @@ class ErpDbEntityMappingTest {
 
     @Test
     void everyEntityCountMatchesTableCount() {
-        Map<Class<?>, String> tables = Map.of(
-                Branch.class, "Branch",
-                Client.class, "Client",
-                MeasurUnit.class, "MeasurUnit",
-                OrderHeader.class, "OrderHeader",
-                OrderNote.class, "OrderNote",
-                OrderReference.class, "OrderReference",
-                ReferClassification.class, "ReferClassification",
-                Reference.class, "Reference",
-                ThirdParty.class, "ThirdParty",
-                Vendor.class, "Vendor");
+        Map<Class<?>, String> tables = Map.ofEntries(
+                Map.entry(Branch.class, "Branch"),
+                Map.entry(Client.class, "Client"),
+                Map.entry(MeasurUnit.class, "MeasurUnit"),
+                Map.entry(OrderHeader.class, "OrderHeader"),
+                Map.entry(OrderNote.class, "OrderNote"),
+                Map.entry(OrderReference.class, "OrderReference"),
+                Map.entry(OrderReferStatus.class, "OrderReferStatus"),
+                Map.entry(Project.class, "Project"),
+                Map.entry(ReferClassification.class, "ReferClassification"),
+                Map.entry(Reference.class, "Reference"),
+                Map.entry(ThirdParty.class, "ThirdParty"),
+                Map.entry(Vendor.class, "Vendor"));
 
         tables.forEach((entity, table) -> {
             Long jpaCount = em.createQuery("select count(e) from " + entity.getSimpleName() + " e", Long.class)
@@ -147,6 +151,35 @@ class ErpDbEntityMappingTest {
         assertThat(reference.getReferCod()).isEqualTo(row[1]);
         assertThat(line.getOrderReferUnitPrice()).isNotNull();
         assertThat(reference.getOrderReferences()).contains(line);
+    }
+
+    @Test
+    void orderReferenceNavigatesToStatus() {
+        OrderReference line = first("select r from OrderReference r", OrderReference.class);
+
+        Object[] row = nativeRow("select s.orderReferStatusId, s.orderReferStatusName from ErpDb.dbo.OrderReference o "
+                + "join ErpDb.dbo.OrderReferStatus s on s.orderReferStatusId = o.orderReferStatus "
+                + "where o.orderReferId = ?1", line.getId());
+
+        assertThat(line.getOrderReferStatus().getId()).isEqualTo(toLong(row[0]));
+        assertThat(line.getOrderReferStatus().getOrderReferStatusName()).isEqualTo(row[1]);
+        assertThat(line.getOrderReferStatus().getOrderReferStatusDescription()).isNotBlank();
+    }
+
+    @Test
+    void orderReferenceNavigatesToOptionalProject() {
+        OrderReference withProject = first("select r from OrderReference r where r.orderReferProject is not null",
+                OrderReference.class);
+        OrderReference withoutProject = first("select r from OrderReference r where r.orderReferProject is null",
+                OrderReference.class);
+
+        Object[] row = nativeRow("select p.projeId, p.projeName from ErpDb.dbo.OrderReference o "
+                + "join ErpDb.dbo.Project p on p.projeId = o.orderReferProject "
+                + "where o.orderReferId = ?1", withProject.getId());
+
+        assertThat(withProject.getOrderReferProject().getId()).isEqualTo(toLong(row[0]));
+        assertThat(withProject.getOrderReferProject().getProjeName()).isEqualTo(row[1]);
+        assertThat(withoutProject.getOrderReferProject()).isNull();
     }
 
     @Test

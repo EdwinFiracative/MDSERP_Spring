@@ -32,7 +32,7 @@ public class ErpDbChatTools {
         FunctionDeclaration consultarPedido = FunctionDeclaration.builder()
                 .name(CONSULTAR_PEDIDO)
                 .description("Detalle completo de un pedido de ErpDb por su número: encabezado (cliente, sede, NIT, "
-                        + "ciudad, vendedor, condiciones, notas), referencias con estado y fecha de entrega, y total.")
+                        + "ciudad, vendedor, condiciones, notas), referencias con estado, proyecto y fecha de entrega, y total.")
                 .parameters(Schema.builder()
                         .type(Type.Known.OBJECT)
                         .properties(Map.of("numero", Schema.builder()

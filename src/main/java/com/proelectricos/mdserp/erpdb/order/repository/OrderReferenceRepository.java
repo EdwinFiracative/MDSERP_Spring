@@ -14,6 +14,8 @@ public interface OrderReferenceRepository extends JpaRepository<OrderReference, 
     @Query("select r from OrderReference r "
             + "join fetch r.orderReferReference ref "
             + "join fetch ref.referMeasuUnit "
+            + "join fetch r.orderReferStatus "
+            + "left join fetch r.orderReferProject "
             + "where r.orderReferOrderHeader.id = :orderHeaderId "
             + "order by r.orderReferPosition")
     List<OrderReference> findDetailByOrderHeaderId(Long orderHeaderId);
@@ -21,6 +23,8 @@ public interface OrderReferenceRepository extends JpaRepository<OrderReference, 
     @Query("select r from OrderReference r "
             + "join fetch r.orderReferReference ref "
             + "join fetch ref.referMeasuUnit "
+            + "join fetch r.orderReferStatus "
+            + "left join fetch r.orderReferProject "
             + "where r.orderReferOrderHeader.id in :orderHeaderIds "
             + "order by r.orderReferPosition")
     List<OrderReference> findDetailByOrderHeaderIdIn(Collection<Long> orderHeaderIds);

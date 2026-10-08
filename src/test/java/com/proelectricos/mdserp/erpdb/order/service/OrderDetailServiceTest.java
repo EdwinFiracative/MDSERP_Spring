@@ -34,7 +34,7 @@ class OrderDetailServiceTest {
     private static final int ORDER_NUMBER = 49594;
 
     private static final String HEADER_SQL = """
-            SELECT h.orderHeaderId, h.orderHeaderNumber, h.orderHeaderDate, h.orderHeaderProject,
+            SELECT h.orderHeaderId, h.orderHeaderNumber, h.orderHeaderDate,
                    h.orderHeaderPaymeConditions, h.orderHeaderDescription,
                    b.branchId, RTRIM(b.branchCode), b.branchCity, b.branchAddress,
                    c.clientId, tc.thirdPartyId, tc.thirdPartyIdentNumber, tc.thirdPartyName,
@@ -52,11 +52,14 @@ class OrderDetailServiceTest {
             SELECT r.orderReferId, r.orderReferPosition, ref.referId, ref.referCod, ref.referCod2, ref.referName,
                    ref.referDescription, mu.measuUnitId, mu.measuUnitName, r.orderReferQuantity,
                    r.orderReferUnitPrice, r.orderReferQuantity * r.orderReferUnitPrice,
-                   r.orderReferApproState, r.orderReferDelivDate
+                   r.orderReferDelivDate, s.orderReferStatusId, s.orderReferStatusName,
+                   p.projeId, p.projeName
             FROM ErpDb.dbo.OrderReference AS r
             INNER JOIN ErpDb.dbo.OrderHeader AS h  ON h.orderHeaderId = r.orderReferOrderHeader
             INNER JOIN ErpDb.dbo.Reference  AS ref ON ref.referId    = r.orderReferReference
             INNER JOIN ErpDb.dbo.MeasurUnit AS mu  ON mu.measuUnitId = ref.referMeasuUnit
+            INNER JOIN ErpDb.dbo.OrderReferStatus AS s ON s.orderReferStatusId = r.orderReferStatus
+            LEFT  JOIN ErpDb.dbo.Project    AS p   ON p.projeId      = r.orderReferProject
             WHERE h.orderHeaderNumber = ?1
             ORDER BY r.orderReferPosition
             """;
@@ -95,8 +98,25 @@ class OrderDetailServiceTest {
 
     @Test
     void referencesMatchSql() {
-        OrderDetailDto dto = orderDetailService.findByOrderNumber(ORDER_NUMBER).orElseThrow();
-        List<Object[]> rows = rows(REFERENCES_SQL, ORDER_NUMBER);
+        assertReferencesMatchSql(ORDER_NUMBER);
+    }
+
+    @Test
+    void referencesWithProjectMatchSql() {
+        List<?> numbers = em.createNativeQuery("""
+                SELECT TOP 1 h.orderHeaderNumber FROM ErpDb.dbo.OrderHeader h
+                JOIN ErpDb.dbo.OrderReference r ON r.orderReferOrderHeader = h.orderHeaderId
+                WHERE r.orderReferProject IS NOT NULL
+                """).getResultList();
+        assertThat(numbers).as("pedido con lineas con proyecto").isNotEmpty();
+
+        OrderDetailDto dto = assertReferencesMatchSql(((Number) numbers.get(0)).intValue());
+        assertThat(dto.getOrderReference()).anySatisfy(line -> assertThat(line.getOrderReferProject()).isNotNull());
+    }
+
+    private OrderDetailDto assertReferencesMatchSql(int orderNumber) {
+        OrderDetailDto dto = orderDetailService.findByOrderNumber(orderNumber).orElseThrow();
+        List<Object[]> rows = rows(REFERENCES_SQL, orderNumber);
 
         assertThat(dto.getOrderReference()).hasSameSizeAs(rows).isNotEmpty();
         for (int i = 0; i < rows.size(); i++) {
@@ -115,9 +135,17 @@ class OrderDetailServiceTest {
             assertThat(line.getOrderReferQuantity()).isEqualTo(((Number) row[9]).intValue());
             assertThat(line.getOrderReferUnitPrice()).isEqualByComparingTo((BigDecimal) row[10]);
             assertThat(line.getValorTotal()).isEqualByComparingTo((BigDecimal) row[11]);
-            assertThat(line.getOrderReferApproState()).isEqualTo(row[12] == null ? null : row[12].toString());
-            assertThat(line.getOrderReferDelivDate()).isEqualTo(((Date) row[13]).toLocalDate());
+            assertThat(line.getOrderReferDelivDate()).isEqualTo(((Date) row[12]).toLocalDate());
+            assertThat(line.getOrderReferStatus().getOrderReferStatusId()).isEqualTo(((Number) row[13]).longValue());
+            assertThat(line.getOrderReferStatus().getOrderReferStatusName()).isEqualTo(row[14]);
+            if (row[15] == null) {
+                assertThat(line.getOrderReferProject()).isNull();
+            } else {
+                assertThat(line.getOrderReferProject().getProjeId()).isEqualTo(((Number) row[15]).longValue());
+                assertThat(line.getOrderReferProject().getProjeName()).isEqualTo(row[16]);
+            }
         }
+        return dto;
     }
 
     @Test
@@ -172,29 +200,28 @@ class OrderDetailServiceTest {
         assertThat(dto.getOrderHeaderId()).isEqualTo(((Number) row[0]).longValue());
         assertThat(dto.getOrderHeaderNumber()).isEqualTo(((Number) row[1]).intValue());
         assertThat(dto.getOrderHeaderDate()).isEqualTo(((Date) row[2]).toLocalDate());
-        assertThat(dto.getOrderHeaderProject()).isEqualTo(row[3]);
-        assertThat(dto.getOrderHeaderPaymeConditions()).isEqualTo(row[4]);
-        assertThat(dto.getOrderHeaderDescription()).isEqualTo(row[5]);
+        assertThat(dto.getOrderHeaderPaymeConditions()).isEqualTo(row[3]);
+        assertThat(dto.getOrderHeaderDescription()).isEqualTo(row[4]);
 
         BranchDto branch = dto.getOrderHeaderBranch();
-        assertThat(branch.getBranchId()).isEqualTo(((Number) row[6]).longValue());
-        assertThat(branch.getBranchCode()).isEqualTo(row[7]);
-        assertThat(branch.getBranchCity()).isEqualTo(row[8]);
-        assertThat(branch.getBranchAddress()).isEqualTo(row[9]);
-        assertThat(branch.getBranchClient().getClientId()).isEqualTo(((Number) row[10]).longValue());
+        assertThat(branch.getBranchId()).isEqualTo(((Number) row[5]).longValue());
+        assertThat(branch.getBranchCode()).isEqualTo(row[6]);
+        assertThat(branch.getBranchCity()).isEqualTo(row[7]);
+        assertThat(branch.getBranchAddress()).isEqualTo(row[8]);
+        assertThat(branch.getBranchClient().getClientId()).isEqualTo(((Number) row[9]).longValue());
         ThirdPartyDto clientThirdParty = branch.getBranchClient().getClientThirdParty();
-        assertThat(clientThirdParty.getThirdPartyId()).isEqualTo(((Number) row[11]).longValue());
-        assertThat(clientThirdParty.getThirdPartyIdentNumber()).isEqualTo(((Number) row[12]).longValue());
-        assertThat(clientThirdParty.getThirdPartyName()).isEqualTo(row[13]);
+        assertThat(clientThirdParty.getThirdPartyId()).isEqualTo(((Number) row[10]).longValue());
+        assertThat(clientThirdParty.getThirdPartyIdentNumber()).isEqualTo(((Number) row[11]).longValue());
+        assertThat(clientThirdParty.getThirdPartyName()).isEqualTo(row[12]);
 
         VendorDto vendor = dto.getOrderHeaderVendor();
-        if (row[14] == null) {
+        if (row[13] == null) {
             assertThat(vendor).isNull();
         } else {
-            assertThat(vendor.getVendorId()).isEqualTo(((Number) row[14]).longValue());
-            assertThat(vendor.getVendorCode()).isEqualTo(row[15]);
-            assertThat(vendor.getVendorThirdParty().getThirdPartyId()).isEqualTo(((Number) row[16]).longValue());
-            assertThat(vendor.getVendorThirdParty().getThirdPartyName()).isEqualTo(row[17]);
+            assertThat(vendor.getVendorId()).isEqualTo(((Number) row[13]).longValue());
+            assertThat(vendor.getVendorCode()).isEqualTo(row[14]);
+            assertThat(vendor.getVendorThirdParty().getThirdPartyId()).isEqualTo(((Number) row[15]).longValue());
+            assertThat(vendor.getVendorThirdParty().getThirdPartyName()).isEqualTo(row[16]);
         }
         return dto;
     }

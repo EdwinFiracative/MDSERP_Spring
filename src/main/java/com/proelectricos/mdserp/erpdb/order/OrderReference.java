@@ -1,14 +1,11 @@
 package com.proelectricos.mdserp.erpdb.order;
 
+import com.proelectricos.mdserp.erpdb.project.Project;
 import com.proelectricos.mdserp.erpdb.reference.Reference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Nationalized;
-import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,15 +42,18 @@ public class OrderReference {
     @Column(name = "orderReferUnitPrice", nullable = false)
     private BigDecimal orderReferUnitPrice;
 
-    @Size(max = 1)
-    @Nationalized
-    @JdbcTypeCode(SqlTypes.NCHAR)
-    @Column(name = "orderReferApproState", length = 1)
-    private String orderReferApproState;
-
     @NotNull
     @Column(name = "orderReferDelivDate", nullable = false)
     private LocalDate orderReferDelivDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderReferProject")
+    private Project orderReferProject;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "orderReferStatus", nullable = false)
+    private OrderReferStatus orderReferStatus;
 
 
 }

@@ -20,7 +20,6 @@ public class OrderDetailDto implements Serializable {
     Long orderHeaderId;
     Integer orderHeaderNumber;
     LocalDate orderHeaderDate;
-    String orderHeaderProject;
     String orderHeaderPaymeConditions;
     String orderHeaderDescription;
     BranchDto orderHeaderBranch;

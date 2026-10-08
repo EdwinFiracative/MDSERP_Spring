@@ -1,5 +1,6 @@
 package com.proelectricos.mdserp.erpdb.order.dto;
 
+import com.proelectricos.mdserp.erpdb.project.dto.ProjectDto;
 import com.proelectricos.mdserp.erpdb.reference.dto.ReferenceDto;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,8 @@ public class OrderDetailReferenceDto implements Serializable {
     BigDecimal orderReferUnitPrice;
     /** Cantidad * valor unitario (sin impuestos); no existe en la base. */
     BigDecimal valorTotal;
-    String orderReferApproState;
     LocalDate orderReferDelivDate;
+    /** Proyecto de la linea; null si no tiene. */
+    ProjectDto orderReferProject;
+    OrderReferStatusDto orderReferStatus;
 }
