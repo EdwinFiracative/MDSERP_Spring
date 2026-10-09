@@ -1,7 +1,7 @@
 package com.proelectricos.mdserp.erpdb.order.service;
 
 import com.proelectricos.mdserp.erpdb.branch.dto.BranchDto;
-import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailDto;
+import com.proelectricos.mdserp.erpdb.order.dto.OrderHeaderDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
 import com.proelectricos.mdserp.erpdb.reference.dto.ReferenceDto;
@@ -12,8 +12,6 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -29,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest
 @Transactional(readOnly = true)
-class OrderDetailServiceTest {
+class OrderHeaderServiceTest {
 
     private static final int ORDER_NUMBER = 49594;
 
@@ -73,7 +71,7 @@ class OrderDetailServiceTest {
             """;
 
     @Autowired
-    private OrderDetailService orderDetailService;
+    private OrderHeaderService orderHeaderService;
 
     @PersistenceContext
     private EntityManager em;
@@ -92,7 +90,7 @@ class OrderDetailServiceTest {
                 """).getResultList();
         assertThat(numbers).as("pedido sin vendedor con sede con vendedor").isNotEmpty();
 
-        OrderDetailDto dto = assertHeaderMatchesSql(((Number) numbers.get(0)).intValue());
+        OrderHeaderDto dto = assertHeaderMatchesSql(((Number) numbers.get(0)).intValue());
         assertThat(dto.getOrderHeaderVendor()).isNotNull();
     }
 
@@ -110,12 +108,12 @@ class OrderDetailServiceTest {
                 """).getResultList();
         assertThat(numbers).as("pedido con lineas con proyecto").isNotEmpty();
 
-        OrderDetailDto dto = assertReferencesMatchSql(((Number) numbers.get(0)).intValue());
+        OrderHeaderDto dto = assertReferencesMatchSql(((Number) numbers.get(0)).intValue());
         assertThat(dto.getOrderReference()).anySatisfy(line -> assertThat(line.getOrderReferProject()).isNotNull());
     }
 
-    private OrderDetailDto assertReferencesMatchSql(int orderNumber) {
-        OrderDetailDto dto = orderDetailService.findByOrderNumber(orderNumber).orElseThrow();
+    private OrderHeaderDto assertReferencesMatchSql(int orderNumber) {
+        OrderHeaderDto dto = orderHeaderService.findByOrderNumber(orderNumber).orElseThrow();
         List<Object[]> rows = rows(REFERENCES_SQL, orderNumber);
 
         assertThat(dto.getOrderReference()).hasSameSizeAs(rows).isNotEmpty();
@@ -150,7 +148,7 @@ class OrderDetailServiceTest {
 
     @Test
     void notesMatchSql() {
-        OrderDetailDto dto = orderDetailService.findByOrderNumber(ORDER_NUMBER).orElseThrow();
+        OrderHeaderDto dto = orderHeaderService.findByOrderNumber(ORDER_NUMBER).orElseThrow();
         List<Object[]> rows = rows(NOTES_SQL, ORDER_NUMBER);
 
         assertThat(dto.getOrderNote()).extracting(OrderDetailNoteDto::getOrderNoteId)
@@ -162,39 +160,87 @@ class OrderDetailServiceTest {
     }
 
     @Test
-    void lastDaysReturnsOnlyOrdersInRangeSorted() {
-        LocalDate from = LocalDate.now().minusDays(90);
+    void dateRangeReturnsOnlyOrdersInRangeSorted() {
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(30);
         long expected = ((Number) em.createNativeQuery(
-                        "SELECT COUNT(*) FROM ErpDb.dbo.OrderHeader WHERE orderHeaderDate >= ?1")
-                .setParameter(1, from).getSingleResult()).longValue();
+                        "SELECT COUNT(*) FROM ErpDb.dbo.OrderHeader WHERE orderHeaderDate BETWEEN ?1 AND ?2")
+                .setParameter(1, from).setParameter(2, to).getSingleResult()).longValue();
 
-        List<OrderDetailDto> page = orderDetailService.findLastDays(90,
-                PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "orderHeaderNumber")));
+        List<OrderHeaderDto> result = orderHeaderService.findByDateRange(from, to, null);
 
-        assertThat(page).hasSize((int) Math.min(expected, 50));
-        assertThat(page).allSatisfy(dto -> assertThat(dto.getOrderHeaderDate()).isAfterOrEqualTo(from));
-        assertThat(page).extracting(OrderDetailDto::getOrderHeaderNumber).isSortedAccordingTo(Comparator.reverseOrder());
+        assertThat(result).hasSize((int) expected);
+        assertThat(result).allSatisfy(dto -> assertThat(dto.getOrderHeaderDate()).isBetween(from, to));
+        assertThat(result).extracting(OrderHeaderDto::getOrderHeaderNumber).isSortedAccordingTo(Comparator.reverseOrder());
     }
 
     @Test
-    void lastDaysDetailMatchesSingleOrderDetail() {
-        List<OrderDetailDto> page = orderDetailService.findLastDays(90,
-                PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "orderHeaderNumber")));
-        assertThat(page).as("pedidos en los ultimos 90 dias").isNotEmpty();
+    void wideDateRangeExceedingSqlServerParameterLimit() {
+        LocalDate from = LocalDate.of(2020, 1, 1);
+        LocalDate to = LocalDate.of(2026, 6, 30);
+        long expected = ((Number) em.createNativeQuery(
+                        "SELECT COUNT(*) FROM ErpDb.dbo.OrderHeader WHERE orderHeaderDate BETWEEN ?1 AND ?2")
+                .setParameter(1, from).setParameter(2, to).getSingleResult()).longValue();
+        assertThat(expected).as("mas pedidos que el limite de 2100 parametros").isGreaterThan(2100);
 
-        for (OrderDetailDto fromList : page) {
-            OrderDetailDto single = orderDetailService.findByOrderNumber(fromList.getOrderHeaderNumber()).orElseThrow();
+        assertThat(orderHeaderService.findByDateRange(from, to, null)).hasSize((int) expected);
+    }
+
+    @Test
+    void dateRangeIncludesBothLimits() {
+        LocalDate date = orderHeaderService.findByOrderNumber(ORDER_NUMBER).orElseThrow().getOrderHeaderDate();
+
+        assertThat(orderHeaderService.findByDateRange(date, date, List.of()))
+                .isNotEmpty()
+                .allSatisfy(dto -> assertThat(dto.getOrderHeaderDate()).isEqualTo(date))
+                .extracting(OrderHeaderDto::getOrderHeaderNumber).contains(ORDER_NUMBER);
+    }
+
+    @Test
+    void dateRangeDetailMatchesSingleOrderDetail() {
+        LocalDate to = LocalDate.now();
+        List<OrderHeaderDto> result = orderHeaderService.findByDateRange(to.minusDays(30), to, null);
+        assertThat(result).as("pedidos en los ultimos 30 dias").isNotEmpty();
+
+        for (OrderHeaderDto fromList : result.subList(0, Math.min(20, result.size()))) {
+            OrderHeaderDto single = orderHeaderService.findByOrderNumber(fromList.getOrderHeaderNumber()).orElseThrow();
             assertThat(fromList).usingRecursiveComparison().isEqualTo(single);
         }
     }
 
     @Test
-    void unknownOrderReturnsEmpty() {
-        assertThat(orderDetailService.findByOrderNumber(-1)).isEmpty();
+    void dateRangeWithStatusReturnsOnlyLinesInThoseStatuses() {
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(90);
+        Long statusId = ((Number) em.createNativeQuery("""
+                SELECT TOP 1 r.orderReferStatus FROM ErpDb.dbo.OrderReference r
+                JOIN ErpDb.dbo.OrderHeader h ON h.orderHeaderId = r.orderReferOrderHeader
+                WHERE h.orderHeaderDate BETWEEN ?1 AND ?2
+                """).setParameter(1, from).setParameter(2, to).getSingleResult()).longValue();
+        long expectedOrders = ((Number) em.createNativeQuery("""
+                SELECT COUNT(DISTINCT h.orderHeaderId) FROM ErpDb.dbo.OrderHeader h
+                JOIN ErpDb.dbo.OrderReference r ON r.orderReferOrderHeader = h.orderHeaderId
+                WHERE h.orderHeaderDate BETWEEN ?1 AND ?2 AND r.orderReferStatus = ?3
+                """).setParameter(1, from).setParameter(2, to).setParameter(3, statusId).getSingleResult()).longValue();
+
+        List<OrderHeaderDto> result = orderHeaderService.findByDateRange(from, to, List.of(statusId));
+
+        assertThat(result).hasSize((int) expectedOrders);
+        assertThat(result).allSatisfy(dto -> assertThat(dto.getOrderReference()).isNotEmpty()
+                .allSatisfy(line -> assertThat(line.getOrderReferStatus().getOrderReferStatusId()).isEqualTo(statusId)));
+        for (OrderHeaderDto fromList : result.subList(0, Math.min(20, result.size()))) {
+            OrderHeaderDto single = orderHeaderService.findByOrderNumber(fromList.getOrderHeaderNumber()).orElseThrow();
+            assertThat(fromList.getOrderNote()).usingRecursiveFieldByFieldElementComparator().isEqualTo(single.getOrderNote());
+        }
     }
 
-    private OrderDetailDto assertHeaderMatchesSql(int orderNumber) {
-        OrderDetailDto dto = orderDetailService.findByOrderNumber(orderNumber).orElseThrow();
+    @Test
+    void unknownOrderReturnsEmpty() {
+        assertThat(orderHeaderService.findByOrderNumber(-1)).isEmpty();
+    }
+
+    private OrderHeaderDto assertHeaderMatchesSql(int orderNumber) {
+        OrderHeaderDto dto = orderHeaderService.findByOrderNumber(orderNumber).orElseThrow();
         Object[] row = rows(HEADER_SQL, orderNumber).get(0);
 
         assertThat(dto.getOrderHeaderId()).isEqualTo(((Number) row[0]).longValue());

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,7 +26,17 @@ public interface OrderReferenceRepository extends JpaRepository<OrderReference, 
             + "join fetch ref.referMeasuUnit "
             + "join fetch r.orderReferStatus "
             + "left join fetch r.orderReferProject "
-            + "where r.orderReferOrderHeader.id in :orderHeaderIds "
+            + "where r.orderReferOrderHeader.orderHeaderDate between :from and :to "
             + "order by r.orderReferPosition")
-    List<OrderReference> findDetailByOrderHeaderIdIn(Collection<Long> orderHeaderIds);
+    List<OrderReference> findDetailByOrderHeaderDateBetween(LocalDate from, LocalDate to);
+
+    @Query("select r from OrderReference r "
+            + "join fetch r.orderReferReference ref "
+            + "join fetch ref.referMeasuUnit "
+            + "join fetch r.orderReferStatus "
+            + "left join fetch r.orderReferProject "
+            + "where r.orderReferOrderHeader.orderHeaderDate between :from and :to "
+            + "and r.orderReferStatus.id in :statusIds "
+            + "order by r.orderReferPosition")
+    List<OrderReference> findDetailByOrderHeaderDateBetweenAndStatusIn(LocalDate from, LocalDate to, Collection<Long> statusIds);
 }
