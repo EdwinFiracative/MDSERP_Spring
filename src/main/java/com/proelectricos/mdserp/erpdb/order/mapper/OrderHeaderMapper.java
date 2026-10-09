@@ -99,6 +99,10 @@ public class OrderHeaderMapper {
         return dto;
     }
 
+    public OrderReferStatusDto toDto(OrderReferStatus status) {
+        return modelMapper.map(status, OrderReferStatusDto.class);
+    }
+
     private OrderDetailReferenceDto toReferenceDto(OrderReference line) {
         OrderDetailReferenceDto dto = modelMapper.map(line, OrderDetailReferenceDto.class);
         dto.setValorTotal(line.getOrderReferUnitPrice().multiply(BigDecimal.valueOf(line.getOrderReferQuantity())));
