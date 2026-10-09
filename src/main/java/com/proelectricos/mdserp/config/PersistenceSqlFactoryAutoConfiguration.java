@@ -66,10 +66,17 @@ public class PersistenceSqlFactoryAutoConfiguration {
                 = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         HashMap<String, Object> properties = new HashMap<>();
-        properties.put("hibernate.ddl-auto",
+        properties.put("hibernate.hbm2ddl.auto",
                 env.getProperty("spring.jpa.hibernate.ddl-auto"));
         properties.put("hibernate.dialect",
                 env.getProperty("spring.jpa.properties.hibernate.dialect"));
+        // Este EntityManager no toma spring.jpa.properties.* automaticamente: se pasan aqui.
+        // Carga relaciones lazy en lotes (IN de hasta N ids) en vez de una consulta por entidad (N+1)
+        properties.put("hibernate.default_batch_fetch_size",
+                env.getProperty("spring.jpa.properties.hibernate.default_batch_fetch_size", "100"));
+        // Redondea los IN a potencias de 2 para reutilizar planes de ejecucion en SQL Server
+        properties.put("hibernate.query.in_clause_parameter_padding",
+                env.getProperty("spring.jpa.properties.hibernate.query.in_clause_parameter_padding", "true"));
         em.setJpaPropertyMap(properties);
         System.out.println("PDM EntityManager created " + env.getProperty("spring.jpa.hibernate.ddl-auto"));
         return em;

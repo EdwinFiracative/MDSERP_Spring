@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class OrderDetailDto implements Serializable {
+public class OrderHeaderDto implements Serializable {
     Long orderHeaderId;
     Integer orderHeaderNumber;
     LocalDate orderHeaderDate;

@@ -10,7 +10,7 @@ import com.proelectricos.mdserp.erpdb.order.OrderHeader;
 import com.proelectricos.mdserp.erpdb.order.OrderNote;
 import com.proelectricos.mdserp.erpdb.order.OrderReferStatus;
 import com.proelectricos.mdserp.erpdb.order.OrderReference;
-import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailDto;
+import com.proelectricos.mdserp.erpdb.order.dto.OrderHeaderDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderReferStatusDto;
@@ -33,17 +33,17 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Mapea el pedido de ErpDb (OrderHeader + lineas + notas) a {@link OrderDetailDto} con ModelMapper.
+ * Mapea el pedido de ErpDb (OrderHeader + lineas + notas) a {@link OrderHeaderDto} con ModelMapper.
  * Los DTO usan los nombres de columna de la base; solo los id se mapean explicitamente
  * (en la entidad se llaman "id"). Las reglas son STRICT y solo aplican a estos tipos,
  * sin alterar la configuracion global del bean.
  */
 @Component
-public class OrderDetailMapper {
+public class OrderHeaderMapper {
 
     private final ModelMapper modelMapper;
 
-    public OrderDetailMapper(ModelMapper modelMapper) {
+    public OrderHeaderMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
         Configuration strict = modelMapper.getConfiguration().copy()
                 .setMatchingStrategy(MatchingStrategies.STRICT);
@@ -75,19 +75,19 @@ public class OrderDetailMapper {
                 modelMapper.createTypeMap(OrderNote.class, OrderDetailNoteDto.class, strict)
                         .addMapping(OrderNote::getId, OrderDetailNoteDto::setOrderNoteId),
                 // Lineas y notas vienen de consultas aparte; el vendedor tiene respaldo en la sede
-                modelMapper.createTypeMap(OrderHeader.class, OrderDetailDto.class, strict)
-                        .addMapping(OrderHeader::getId, OrderDetailDto::setOrderHeaderId)
+                modelMapper.createTypeMap(OrderHeader.class, OrderHeaderDto.class, strict)
+                        .addMapping(OrderHeader::getId, OrderHeaderDto::setOrderHeaderId)
                         .addMappings(m -> {
-                            m.skip(OrderDetailDto::setOrderReference);
-                            m.skip(OrderDetailDto::setOrderNote);
+                            m.skip(OrderHeaderDto::setOrderReference);
+                            m.skip(OrderHeaderDto::setOrderNote);
                         }));
 
         // Falla al arrancar si algun campo de estos DTO queda sin mapear
         typeMaps.forEach(TypeMap::validate);
     }
 
-    public OrderDetailDto toDto(OrderHeader header, List<OrderReference> lines, List<OrderNote> notes) {
-        OrderDetailDto dto = modelMapper.map(header, OrderDetailDto.class);
+    public OrderHeaderDto toDto(OrderHeader header, List<OrderReference> lines, List<OrderNote> notes) {
+        OrderHeaderDto dto = modelMapper.map(header, OrderHeaderDto.class);
 
         Vendor branchVendor = header.getOrderHeaderBranch().getBranchVendor();
         if (dto.getOrderHeaderVendor() == null && branchVendor != null) {
