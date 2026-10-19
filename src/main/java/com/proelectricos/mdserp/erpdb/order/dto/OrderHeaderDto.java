@@ -25,6 +25,8 @@ public class OrderHeaderDto implements Serializable {
     BranchDto orderHeaderBranch;
     /** Vendedor del pedido; si no tiene, el de la sede. */
     VendorDto orderHeaderVendor;
+    /** Lineas de negocio distintas de las lineas del pedido, en orden de posicion. */
+    List<OrderBusinessLineDto> orderHeaderBusinessLine = new ArrayList<>();
     List<OrderDetailReferenceDto> orderReference = new ArrayList<>();
     List<OrderDetailNoteDto> orderNote = new ArrayList<>();
 }

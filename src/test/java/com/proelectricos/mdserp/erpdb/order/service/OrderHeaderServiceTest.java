@@ -1,6 +1,7 @@
 package com.proelectricos.mdserp.erpdb.order.service;
 
 import com.proelectricos.mdserp.erpdb.branch.dto.BranchDto;
+import com.proelectricos.mdserp.erpdb.order.dto.OrderBusinessLineDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderHeaderDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
@@ -68,6 +69,32 @@ class OrderHeaderServiceTest {
             INNER JOIN ErpDb.dbo.OrderHeader AS h ON h.orderHeaderId = n.orderNoteOrderHeader
             WHERE h.orderHeaderNumber = ?1
             ORDER BY n.orderNotePosition
+            """;
+
+    // Linea de negocio = ancestro de segundo nivel de la clasificacion de la referencia (hijo directo de la raiz)
+    private static final String BUSINESS_LINES_SQL = """
+            WITH tree AS (
+                SELECT c.referClassId AS startId, c.referClassId, c.referClassFather
+                FROM ErpDb.dbo.ReferClassification AS c
+                UNION ALL
+                SELECT t.startId, p.referClassId, p.referClassFather
+                FROM tree AS t
+                INNER JOIN ErpDb.dbo.ReferClassification AS p ON p.referClassId = t.referClassFather
+            ),
+            businessLine AS (
+                SELECT t.startId, t.referClassId
+                FROM tree AS t
+                INNER JOIN ErpDb.dbo.ReferClassification AS root ON root.referClassId = t.referClassFather
+                WHERE root.referClassFather IS NULL
+            )
+            SELECT bl.referClassId, c.referClassName
+            FROM ErpDb.dbo.OrderReference AS r
+            INNER JOIN ErpDb.dbo.OrderHeader AS h  ON h.orderHeaderId = r.orderReferOrderHeader
+            INNER JOIN ErpDb.dbo.Reference  AS ref ON ref.referId    = r.orderReferReference
+            LEFT  JOIN businessLine AS bl ON bl.startId = ref.referClassification
+            LEFT  JOIN ErpDb.dbo.ReferClassification AS c ON c.referClassId = bl.referClassId
+            WHERE h.orderHeaderNumber = ?1
+            ORDER BY r.orderReferPosition
             """;
 
     @Autowired
@@ -144,6 +171,46 @@ class OrderHeaderServiceTest {
             }
         }
         return dto;
+    }
+
+    @Test
+    void businessLinesMatchSql() {
+        assertBusinessLinesMatchSql(ORDER_NUMBER);
+    }
+
+    @Test
+    void orderWithSeveralBusinessLinesListsEachOnce() {
+        List<?> numbers = em.createNativeQuery("""
+                SELECT TOP 1 h.orderHeaderNumber FROM ErpDb.dbo.OrderHeader h
+                JOIN ErpDb.dbo.OrderReference r ON r.orderReferOrderHeader = h.orderHeaderId
+                JOIN ErpDb.dbo.Reference ref ON ref.referId = r.orderReferReference
+                GROUP BY h.orderHeaderNumber
+                HAVING COUNT(DISTINCT ref.referClassification) > 1
+                ORDER BY h.orderHeaderNumber DESC
+                """).getResultList();
+        assertThat(numbers).as("pedido con referencias de varias clasificaciones").isNotEmpty();
+
+        assertBusinessLinesMatchSql(((Number) numbers.get(0)).intValue());
+    }
+
+    private void assertBusinessLinesMatchSql(int orderNumber) {
+        OrderHeaderDto dto = orderHeaderService.findByOrderNumber(orderNumber).orElseThrow();
+        List<Object[]> rows = rows(BUSINESS_LINES_SQL, orderNumber);
+
+        assertThat(dto.getOrderReference()).hasSameSizeAs(rows).isNotEmpty();
+        for (int i = 0; i < rows.size(); i++) {
+            Object[] row = rows.get(i);
+            OrderBusinessLineDto businessLine = dto.getOrderReference().get(i).getOrderReferBusinessLine();
+            if (row[0] == null) {
+                assertThat(businessLine).isNull();
+            } else {
+                assertThat(businessLine.getReferClassId()).isEqualTo(((Number) row[0]).longValue());
+                assertThat(businessLine.getReferClassName()).isEqualTo(row[1]);
+            }
+        }
+        assertThat(dto.getOrderHeaderBusinessLine()).extracting(OrderBusinessLineDto::getReferClassId)
+                .containsExactlyElementsOf(rows.stream().filter(r -> r[0] != null)
+                        .map(r -> ((Number) r[0]).longValue()).distinct().toList());
     }
 
     @Test

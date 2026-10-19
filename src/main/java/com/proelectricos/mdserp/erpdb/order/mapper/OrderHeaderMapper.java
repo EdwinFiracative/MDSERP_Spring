@@ -10,12 +10,14 @@ import com.proelectricos.mdserp.erpdb.order.OrderHeader;
 import com.proelectricos.mdserp.erpdb.order.OrderNote;
 import com.proelectricos.mdserp.erpdb.order.OrderReferStatus;
 import com.proelectricos.mdserp.erpdb.order.OrderReference;
+import com.proelectricos.mdserp.erpdb.order.dto.OrderBusinessLineDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderHeaderDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderReferStatusDto;
 import com.proelectricos.mdserp.erpdb.project.Project;
 import com.proelectricos.mdserp.erpdb.project.dto.ProjectDto;
+import com.proelectricos.mdserp.erpdb.referclassification.ReferClassification;
 import com.proelectricos.mdserp.erpdb.reference.Reference;
 import com.proelectricos.mdserp.erpdb.reference.dto.ReferenceDto;
 import com.proelectricos.mdserp.erpdb.thirdparty.ThirdParty;
@@ -31,6 +33,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Mapea el pedido de ErpDb (OrderHeader + lineas + notas) a {@link OrderHeaderDto} con ModelMapper.
@@ -69,9 +73,15 @@ public class OrderHeaderMapper {
                         .addMapping(Project::getId, ProjectDto::setProjeId),
                 modelMapper.createTypeMap(OrderReferStatus.class, OrderReferStatusDto.class, strict)
                         .addMapping(OrderReferStatus::getId, OrderReferStatusDto::setOrderReferStatusId),
+                modelMapper.createTypeMap(ReferClassification.class, OrderBusinessLineDto.class, strict)
+                        .addMapping(ReferClassification::getId, OrderBusinessLineDto::setReferClassId),
+                // La linea de negocio sale del arbol de clasificacion, que se resuelve aparte
                 modelMapper.createTypeMap(OrderReference.class, OrderDetailReferenceDto.class, strict)
                         .addMapping(OrderReference::getId, OrderDetailReferenceDto::setOrderReferId)
-                        .addMappings(m -> m.skip(OrderDetailReferenceDto::setValorTotal)),
+                        .addMappings(m -> {
+                            m.skip(OrderDetailReferenceDto::setValorTotal);
+                            m.skip(OrderDetailReferenceDto::setOrderReferBusinessLine);
+                        }),
                 modelMapper.createTypeMap(OrderNote.class, OrderDetailNoteDto.class, strict)
                         .addMapping(OrderNote::getId, OrderDetailNoteDto::setOrderNoteId),
                 // Lineas y notas vienen de consultas aparte; el vendedor tiene respaldo en la sede
@@ -80,13 +90,19 @@ public class OrderHeaderMapper {
                         .addMappings(m -> {
                             m.skip(OrderHeaderDto::setOrderReference);
                             m.skip(OrderHeaderDto::setOrderNote);
+                            m.skip(OrderHeaderDto::setOrderHeaderBusinessLine);
                         }));
 
         // Falla al arrancar si algun campo de estos DTO queda sin mapear
         typeMaps.forEach(TypeMap::validate);
     }
 
-    public OrderHeaderDto toDto(OrderHeader header, List<OrderReference> lines, List<OrderNote> notes) {
+    /**
+     * @param businessLineByClassId linea de negocio por id de clasificacion
+     *                              (ver {@code ReferClassificationService#findBusinessLineByClassificationId})
+     */
+    public OrderHeaderDto toDto(OrderHeader header, List<OrderReference> lines, List<OrderNote> notes,
+                                Map<Long, ReferClassification> businessLineByClassId) {
         OrderHeaderDto dto = modelMapper.map(header, OrderHeaderDto.class);
 
         Vendor branchVendor = header.getOrderHeaderBranch().getBranchVendor();
@@ -94,7 +110,14 @@ public class OrderHeaderMapper {
             dto.setOrderHeaderVendor(modelMapper.map(branchVendor, VendorDto.class));
         }
 
-        dto.setOrderReference(lines.stream().map(this::toReferenceDto).toList());
+        dto.setOrderReference(lines.stream().map(line -> toReferenceDto(line, businessLineByClassId)).toList());
+        // Distintas por id, en orden de posicion de la linea
+        dto.setOrderHeaderBusinessLine(lines.stream()
+                .map(line -> businessLineOf(line, businessLineByClassId))
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(businessLine -> modelMapper.map(businessLine, OrderBusinessLineDto.class))
+                .toList());
         dto.setOrderNote(notes.stream().map(note -> modelMapper.map(note, OrderDetailNoteDto.class)).toList());
         return dto;
     }
@@ -103,9 +126,19 @@ public class OrderHeaderMapper {
         return modelMapper.map(status, OrderReferStatusDto.class);
     }
 
-    private OrderDetailReferenceDto toReferenceDto(OrderReference line) {
+    private OrderDetailReferenceDto toReferenceDto(OrderReference line, Map<Long, ReferClassification> businessLineByClassId) {
         OrderDetailReferenceDto dto = modelMapper.map(line, OrderDetailReferenceDto.class);
         dto.setValorTotal(line.getOrderReferUnitPrice().multiply(BigDecimal.valueOf(line.getOrderReferQuantity())));
+        ReferClassification businessLine = businessLineOf(line, businessLineByClassId);
+        if (businessLine != null) {
+            dto.setOrderReferBusinessLine(modelMapper.map(businessLine, OrderBusinessLineDto.class));
+        }
         return dto;
+    }
+
+    // getId() sobre el proxy LAZY de la clasificacion no dispara consulta
+    private static ReferClassification businessLineOf(OrderReference line, Map<Long, ReferClassification> businessLineByClassId) {
+        ReferClassification classification = line.getOrderReferReference().getReferClassification();
+        return classification == null ? null : businessLineByClassId.get(classification.getId());
     }
 }
