@@ -111,6 +111,31 @@ class ErpDbReadOnlyQueriesReportesTest {
     }
 
     @Test
+    void informeSemanalCuadraConVentasPorVendedor() throws Exception {
+        Map<String, Object> informe = queries.informeSemanal(DESDE, HASTA);
+        Map<String, Object> porVendedor = queries.ventasPorVendedor(DESDE, HASTA, null);
+
+        @SuppressWarnings("unchecked")
+        Map<String, BigDecimal> totales = (Map<String, BigDecimal>) informe.get("totales_periodo");
+        List<Map<String, Object>> resumen = filas(Map.of("filas", informe.get("resumen_por_vendedor")));
+        assertThat(totales.get("Total")).isEqualByComparingTo(total(porVendedor));
+        assertThat(totales.get("TotalAprobado").add(totales.get("TotalEnRevision")).add(totales.get("TotalDetenido")))
+                .as("el total es la suma de los estados no cancelados/anulados")
+                .isEqualByComparingTo(totales.get("Total"));
+        assertThat(resumen).as("incluye a los vendedores sin ventas").hasSizeGreaterThanOrEqualTo(filas(porVendedor).size());
+        assertThat(resumen).extracting(f -> String.valueOf(f.get("Vendedor")))
+                .as("nombres sin CR/LF").noneMatch(nombre -> nombre.contains("\r") || nombre.contains("\n"));
+        for (String seccion : List.of("ventas_por_dia", "pedidos")) {
+            assertThat(filas(Map.of("filas", informe.get(seccion))).stream()
+                    .map(f -> new BigDecimal(f.get("Total").toString()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add))
+                    .as(seccion).isEqualByComparingTo(totales.get("Total"));
+        }
+        assertThat(filas(Map.of("filas", informe.get("referencias_repetidas"))))
+                .allSatisfy(f -> assertThat(((Number) f.get("Veces")).intValue()).isGreaterThan(1));
+    }
+
+    @Test
     void fechaFinalAnteriorALaInicialEsError() {
         assertThatThrownBy(() -> queries.ventasPorVendedor(HASTA, DESDE, null))
                 .isInstanceOf(IllegalArgumentException.class);

@@ -178,6 +178,131 @@ public class ErpDbReadOnlyQueries {
             , tv.thirdPartyName
             ORDER BY LineaNegocio, Valor DESC""";
 
+    // Informe semanal de ventas por vendedor (basado en el script de solo lectura del mismo nombre): cuatro consultas
+    // sobre los pedidos de un rango de fechas. Parámetros de cada una: fecha inicial, fecha final (ambas incluidas).
+    // Estados de línea: 1 Cancelado, 2 Aprobado, 3 Detenido, 4 En Revisión, 5 Anulado; el Total excluye 1 y 5.
+    // Algunos nombres de vendedor traen CR/LF al final; se limpian.
+    private static final String NOMBRE_VENDEDOR =
+            "RTRIM(REPLACE(REPLACE(tv.thirdPartyName, CHAR(13), N''), CHAR(10), N''))";
+
+    // Todos los vendedores; los que no vendieron en el periodo salen en cero
+    private static final String SQL_INFORME_RESUMEN = """
+            WITH Pedidos AS (
+                SELECT h.orderHeaderId
+                     , ISNULL(h.orderHeaderVendor, b.branchVendor) AS vendorId
+                     , b.branchClient AS clientId
+                FROM dbo.OrderHeader AS h
+                INNER JOIN dbo.Branch AS b ON b.branchId = h.orderHeaderBranch
+                WHERE h.orderHeaderDate >= ? AND h.orderHeaderDate < DATEADD(DAY, 1, ?)
+            ),
+            Totales AS (
+                SELECT p.vendorId
+                     , COUNT(DISTINCT p.orderHeaderId) AS Pedidos
+                     , COUNT(DISTINCT p.clientId) AS Clientes
+                     , COUNT(r.orderReferId) AS Lineas
+                     , ISNULL(SUM(CASE WHEN r.orderReferStatus NOT IN (1, 5)
+                                       THEN r.orderReferQuantity END), 0) AS Unidades
+                     , ISNULL(SUM(CASE WHEN r.orderReferStatus NOT IN (1, 5)
+                                       THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS Total
+                     , ISNULL(SUM(CASE WHEN r.orderReferStatus = 2
+                                       THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS TotalAprobado
+                     , ISNULL(SUM(CASE WHEN r.orderReferStatus = 4
+                                       THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS TotalEnRevision
+                     , ISNULL(SUM(CASE WHEN r.orderReferStatus = 3
+                                       THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS TotalDetenido
+                     , ISNULL(SUM(CASE WHEN r.orderReferStatus IN (1, 5)
+                                       THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS TotalCanceladoAnulado
+                FROM Pedidos AS p
+                LEFT JOIN dbo.OrderReference AS r ON r.orderReferOrderHeader = p.orderHeaderId
+                GROUP BY p.vendorId
+            )
+            SELECT ISNULL(v.vendorCode, N'(sin)') AS CodigoVendedor
+                 , ISNULL(""" + NOMBRE_VENDEDOR + """
+            , N'(sin vendedor)') AS Vendedor
+                 , ISNULL(t.Pedidos, 0) AS Pedidos
+                 , ISNULL(t.Clientes, 0) AS Clientes
+                 , ISNULL(t.Lineas, 0) AS Lineas
+                 , ISNULL(t.Unidades, 0) AS Unidades
+                 , ISNULL(t.Total, 0) AS Total
+                 , CAST(100.0 * ISNULL(t.Total, 0)
+                        / NULLIF(SUM(ISNULL(t.Total, 0)) OVER (), 0) AS decimal(5, 1)) AS Participacion
+                 , CASE WHEN ISNULL(t.Pedidos, 0) = 0 THEN 0 ELSE t.Total / t.Pedidos END AS PromedioPedido
+                 , ISNULL(t.TotalAprobado, 0) AS TotalAprobado
+                 , ISNULL(t.TotalEnRevision, 0) AS TotalEnRevision
+                 , ISNULL(t.TotalDetenido, 0) AS TotalDetenido
+                 , ISNULL(t.TotalCanceladoAnulado, 0) AS TotalCanceladoAnulado
+            FROM dbo.Vendor AS v
+            INNER JOIN dbo.ThirdParty AS tv ON tv.thirdPartyId = v.vendorThirdParty
+            FULL OUTER JOIN Totales AS t ON t.vendorId = v.vendorId
+            ORDER BY ISNULL(t.Total, 0) DESC, v.vendorCode""";
+
+    private static final String SQL_INFORME_POR_DIA = """
+            SELECT h.orderHeaderDate AS Fecha
+                 , v.vendorCode AS CodigoVendedor
+                 , """ + NOMBRE_VENDEDOR + """
+             AS Vendedor
+                 , COUNT(DISTINCT h.orderHeaderId) AS Pedidos
+                 , ISNULL(SUM(CASE WHEN r.orderReferStatus NOT IN (1, 5)
+                                   THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS Total
+            FROM dbo.OrderHeader AS h
+            INNER JOIN dbo.Branch AS b ON b.branchId = h.orderHeaderBranch
+            LEFT JOIN dbo.Vendor AS v ON v.vendorId = ISNULL(h.orderHeaderVendor, b.branchVendor)
+            LEFT JOIN dbo.ThirdParty AS tv ON tv.thirdPartyId = v.vendorThirdParty
+            LEFT JOIN dbo.OrderReference AS r ON r.orderReferOrderHeader = h.orderHeaderId
+            WHERE h.orderHeaderDate >= ? AND h.orderHeaderDate < DATEADD(DAY, 1, ?)
+            GROUP BY h.orderHeaderDate, v.vendorCode, tv.thirdPartyName
+            ORDER BY h.orderHeaderDate, v.vendorCode""";
+
+    private static final String SQL_INFORME_PEDIDOS = """
+            SELECT v.vendorCode AS CodigoVendedor
+                 , """ + NOMBRE_VENDEDOR + """
+             AS Vendedor
+                 , h.orderHeaderDate AS Fecha
+                 , h.orderHeaderNumber AS Pedido
+                 , tc.thirdPartyName AS Cliente
+                 , b.branchCity AS Ciudad
+                 , COUNT(r.orderReferId) AS Lineas
+                 , ISNULL(SUM(CASE WHEN r.orderReferStatus NOT IN (1, 5)
+                                   THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS Total
+                 , ISNULL(SUM(CASE WHEN r.orderReferStatus = 4
+                                   THEN r.orderReferQuantity * r.orderReferUnitPrice END), 0) AS TotalEnRevision
+            FROM dbo.OrderHeader AS h
+            INNER JOIN dbo.Branch AS b ON b.branchId = h.orderHeaderBranch
+            INNER JOIN dbo.Client AS c ON c.clientId = b.branchClient
+            INNER JOIN dbo.ThirdParty AS tc ON tc.thirdPartyId = c.clientThirdParty
+            LEFT JOIN dbo.Vendor AS v ON v.vendorId = ISNULL(h.orderHeaderVendor, b.branchVendor)
+            LEFT JOIN dbo.ThirdParty AS tv ON tv.thirdPartyId = v.vendorThirdParty
+            LEFT JOIN dbo.OrderReference AS r ON r.orderReferOrderHeader = h.orderHeaderId
+            WHERE h.orderHeaderDate >= ? AND h.orderHeaderDate < DATEADD(DAY, 1, ?)
+            GROUP BY v.vendorCode, tv.thirdPartyName, h.orderHeaderDate, h.orderHeaderNumber,
+                     tc.thirdPartyName, b.branchCity
+            ORDER BY v.vendorCode, h.orderHeaderDate, h.orderHeaderNumber""";
+
+    // Referencias repetidas dentro de un mismo pedido: posible doble digitación que infla el total
+    private static final String SQL_INFORME_REPETIDAS = """
+            SELECT v.vendorCode AS CodigoVendedor
+                 , h.orderHeaderNumber AS Pedido
+                 , ref.referCod AS CodigoReferencia
+                 , ref.referName AS Nombre
+                 , COUNT(*) AS Veces
+                 , SUM(r.orderReferQuantity * r.orderReferUnitPrice) AS TotalReferencia
+                 , SUM(r.orderReferQuantity * r.orderReferUnitPrice)
+                     - MIN(r.orderReferQuantity * r.orderReferUnitPrice) AS ValorPosibleDuplicado
+            FROM dbo.OrderHeader AS h
+            INNER JOIN dbo.Branch AS b ON b.branchId = h.orderHeaderBranch
+            LEFT JOIN dbo.Vendor AS v ON v.vendorId = ISNULL(h.orderHeaderVendor, b.branchVendor)
+            INNER JOIN dbo.OrderReference AS r ON r.orderReferOrderHeader = h.orderHeaderId
+            INNER JOIN dbo.Reference AS ref ON ref.referId = r.orderReferReference
+            WHERE h.orderHeaderDate >= ? AND h.orderHeaderDate < DATEADD(DAY, 1, ?)
+              AND r.orderReferStatus NOT IN (1, 5)
+            GROUP BY v.vendorCode, h.orderHeaderNumber, ref.referCod, ref.referName
+            HAVING COUNT(*) > 1
+            ORDER BY h.orderHeaderNumber, ref.referCod""";
+
+    // Columnas del resumen por vendedor que se suman para el total del periodo
+    private static final List<String> TOTALES_INFORME = List.of("Pedidos", "Lineas", "Unidades", "Total",
+            "TotalAprobado", "TotalEnRevision", "TotalDetenido", "TotalCanceladoAnulado");
+
     // Los reportes agregados tienen pocas filas (vendedores x semanas o líneas); se permiten más que en consultar_sql
     private static final int MAX_FILAS_REPORTE = 1000;
 
@@ -277,33 +402,72 @@ public class ErpDbReadOnlyQueries {
                 desde, hasta, filtroVendedor(desde, hasta, vendedor));
     }
 
+    /**
+     * Informe semanal de ventas de un rango de fechas (ambas incluidas): resumen por vendedor (todos, aunque no
+     * hayan vendido), ventas por día y vendedor, detalle de pedidos y referencias repetidas en un mismo pedido.
+     */
+    public Map<String, Object> informeSemanal(LocalDate desde, LocalDate hasta) throws SQLException {
+        validarRango(desde, hasta);
+        List<Object> periodo = List.of(Date.valueOf(desde), Date.valueOf(hasta));
+        return enTransaccionDeLectura(conn -> {
+            List<Map<String, Object>> resumen = filas(consultar(conn, SQL_INFORME_RESUMEN, periodo));
+            Map<String, Object> pedidos = consultar(conn, SQL_INFORME_PEDIDOS, periodo);
+            // Totales del periodo calculados aquí para no depender de la aritmética del modelo
+            Map<String, BigDecimal> totales = new LinkedHashMap<>();
+            for (String columna : TOTALES_INFORME) {
+                totales.put(columna, resumen.stream()
+                        .map(fila -> decimal(fila.get(columna)))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+            }
+
+            Map<String, Object> resultado = new LinkedHashMap<>();
+            resultado.put("desde", desde.toString());
+            resultado.put("hasta", hasta.toString());
+            resultado.put("resumen_por_vendedor", resumen);
+            resultado.put("totales_periodo", totales);
+            resultado.put("ventas_por_dia", filas(consultar(conn, SQL_INFORME_POR_DIA, periodo)));
+            resultado.put("pedidos", filas(pedidos));
+            resultado.put("pedidos_truncados", pedidos.get("truncado"));
+            resultado.put("referencias_repetidas", filas(consultar(conn, SQL_INFORME_REPETIDAS, periodo)));
+            resultado.put("nota", "Valores sin impuestos. Total excluye líneas canceladas y anuladas, "
+                    + "que van aparte en TotalCanceladoAnulado.");
+            return resultado;
+        });
+    }
+
     private static List<Object> filtroVendedor(LocalDate desde, LocalDate hasta, String vendedor) {
-        if (hasta.isBefore(desde)) {
-            throw new IllegalArgumentException("La fecha final " + hasta + " es anterior a la inicial " + desde);
-        }
+        validarRango(desde, hasta);
         String filtro = vendedor == null || vendedor.isBlank() ? null : vendedor.trim();
         return Arrays.asList(Date.valueOf(desde), Date.valueOf(hasta), filtro, filtro, filtro);
     }
 
-    private Map<String, Object> reporte(String sql, LocalDate desde, LocalDate hasta, List<Object> parametros)
-            throws SQLException {
-        Map<String, Object> resultado = enTransaccionDeLectura(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setMaxRows(MAX_FILAS_REPORTE + 1);
-                ps.setQueryTimeout(queryTimeoutSeconds);
-                for (int i = 0; i < parametros.size(); i++) {
-                    // El único parámetro que puede ser null es el filtro de vendedor (texto)
-                    if (parametros.get(i) == null) {
-                        ps.setNull(i + 1, Types.NVARCHAR);
-                    } else {
-                        ps.setObject(i + 1, parametros.get(i));
-                    }
-                }
-                try (ResultSet rs = ps.executeQuery()) {
-                    return leer(rs, MAX_FILAS_REPORTE);
+    private static void validarRango(LocalDate desde, LocalDate hasta) {
+        if (hasta.isBefore(desde)) {
+            throw new IllegalArgumentException("La fecha final " + hasta + " es anterior a la inicial " + desde);
+        }
+    }
+
+    private Map<String, Object> consultar(Connection conn, String sql, List<Object> parametros) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setMaxRows(MAX_FILAS_REPORTE + 1);
+            ps.setQueryTimeout(queryTimeoutSeconds);
+            for (int i = 0; i < parametros.size(); i++) {
+                // El único parámetro que puede ser null es el filtro de vendedor (texto)
+                if (parametros.get(i) == null) {
+                    ps.setNull(i + 1, Types.NVARCHAR);
+                } else {
+                    ps.setObject(i + 1, parametros.get(i));
                 }
             }
-        });
+            try (ResultSet rs = ps.executeQuery()) {
+                return leer(rs, MAX_FILAS_REPORTE);
+            }
+        }
+    }
+
+    private Map<String, Object> reporte(String sql, LocalDate desde, LocalDate hasta, List<Object> parametros)
+            throws SQLException {
+        Map<String, Object> resultado = enTransaccionDeLectura(conn -> consultar(conn, sql, parametros));
         resultado.put("desde", desde.toString());
         resultado.put("hasta", hasta.toString());
         resultado.put("valor_total_sin_impuestos", filas(resultado).stream()

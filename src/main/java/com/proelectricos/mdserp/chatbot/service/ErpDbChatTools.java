@@ -13,8 +13,10 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.time.DateTimeException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,7 @@ public class ErpDbChatTools {
     static final String VENTAS_POR_VENDEDOR = "ventas_por_vendedor";
     static final String VENTAS_POR_SEMANA = "ventas_por_semana";
     static final String VENTAS_POR_LINEA = "ventas_por_linea_negocio";
+    static final String INFORME_SEMANAL = "informe_semanal_ventas";
     static final String CONSULTAR_SQL = "consultar_sql";
 
     private static final Schema FECHA_INICIAL = texto("Fecha inicial incluida, formato YYYY-MM-DD (fecha del pedido)");
@@ -82,6 +85,17 @@ public class ErpDbChatTools {
                         "fecha_inicial", "fecha_final"))
                 .build();
 
+        FunctionDeclaration informeSemanal = FunctionDeclaration.builder()
+                .name(INFORME_SEMANAL)
+                .description("Informe semanal de ventas por vendedor: resumen de TODOS los vendedores (pedidos, clientes, "
+                        + "líneas, unidades, total, participación, promedio por pedido y total por estado), ventas por día, "
+                        + "detalle de pedidos y referencias repetidas en un mismo pedido (posible doble digitación). "
+                        + "Sin fechas devuelve la semana anterior completa (lunes a domingo).")
+                .parameters(objeto(Map.of(
+                        "fecha_inicial", texto("Opcional: primer día del periodo, formato YYYY-MM-DD (fecha del pedido)"),
+                        "fecha_final", texto("Opcional: último día del periodo incluido, formato YYYY-MM-DD"))))
+                .build();
+
         FunctionDeclaration consultarSql = FunctionDeclaration.builder()
                 .name(CONSULTAR_SQL)
                 .description("Ejecuta UNA consulta T-SQL de solo lectura (SELECT o WITH) en la base ErpDb de SQL Server "
@@ -92,7 +106,8 @@ public class ErpDbChatTools {
                 .build();
 
         return Tool.builder()
-                .functionDeclarations(consultarPedido, ventasPorVendedor, ventasPorSemana, ventasPorLinea, consultarSql)
+                .functionDeclarations(consultarPedido, ventasPorVendedor, ventasPorSemana, ventasPorLinea, informeSemanal,
+                        consultarSql)
                 .build();
     }
 
@@ -101,6 +116,7 @@ public class ErpDbChatTools {
         String nombre = llamada.name().orElse("");
         Map<String, Object> args = llamada.args().orElse(Map.of());
         log.info("Chatbot -> {} {}", nombre, args);
+        long inicio = System.nanoTime();
         try {
             return switch (nombre) {
                 case CONSULTAR_PEDIDO -> queries.consultarPedido(entero(args.get("numero"), "número de pedido"));
@@ -113,6 +129,10 @@ public class ErpDbChatTools {
                 case VENTAS_POR_LINEA -> queries.ventasPorLinea(
                         fecha(args.get("fecha_inicial")), fecha(args.get("fecha_final")), cadena(args.get("vendedor")),
                         Boolean.parseBoolean(String.valueOf(args.get("por_vendedor"))));
+                case INFORME_SEMANAL -> {
+                    LocalDate[] periodo = periodoInforme(args.get("fecha_inicial"), args.get("fecha_final"));
+                    yield queries.informeSemanal(periodo[0], periodo[1]);
+                }
                 case CONSULTAR_SQL -> queries.consultarSql(String.valueOf(args.get("consulta")));
                 default -> Map.of("error", "Función desconocida: " + nombre);
             };
@@ -121,6 +141,8 @@ public class ErpDbChatTools {
         } catch (SQLException e) {
             log.warn("Chatbot: error SQL en {}: {}", nombre, e.getMessage());
             return Map.of("error", "Error de SQL Server: " + e.getMessage());
+        } finally {
+            log.info("Chatbot <- {} en {} ms", nombre, (System.nanoTime() - inicio) / 1_000_000);
         }
     }
 
@@ -149,6 +171,20 @@ public class ErpDbChatTools {
         } catch (DateTimeException e) {
             throw new IllegalArgumentException("Fecha no válida (usa YYYY-MM-DD): " + valor);
         }
+    }
+
+    // Sin fechas: la semana anterior completa, de lunes a domingo
+    private static LocalDate[] periodoInforme(Object inicial, Object fin) {
+        boolean sinInicial = inicial == null || String.valueOf(inicial).isBlank();
+        boolean sinFinal = fin == null || String.valueOf(fin).isBlank();
+        if (sinInicial && sinFinal) {
+            LocalDate lunes = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
+            return new LocalDate[] {lunes, lunes.plusDays(6)};
+        }
+        if (sinInicial || sinFinal) {
+            throw new IllegalArgumentException("Indica fecha_inicial y fecha_final, o ninguna para la semana anterior");
+        }
+        return new LocalDate[] {fecha(inicial), fecha(fin)};
     }
 
     private static YearMonth mes(Object anio, Object mes) {

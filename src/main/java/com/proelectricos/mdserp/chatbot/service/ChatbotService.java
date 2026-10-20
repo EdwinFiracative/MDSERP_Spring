@@ -23,7 +23,9 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatbotService {
 
     private static final String SIN_RESPUESTA = "No obtuve respuesta.";
+    private static final Locale ESPANOL = Locale.forLanguageTag("es");
 
     private final Client gemini;
     private final ErpDbChatTools tools;
@@ -74,17 +77,14 @@ public class ChatbotService {
         synchronized (chat) {
             conversacion.ultimoUso = Instant.now();
             try {
-                GenerateContentResponse respuesta = chat.sendMessage(Content.builder().role("user").parts(partes).build());
+                GenerateContentResponse respuesta = enviar(chat, chatId, 0, partes);
                 for (int ronda = 0; !respuesta.functionCalls().isEmpty(); ronda++) {
                     if (ronda >= config.maxToolCalls()) {
                         chats.remove(chatId, conversacion);
                         return "No pude completar la consulta con un número razonable de pasos. "
                                 + "Intenta una pregunta más concreta.";
                     }
-                    respuesta = chat.sendMessage(Content.builder()
-                            .role("user")
-                            .parts(respuestasDeFunciones(respuesta.functionCalls()))
-                            .build());
+                    respuesta = enviar(chat, chatId, ronda + 1, respuestasDeFunciones(respuesta.functionCalls()));
                 }
                 String texto = respuesta.text();
                 return texto == null || texto.isBlank() ? SIN_RESPUESTA : texto;
@@ -100,6 +100,20 @@ public class ChatbotService {
         chats.remove(chatId);
     }
 
+    // Cada ronda es una llamada completa a Gemini (instrucciones + esquema + historial); se registra cuánto tarda
+    // y cuántos tokens lleva. El tiempo incluye los reintentos por 429/503, que el cliente hace sin avisar
+    private GenerateContentResponse enviar(Chat chat, String chatId, int ronda, List<Part> partes) {
+        long inicio = System.nanoTime();
+        GenerateContentResponse respuesta = chat.sendMessage(Content.builder().role("user").parts(partes).build());
+        long ms = Duration.ofNanos(System.nanoTime() - inicio).toMillis();
+        respuesta.usageMetadata().ifPresentOrElse(
+                uso -> log.info("Chatbot: {} ronda {} Gemini {} ms (tokens entrada={}, en caché={}, razonamiento={}, salida={})",
+                        chatId, ronda, ms, uso.promptTokenCount().orElse(0), uso.cachedContentTokenCount().orElse(0),
+                        uso.thoughtsTokenCount().orElse(0), uso.candidatesTokenCount().orElse(0)),
+                () -> log.info("Chatbot: {} ronda {} Gemini {} ms", chatId, ronda, ms));
+        return respuesta;
+    }
+
     private List<Part> respuestasDeFunciones(List<FunctionCall> llamadas) {
         return llamadas.stream()
                 .map(llamada -> {
@@ -113,9 +127,11 @@ public class ChatbotService {
     }
 
     private Chat crearChat() {
+        // Con el día de la semana, para que el modelo resuelva "esta semana" o "la semana pasada"
+        LocalDate hoy = LocalDate.now();
         String sistema = instrucciones
                 + "\n\nEsquema completo de ErpDb (ya lo conoces, no consultes INFORMATION_SCHEMA):\n" + esquema()
-                + "\nFecha actual: " + LocalDate.now() + ".";
+                + "\nFecha actual: " + hoy + " (" + hoy.getDayOfWeek().getDisplayName(TextStyle.FULL, ESPANOL) + ").";
         GenerateContentConfig.Builder configuracion = GenerateContentConfig.builder()
                 .systemInstruction(Content.fromParts(Part.fromText(sistema)))
                 .tools(tools.tool());
@@ -130,6 +146,7 @@ public class ChatbotService {
         if (esquema == null) {
             try {
                 esquema = queries.describirEsquema();
+                log.info("Chatbot: esquema de ErpDb leído, {} caracteres (se envía a Gemini en cada ronda)", esquema.length());
             } catch (SQLException | RuntimeException e) {
                 log.warn("Chatbot: no se pudo leer el esquema de ErpDb: {}", e.getMessage());
                 return "(no disponible; consulta INFORMATION_SCHEMA.COLUMNS solo si lo necesitas)\n";
