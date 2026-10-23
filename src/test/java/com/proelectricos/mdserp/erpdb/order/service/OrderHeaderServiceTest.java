@@ -19,7 +19,9 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -224,6 +226,48 @@ class OrderHeaderServiceTest {
                 .containsExactlyElementsOf(rows.stream().map(r -> ((Number) r[1]).intValue()).toList());
         assertThat(dto.getOrderNote()).extracting(OrderDetailNoteDto::getOrderNoteText)
                 .containsExactlyElementsOf(rows.stream().map(r -> (String) r[2]).toList());
+    }
+
+    // Zona de la sede en el sistema anterior: por COD (identificacion-codigo de sede) y, si no cruza, por NIT
+    private static final String ZONE_SQL = """
+            SELECT h.orderHeaderNumber,
+                   COALESCE(NULLIF(RTRIM(LTRIM(kc.ZONA)), ''), zn.zona)
+            FROM ErpDb.dbo.OrderHeader AS h
+            INNER JOIN ErpDb.dbo.Branch     AS b ON b.branchId      = h.orderHeaderBranch
+            INNER JOIN ErpDb.dbo.Client     AS c ON c.clientId      = b.branchClient
+            INNER JOIN ErpDb.dbo.ThirdParty AS t ON t.thirdPartyId  = c.clientThirdParty
+            LEFT  JOIN EMP001_FACT.dbo.CLIENTES AS kc
+                   ON RTRIM(kc.COD) = CAST(t.thirdPartyIdentNumber AS VARCHAR(20)) + '-' + RTRIM(b.branchCode)
+            OUTER APPLY (
+                SELECT TOP 1 RTRIM(LTRIM(k.ZONA)) AS zona
+                FROM EMP001_FACT.dbo.CLIENTES AS k
+                WHERE RTRIM(LTRIM(LEFT(k.NIT, CHARINDEX('-', k.NIT + '-') - 1))) = CAST(t.thirdPartyIdentNumber AS VARCHAR(20))
+                  AND NULLIF(RTRIM(LTRIM(k.ZONA)), '') IS NOT NULL
+                GROUP BY RTRIM(LTRIM(k.ZONA))
+                ORDER BY COUNT(*) DESC, RTRIM(LTRIM(k.ZONA))
+            ) AS zn
+            WHERE h.orderHeaderDate BETWEEN ?1 AND ?2
+            """;
+
+    @Test
+    void branchZoneMatchesSql() {
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(60);
+        Map<Integer, String> expected = new HashMap<>();
+        for (Object row : em.createNativeQuery(ZONE_SQL).setParameter(1, from).setParameter(2, to).getResultList()) {
+            Object[] r = (Object[]) row;
+            expected.put(((Number) r[0]).intValue(), (String) r[1]);
+        }
+
+        List<OrderHeaderDto> result = orderHeaderService.findByDateRange(from, to, null);
+
+        assertThat(result).isNotEmpty().hasSize(expected.size());
+        assertThat(result).allSatisfy(dto -> assertThat(dto.getOrderHeaderBranch().getBranchZone())
+                .as("zona del pedido %s", dto.getOrderHeaderNumber())
+                .isEqualTo(expected.get(dto.getOrderHeaderNumber())));
+        assertThat(result).as("la mayoria de pedidos tiene zona")
+                .filteredOn(dto -> dto.getOrderHeaderBranch().getBranchZone() != null)
+                .hasSizeGreaterThan(result.size() * 9 / 10);
     }
 
     @Test

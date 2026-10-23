@@ -1,5 +1,6 @@
 package com.proelectricos.mdserp.erpdb.order.mapper;
 
+import com.proelectricos.mdserp.emp001_fact.cliente.service.ClienteZonaService.ZonaLookup;
 import com.proelectricos.mdserp.erpdb.branch.Branch;
 import com.proelectricos.mdserp.erpdb.branch.dto.BranchDto;
 import com.proelectricos.mdserp.erpdb.client.Client;
@@ -64,7 +65,11 @@ public class OrderHeaderMapper {
                         .addMapping(Vendor::getId, VendorDto::setVendorId),
                 modelMapper.createTypeMap(Branch.class, BranchDto.class, strict)
                         .addMapping(Branch::getId, BranchDto::setBranchId)
-                        .addMappings(m -> m.using(stripTrailing).map(Branch::getBranchCode, BranchDto::setBranchCode)),
+                        .addMappings(m -> {
+                            m.using(stripTrailing).map(Branch::getBranchCode, BranchDto::setBranchCode);
+                            // La zona viene del sistema anterior (ClienteZonaService)
+                            m.skip(BranchDto::setBranchZone);
+                        }),
                 modelMapper.createTypeMap(MeasurUnit.class, MeasurUnitDto.class, strict)
                         .addMapping(MeasurUnit::getId, MeasurUnitDto::setMeasuUnitId),
                 modelMapper.createTypeMap(Reference.class, ReferenceDto.class, strict)
@@ -100,12 +105,17 @@ public class OrderHeaderMapper {
     /**
      * @param businessLineByClassId linea de negocio por id de clasificacion
      *                              (ver {@code ReferClassificationService#findBusinessLineByClassificationId})
+     * @param zonaLookup            zona comercial de la sede (ver {@code ClienteZonaService#loadLookup})
      */
     public OrderHeaderDto toDto(OrderHeader header, List<OrderReference> lines, List<OrderNote> notes,
-                                Map<Long, ReferClassification> businessLineByClassId) {
+                                Map<Long, ReferClassification> businessLineByClassId, ZonaLookup zonaLookup) {
         OrderHeaderDto dto = modelMapper.map(header, OrderHeaderDto.class);
 
-        Vendor branchVendor = header.getOrderHeaderBranch().getBranchVendor();
+        Branch branch = header.getOrderHeaderBranch();
+        dto.getOrderHeaderBranch().setBranchZone(zonaLookup.find(
+                branch.getBranchClient().getClientThirdParty().getThirdPartyIdentNumber(), branch.getBranchCode()));
+
+        Vendor branchVendor = branch.getBranchVendor();
         if (dto.getOrderHeaderVendor() == null && branchVendor != null) {
             dto.setOrderHeaderVendor(modelMapper.map(branchVendor, VendorDto.class));
         }
