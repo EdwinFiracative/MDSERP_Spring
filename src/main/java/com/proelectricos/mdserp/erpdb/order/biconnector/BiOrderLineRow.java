@@ -21,6 +21,7 @@ public record BiOrderLineRow(
         String sedeCodigo,
         String sedeCiudad,
         String sedeDireccion,
+        String sedeZona,
         Long clienteId,
         String clienteNit,
         String clienteNombre,
