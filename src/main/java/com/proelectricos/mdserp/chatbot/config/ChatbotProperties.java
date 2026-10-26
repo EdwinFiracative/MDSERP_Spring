@@ -16,9 +16,13 @@ public record ChatbotProperties(
         Database database) {
 
     /**
-     * @param maxToolCalls rondas máximas de llamadas a herramientas por mensaje del usuario
+     * @param maxToolCalls       rondas máximas de llamadas a herramientas por mensaje del usuario
+     * @param thinkingLevel      razonamiento del modelo: minimal, low, medium o high (vacío = el del modelo).
+     *                           Menos razonamiento = respuestas más rápidas
+     * @param minutosInactividad tras este tiempo sin mensajes la conversación empieza de cero (0 = nunca),
+     *                           para no reenviar a Gemini un historial cada vez más largo
      */
-    public record Gemini(String apiKey, String model, int maxToolCalls) {
+    public record Gemini(String apiKey, String model, int maxToolCalls, String thinkingLevel, int minutosInactividad) {
     }
 
     /**

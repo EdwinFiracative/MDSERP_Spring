@@ -17,4 +17,6 @@ public class BranchDto implements Serializable {
     String branchCity;
     String branchAddress;
     ClientDto branchClient;
+    /** Zona comercial (EMP001_FACT.CLIENTES.ZONA); null si la sede no cruza con el sistema anterior. */
+    String branchZone;
 }

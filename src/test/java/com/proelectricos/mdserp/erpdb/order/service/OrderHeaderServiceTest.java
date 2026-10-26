@@ -1,6 +1,7 @@
 package com.proelectricos.mdserp.erpdb.order.service;
 
 import com.proelectricos.mdserp.erpdb.branch.dto.BranchDto;
+import com.proelectricos.mdserp.erpdb.order.dto.OrderBusinessLineDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderHeaderDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
@@ -18,7 +19,9 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -68,6 +71,32 @@ class OrderHeaderServiceTest {
             INNER JOIN ErpDb.dbo.OrderHeader AS h ON h.orderHeaderId = n.orderNoteOrderHeader
             WHERE h.orderHeaderNumber = ?1
             ORDER BY n.orderNotePosition
+            """;
+
+    // Linea de negocio = ancestro de segundo nivel de la clasificacion de la referencia (hijo directo de la raiz)
+    private static final String BUSINESS_LINES_SQL = """
+            WITH tree AS (
+                SELECT c.referClassId AS startId, c.referClassId, c.referClassFather
+                FROM ErpDb.dbo.ReferClassification AS c
+                UNION ALL
+                SELECT t.startId, p.referClassId, p.referClassFather
+                FROM tree AS t
+                INNER JOIN ErpDb.dbo.ReferClassification AS p ON p.referClassId = t.referClassFather
+            ),
+            businessLine AS (
+                SELECT t.startId, t.referClassId
+                FROM tree AS t
+                INNER JOIN ErpDb.dbo.ReferClassification AS root ON root.referClassId = t.referClassFather
+                WHERE root.referClassFather IS NULL
+            )
+            SELECT bl.referClassId, c.referClassName
+            FROM ErpDb.dbo.OrderReference AS r
+            INNER JOIN ErpDb.dbo.OrderHeader AS h  ON h.orderHeaderId = r.orderReferOrderHeader
+            INNER JOIN ErpDb.dbo.Reference  AS ref ON ref.referId    = r.orderReferReference
+            LEFT  JOIN businessLine AS bl ON bl.startId = ref.referClassification
+            LEFT  JOIN ErpDb.dbo.ReferClassification AS c ON c.referClassId = bl.referClassId
+            WHERE h.orderHeaderNumber = ?1
+            ORDER BY r.orderReferPosition
             """;
 
     @Autowired
@@ -147,6 +176,46 @@ class OrderHeaderServiceTest {
     }
 
     @Test
+    void businessLinesMatchSql() {
+        assertBusinessLinesMatchSql(ORDER_NUMBER);
+    }
+
+    @Test
+    void orderWithSeveralBusinessLinesListsEachOnce() {
+        List<?> numbers = em.createNativeQuery("""
+                SELECT TOP 1 h.orderHeaderNumber FROM ErpDb.dbo.OrderHeader h
+                JOIN ErpDb.dbo.OrderReference r ON r.orderReferOrderHeader = h.orderHeaderId
+                JOIN ErpDb.dbo.Reference ref ON ref.referId = r.orderReferReference
+                GROUP BY h.orderHeaderNumber
+                HAVING COUNT(DISTINCT ref.referClassification) > 1
+                ORDER BY h.orderHeaderNumber DESC
+                """).getResultList();
+        assertThat(numbers).as("pedido con referencias de varias clasificaciones").isNotEmpty();
+
+        assertBusinessLinesMatchSql(((Number) numbers.get(0)).intValue());
+    }
+
+    private void assertBusinessLinesMatchSql(int orderNumber) {
+        OrderHeaderDto dto = orderHeaderService.findByOrderNumber(orderNumber).orElseThrow();
+        List<Object[]> rows = rows(BUSINESS_LINES_SQL, orderNumber);
+
+        assertThat(dto.getOrderReference()).hasSameSizeAs(rows).isNotEmpty();
+        for (int i = 0; i < rows.size(); i++) {
+            Object[] row = rows.get(i);
+            OrderBusinessLineDto businessLine = dto.getOrderReference().get(i).getOrderReferBusinessLine();
+            if (row[0] == null) {
+                assertThat(businessLine).isNull();
+            } else {
+                assertThat(businessLine.getReferClassId()).isEqualTo(((Number) row[0]).longValue());
+                assertThat(businessLine.getReferClassName()).isEqualTo(row[1]);
+            }
+        }
+        assertThat(dto.getOrderHeaderBusinessLine()).extracting(OrderBusinessLineDto::getReferClassId)
+                .containsExactlyElementsOf(rows.stream().filter(r -> r[0] != null)
+                        .map(r -> ((Number) r[0]).longValue()).distinct().toList());
+    }
+
+    @Test
     void notesMatchSql() {
         OrderHeaderDto dto = orderHeaderService.findByOrderNumber(ORDER_NUMBER).orElseThrow();
         List<Object[]> rows = rows(NOTES_SQL, ORDER_NUMBER);
@@ -157,6 +226,48 @@ class OrderHeaderServiceTest {
                 .containsExactlyElementsOf(rows.stream().map(r -> ((Number) r[1]).intValue()).toList());
         assertThat(dto.getOrderNote()).extracting(OrderDetailNoteDto::getOrderNoteText)
                 .containsExactlyElementsOf(rows.stream().map(r -> (String) r[2]).toList());
+    }
+
+    // Zona de la sede en el sistema anterior: por COD (identificacion-codigo de sede) y, si no cruza, por NIT
+    private static final String ZONE_SQL = """
+            SELECT h.orderHeaderNumber,
+                   COALESCE(NULLIF(RTRIM(LTRIM(kc.ZONA)), ''), zn.zona)
+            FROM ErpDb.dbo.OrderHeader AS h
+            INNER JOIN ErpDb.dbo.Branch     AS b ON b.branchId      = h.orderHeaderBranch
+            INNER JOIN ErpDb.dbo.Client     AS c ON c.clientId      = b.branchClient
+            INNER JOIN ErpDb.dbo.ThirdParty AS t ON t.thirdPartyId  = c.clientThirdParty
+            LEFT  JOIN EMP001_FACT.dbo.CLIENTES AS kc
+                   ON RTRIM(kc.COD) = CAST(t.thirdPartyIdentNumber AS VARCHAR(20)) + '-' + RTRIM(b.branchCode)
+            OUTER APPLY (
+                SELECT TOP 1 RTRIM(LTRIM(k.ZONA)) AS zona
+                FROM EMP001_FACT.dbo.CLIENTES AS k
+                WHERE RTRIM(LTRIM(LEFT(k.NIT, CHARINDEX('-', k.NIT + '-') - 1))) = CAST(t.thirdPartyIdentNumber AS VARCHAR(20))
+                  AND NULLIF(RTRIM(LTRIM(k.ZONA)), '') IS NOT NULL
+                GROUP BY RTRIM(LTRIM(k.ZONA))
+                ORDER BY COUNT(*) DESC, RTRIM(LTRIM(k.ZONA))
+            ) AS zn
+            WHERE h.orderHeaderDate BETWEEN ?1 AND ?2
+            """;
+
+    @Test
+    void branchZoneMatchesSql() {
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(60);
+        Map<Integer, String> expected = new HashMap<>();
+        for (Object row : em.createNativeQuery(ZONE_SQL).setParameter(1, from).setParameter(2, to).getResultList()) {
+            Object[] r = (Object[]) row;
+            expected.put(((Number) r[0]).intValue(), (String) r[1]);
+        }
+
+        List<OrderHeaderDto> result = orderHeaderService.findByDateRange(from, to, null);
+
+        assertThat(result).isNotEmpty().hasSize(expected.size());
+        assertThat(result).allSatisfy(dto -> assertThat(dto.getOrderHeaderBranch().getBranchZone())
+                .as("zona del pedido %s", dto.getOrderHeaderNumber())
+                .isEqualTo(expected.get(dto.getOrderHeaderNumber())));
+        assertThat(result).as("la mayoria de pedidos tiene zona")
+                .filteredOn(dto -> dto.getOrderHeaderBranch().getBranchZone() != null)
+                .hasSizeGreaterThan(result.size() * 9 / 10);
     }
 
     @Test

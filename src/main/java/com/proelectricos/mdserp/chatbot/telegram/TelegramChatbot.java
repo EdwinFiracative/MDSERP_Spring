@@ -98,7 +98,7 @@ public class TelegramChatbot implements LongPollingUpdateConsumer {
                 enviar(chatId, "Hola, pregúntame lo que quieras sobre la base de datos ErpDb. "
                         + "/reset reinicia la conversación.");
             } else if (texto.startsWith("/reset")) {
-                chatbot.reiniciar(chatId);
+                chatbot.reiniciar(conversacion(chatId));
                 enviar(chatId, "Conversación reiniciada.");
             } else {
                 procesar(chatId, List.of(Part.fromText(texto)));
@@ -125,7 +125,7 @@ public class TelegramChatbot implements LongPollingUpdateConsumer {
                 .build());
         String respuesta;
         try {
-            respuesta = chatbot.responder(chatId, partes);
+            respuesta = chatbot.responder(conversacion(chatId), partes);
         } catch (RuntimeException e) {
             log.error("Chatbot: error procesando el mensaje", e);
             respuesta = "Hubo un error al procesar tu solicitud: " + e.getMessage();
@@ -135,6 +135,11 @@ public class TelegramChatbot implements LongPollingUpdateConsumer {
         for (String parte : partesRespuesta.subList(1, partesRespuesta.size())) {
             enviar(chatId, parte);
         }
+    }
+
+    // Prefijo para no mezclar estas conversaciones con las de la web en ChatbotService
+    private static String conversacion(long chatId) {
+        return "telegram:" + chatId;
     }
 
     private void enviar(long chatId, String markdown) throws TelegramApiException {

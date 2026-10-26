@@ -1,5 +1,7 @@
 package com.proelectricos.mdserp.config.security;
 
+import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorKeyFilter;
+import com.proelectricos.mdserp.erpdb.order.biconnector.BitrixAppInstallController;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -48,6 +50,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(allowedPaths).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // permit connexions for CORS preflight requests
+                        // Conector BI de Bitrix24: sin JWT, lo protege la clave compartida de BiConnectorKeyFilter
+                        .requestMatchers(HttpMethod.POST, BiConnectorKeyFilter.PATH_PREFIX + "**").permitAll()
+                        // Instalacion de la app local de Bitrix24: el token que llega se valida contra el portal
+                        .requestMatchers(HttpMethod.POST, BitrixAppInstallController.INSTALL_PATH).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(
                         httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer

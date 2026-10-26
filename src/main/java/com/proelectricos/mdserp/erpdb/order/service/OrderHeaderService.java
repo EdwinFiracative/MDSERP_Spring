@@ -1,5 +1,7 @@
 package com.proelectricos.mdserp.erpdb.order.service;
 
+import com.proelectricos.mdserp.emp001_fact.cliente.service.ClienteZonaService;
+import com.proelectricos.mdserp.emp001_fact.cliente.service.ClienteZonaService.ZonaLookup;
 import com.proelectricos.mdserp.erpdb.order.OrderHeader;
 import com.proelectricos.mdserp.erpdb.order.OrderNote;
 import com.proelectricos.mdserp.erpdb.order.OrderReference;
@@ -8,6 +10,8 @@ import com.proelectricos.mdserp.erpdb.order.mapper.OrderHeaderMapper;
 import com.proelectricos.mdserp.erpdb.order.repository.OrderHeaderRepository;
 import com.proelectricos.mdserp.erpdb.order.repository.OrderNoteRepository;
 import com.proelectricos.mdserp.erpdb.order.repository.OrderReferenceRepository;
+import com.proelectricos.mdserp.erpdb.referclassification.ReferClassification;
+import com.proelectricos.mdserp.erpdb.referclassification.service.ReferClassificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +32,16 @@ public class OrderHeaderService {
     private final OrderReferenceRepository orderReferenceRepository;
     private final OrderNoteRepository orderNoteRepository;
     private final OrderHeaderMapper orderHeaderMapper;
+    private final ReferClassificationService referClassificationService;
+    private final ClienteZonaService clienteZonaService;
 
     public Optional<OrderHeaderDto> findByOrderNumber(Integer orderNumber) {
         return orderHeaderRepository.findDetailByOrderHeaderNumber(orderNumber)
                 .map(header -> orderHeaderMapper.toDto(header,
                         orderReferenceRepository.findDetailByOrderHeaderId(header.getId()),
-                        orderNoteRepository.findByOrderNoteOrderHeader_IdOrderByOrderNotePosition(header.getId())));
+                        orderNoteRepository.findByOrderNoteOrderHeader_IdOrderByOrderNotePosition(header.getId()),
+                        referClassificationService.findBusinessLineByClassificationId(),
+                        clienteZonaService.loadLookup()));
     }
 
     // Pedidos con fecha entre from y to (ambas incluidas). Si statusIds trae valores, solo pedidos
@@ -57,11 +65,15 @@ public class OrderHeaderService {
                 : orderNoteRepository.findByOrderNoteOrderHeader_OrderHeaderDateBetweenOrderByOrderNotePosition(from, to);
         Map<Long, List<OrderNote>> notesByHeader = notes.stream()
                 .collect(Collectors.groupingBy(note -> note.getOrderNoteOrderHeader().getId()));
+        Map<Long, ReferClassification> businessLineByClassId = referClassificationService.findBusinessLineByClassificationId();
+        ZonaLookup zonaLookup = clienteZonaService.loadLookup();
 
         return headers.stream()
                 .map(header -> orderHeaderMapper.toDto(header,
                         linesByHeader.getOrDefault(header.getId(), List.of()),
-                        notesByHeader.getOrDefault(header.getId(), List.of())))
+                        notesByHeader.getOrDefault(header.getId(), List.of()),
+                        businessLineByClassId,
+                        zonaLookup))
                 .toList();
     }
 }
