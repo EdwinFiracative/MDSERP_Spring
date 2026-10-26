@@ -53,6 +53,7 @@ public class BitrixAppInstallController {
             body.put("sourceId", result.sourceId());
             body.put("createdTables", result.createdTables());
             body.put("existingTables", result.existingTables());
+            body.put("addedColumns", result.addedColumns());
             return ResponseEntity.ok(body);
         } catch (InvalidAppTokenException e) {
             log.warn("Instalacion app Bitrix24 rechazada desde {}: {}", request.getRemoteAddr(), e.getMessage());
