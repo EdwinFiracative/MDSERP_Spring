@@ -892,3 +892,315 @@ Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResp
 2026-10-26T15:20:24.506-05:00  INFO 27456 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
 2026-10-26T15:20:24.507-05:00  INFO 27456 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
 2026-10-26T15:20:24.510-05:00  INFO 27456 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-10-26T15:33:28.973-05:00  INFO 27132 --- [MDSERP] [main] p.m.c.e.ErpDbReadOnlyQueriesReportesTest : Starting ErpDbReadOnlyQueriesReportesTest using Java 17.0.12 with PID 27132 (started by C-016 in C:\Users\C-016\Documents\java\MDSERP_Spring)
+2026-10-26T15:33:28.974-05:00  INFO 27132 --- [MDSERP] [main] p.m.c.e.ErpDbReadOnlyQueriesReportesTest : No active profile set, falling back to 1 default profile: "default"
+2026-10-26T15:33:30.171-05:00  INFO 27132 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-26T15:33:30.222-05:00  INFO 27132 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 37 ms. Found 1 JPA repository interface.
+2026-10-26T15:33:30.223-05:00  INFO 27132 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-26T15:33:30.486-05:00  INFO 27132 --- [MDSERP] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 261 ms. Found 51 JPA repository interfaces.
+2026-10-26T15:33:32.084-05:00  INFO 27132 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-26T15:33:32.219-05:00  INFO 27132 --- [MDSERP] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.26.Final
+2026-10-26T15:33:32.294-05:00  INFO 27132 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-26T15:33:32.959-05:00  INFO 27132 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-26T15:33:33.016-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-26T15:33:33.430-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: b55eace7-7401-438b-9cfd-e2300982fa85
+2026-10-26T15:33:33.432-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-26T15:33:33.537-05:00  INFO 27132 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-26T15:33:34.641-05:00  INFO 27132 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-26T15:33:34.643-05:00  INFO 27132 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-26T15:33:34.706-05:00  INFO 27132 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-26T15:33:34.714-05:00  INFO 27132 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-26T15:33:34.761-05:00  INFO 27132 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-26T15:33:34.763-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-10-26T15:33:34.861-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection ConnectionID:9 ClientConnectionId: 3faa01a2-9749-4a5f-a2ee-f77b693e6214
+2026-10-26T15:33:34.862-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-10-26T15:33:34.877-05:00  WARN 27132 --- [MDSERP] [main] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-26T15:33:34.902-05:00  INFO 27132 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-26T15:33:36.706-05:00  INFO 27132 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-26T15:33:36.707-05:00  INFO 27132 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-26T15:33:37.800-05:00  INFO 27132 --- [MDSERP] [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-26T15:33:41.360-05:00  WARN 27132 --- [MDSERP] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-10-26T15:33:42.293-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:33:42.797-05:00  INFO 27132 --- [MDSERP] [main] p.m.c.e.ErpDbReadOnlyQueriesReportesTest : Started ErpDbReadOnlyQueriesReportesTest in 14.251 seconds (process running for 15.778)
+2026-10-26T15:33:43.869-05:00  INFO 27132 --- [MDSERP] [main] o.t.telegrambots.longpolling.BotSession  : Result when calling deleteWebhook: true
+2026-10-26T15:33:43.870-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.chatbot.telegram.TelegramChatbot   : Chatbot de Telegram en ejecución. Chats autorizados: [719371902, 6693894948]
+2026-10-26T15:33:44.254-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : ErpDbChatbot - Starting...
+2026-10-26T15:33:44.416-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : ErpDbChatbot - Start completed.
+2026-10-26T15:33:47.886-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 353 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:33:48.724-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : ErpDbChatbot - Shutdown initiated...
+2026-10-26T15:33:48.726-05:00  INFO 27132 --- [MDSERP] [main] com.zaxxer.hikari.HikariDataSource       : ErpDbChatbot - Shutdown completed.
+2026-10-26T15:33:48.823-05:00  INFO 27132 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.chatbot.web.ChatbotControllerTest]: ChatbotControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T15:33:48.909-05:00  INFO 27132 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.chatbot.web.ChatbotControllerTest
+2026-10-26T15:33:48.948-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.chatbot.web.ChatbotControllerTest  : Starting ChatbotControllerTest using Java 17.0.12 with PID 27132 (started by C-016 in C:\Users\C-016\Documents\java\MDSERP_Spring)
+2026-10-26T15:33:48.948-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.chatbot.web.ChatbotControllerTest  : No active profile set, falling back to 1 default profile: "default"
+2026-10-26T15:33:50.283-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:33:50.412-05:00  INFO 27132 --- [MDSERP] [main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:33:50.413-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:33:50.414-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-10-26T15:33:50.443-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.chatbot.web.ChatbotControllerTest  : Started ChatbotControllerTest in 1.529 seconds (process running for 23.424)
+2026-10-26T15:33:50.676-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.c.s.ToolUserAccessDeniedHandler    : Access Denied: User 'usuario-1' (Roles: [SCOPE_read]) tried to access '/api/chatbot/mensaje'
+2026-10-26T15:33:51.173-05:00  INFO 27132 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.emp004_inv.adic.service.AdicServiceTest]: AdicServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T15:33:51.273-05:00  INFO 27132 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.emp004_inv.adic.service.AdicServiceTest
+2026-10-26T15:33:52.411-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 939 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:33:58.217-05:00  INFO 27132 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.erpdb.ErpDbEntityMappingTest]: ErpDbEntityMappingTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T15:33:58.293-05:00  INFO 27132 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.erpdb.ErpDbEntityMappingTest
+2026-10-26T15:33:58.331-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 899 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:34:01.774-05:00  INFO 27132 --- [MDSERP] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: erpDbSchemaValidation]
+2026-10-26T15:34:01.780-05:00  INFO 27132 --- [MDSERP] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-10-26T15:34:01.807-05:00  INFO 27132 --- [MDSERP] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-26T15:34:01.844-05:00  WARN 27132 --- [MDSERP] [main] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-26T15:34:01.862-05:00  INFO 27132 --- [MDSERP] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 12.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-26T15:34:02.007-05:00  INFO 27132 --- [MDSERP] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-26T15:34:02.217-05:00  INFO 27132 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'erpDbSchemaValidation'
+2026-10-26T15:34:02.218-05:00  INFO 27132 --- [MDSERP] [main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'erpDbSchemaValidation'
+2026-10-26T15:34:03.360-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.369-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.369-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.370-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.370-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.376-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.376-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.376-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.377-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorKeyFilter         : Conector BI: clave invalida o ausente en /bi-connector/check desde 127.0.0.1
+2026-10-26T15:34:03.379-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.385-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.385-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.386-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.410-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.415-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.416-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.416-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.422-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: data pedidos_notas select null mapFields null filter null limit null
+2026-10-26T15:34:03.425-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: pedidos_notas 0 filas (2026-07-22 a 2026-10-20, limit null)
+2026-10-26T15:34:03.443-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.449-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.449-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.449-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.477-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.biconnector.BiConnectorFilter  : Conector BI: se ignora el filtro >=fecha_pedido con fecha no reconocida [1760832000]
+2026-10-26T15:34:03.478-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.biconnector.BiConnectorFilter  : Conector BI: se ignora el filtro <fecha_entrega con fecha no reconocida [10/20/2026]
+2026-10-26T15:34:03.479-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: data pedidos_lineas select {0=clave_linea} mapFields null filter {=fecha_pedido=2026-10-19, >=fecha_pedido=1760832000, <fecha_entrega=10/20/2026, !estado_id=1} limit null
+2026-10-26T15:34:03.480-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: pedidos_lineas 1 filas (2026-10-19 a 2026-10-19, limit null)
+2026-10-26T15:34:03.483-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.489-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.490-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.490-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.514-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: Tabla desconocida: no_existe
+2026-10-26T15:34:03.520-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.525-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.525-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.525-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.525-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorKeyFilter         : Conector BI: clave invalida o ausente en /bi-connector/check desde 127.0.0.1
+2026-10-26T15:34:03.525-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorKeyFilter         : Conector BI: clave invalida o ausente en /bi-connector/data desde 127.0.0.1
+2026-10-26T15:34:03.528-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.534-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.534-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.536-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-10-26T15:34:03.541-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.546-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.547-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.547-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.587-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: data pedidos_lineas select {0=clave_linea} mapFields null filter {=fecha_pedido=2026-10-19, !estado_id=1} limit null
+2026-10-26T15:34:03.588-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: pedidos_lineas 2 filas (2026-10-19 a 2026-10-19, limit null)
+2026-10-26T15:34:03.591-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.599-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.599-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.599-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.617-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: data pedidos_lineas select {0=CLAVE_LINEA, 1=VALOR_TOTAL} mapFields null filter {>=FECHA_PEDIDO=2026-10-19, <=FECHA_PEDIDO=2026-10-19} limit null
+2026-10-26T15:34:03.619-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: pedidos_lineas 1 filas (2026-10-19 a 2026-10-19, limit null)
+2026-10-26T15:34:03.623-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.631-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.631-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.632-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-10-26T15:34:03.642-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: data pedidos_lineas select null mapFields {clave_linea=CLAVE_LINEA, no_existe=NO_EXISTE} filter {=fecha_pedido=2026-10-19} limit null
+2026-10-26T15:34:03.643-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: pedidos_lineas 1 filas (2026-10-19 a 2026-10-19, limit null)
+2026-10-26T15:34:03.646-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.650-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.650-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.650-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.682-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: data pedidos_lineas select {0=clave_linea, 1=valor_total, 2=fecha_pedido} mapFields null filter {>=fecha_pedido=2026-10-19, <=fecha_pedido=19.10.2026} limit 2
+2026-10-26T15:34:03.683-05:00  INFO 27132 --- [MDSERP] [main] c.p.m.e.o.b.BiConnectorController        : Conector BI: pedidos_lineas 2 filas (2026-10-19 a 2026-10-19, limit 2)
+2026-10-26T15:34:03.734-05:00  INFO 27132 --- [MDSERP] [main] p.m.e.o.b.BiConnectorRegistrationService : Conector BI registrado: conector 4, fuente 7, tablas creadas [pedidos_lineas, pedidos_notas], ya existentes [], columnas agregadas {}
+2026-10-26T15:34:03.762-05:00  INFO 27132 --- [MDSERP] [main] p.m.e.o.b.BiConnectorRegistrationService : Conector BI registrado: conector 4, fuente 7, tablas creadas [], ya existentes [pedidos_lineas, pedidos_notas], columnas agregadas {}
+2026-10-26T15:34:03.793-05:00  INFO 27132 --- [MDSERP] [main] p.m.e.o.b.BiConnectorRegistrationService : Conector BI registrado: conector 4, fuente 7, tablas creadas [], ya existentes [pedidos_lineas, pedidos_notas], columnas agregadas {pedidos_lineas=[sede_zona]}
+2026-10-26T15:34:03.956-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.961-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.961-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.961-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.971-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.976-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.976-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.976-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:03.982-05:00  WARN 27132 --- [MDSERP] [main] c.p.m.e.o.b.BitrixAppInstallController   : Instalacion app Bitrix24 rechazada desde 127.0.0.1: Token rechazado
+2026-10-26T15:34:03.987-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:03.995-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:03.995-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:03.995-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:04.003-05:00  INFO 27132 --- [MDSERP] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-10-26T15:34:04.011-05:00  INFO 27132 --- [MDSERP] [main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-10-26T15:34:04.011-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-26T15:34:04.011-05:00  INFO 27132 --- [MDSERP] [main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-10-26T15:34:04.019-05:00  INFO 27132 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.erpdb.order.service.OrderHeaderServiceTest]: OrderHeaderServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T15:34:04.133-05:00  INFO 27132 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.erpdb.order.service.OrderHeaderServiceTest
+2026-10-26T15:34:04.534-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 1056 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:34:09.089-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 3157 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:34:17.864-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 3271 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:34:24.913-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 7428 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:34:42.165-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 6825 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:35:07.872-05:00 ERROR 27132 --- [MDSERP] [pool-6-thread-1] o.t.telegrambots.longpolling.BotSession  : Error received from Telegram GetUpdates Request, retrying in 6931 millis...
+
+org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: null
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:161) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at org.telegram.telegrambots.longpolling.BotSession.lambda$createPollerTask$1(BotSession.java:108) ~[telegrambots-longpolling-10.3.0.jar:na]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539) ~[na:na]
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:842) ~[na:na]
+Caused by: org.telegram.telegrambots.longpolling.exceptions.TelegramApiErrorResponseException: 
+	at org.telegram.telegrambots.longpolling.BotSession.getUpdatesFromTelegram(BotSession.java:157) ~[telegrambots-longpolling-10.3.0.jar:na]
+	... 7 common frames omitted
+
+2026-10-26T15:35:11.677-05:00  INFO 27132 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.erpdb.order.service.OrderReferStatusServiceTest]: OrderReferStatusServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T15:35:11.679-05:00  INFO 27132 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.erpdb.order.service.OrderReferStatusServiceTest
+2026-10-26T15:35:11.715-05:00  INFO 27132 --- [MDSERP] [main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.proelectricos.mdserp.MdserpApplicationTests]: MdserpApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-10-26T15:35:11.771-05:00  INFO 27132 --- [MDSERP] [main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.proelectricos.mdserp.MdserpApplication for test class com.proelectricos.mdserp.MdserpApplicationTests
+2026-10-26T15:35:11.842-05:00  INFO 27132 --- [MDSERP] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-26T15:35:11.843-05:00  INFO 27132 --- [MDSERP] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-26T15:35:11.844-05:00  INFO 27132 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-26T15:35:11.845-05:00  INFO 27132 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-26T15:35:11.845-05:00  INFO 27132 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-26T15:35:11.846-05:00  INFO 27132 --- [MDSERP] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
