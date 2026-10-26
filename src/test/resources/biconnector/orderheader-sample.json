@@ -10,6 +10,7 @@
       "branchCode": "01",
       "branchCity": "SOACHA (CUNDINAMARCA",
       "branchAddress": "CL 00 # 00-00 (anonimizada)",
+      "branchZone": "Z01",
       "branchClient": {
         "clientId": 2836,
         "clientThirdParty": {

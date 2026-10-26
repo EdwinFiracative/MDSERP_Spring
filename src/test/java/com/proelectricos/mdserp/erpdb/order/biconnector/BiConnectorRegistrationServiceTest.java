@@ -81,7 +81,7 @@ class BiConnectorRegistrationServiceTest {
                 .andExpect(jsonPath("$.fields.sourceId").value(7))
                 .andExpect(jsonPath("$.fields.name").value("mdserp_pedidos_lineas"))
                 .andExpect(jsonPath("$.fields.externalCode").value("pedidos_lineas"))
-                .andExpect(jsonPath("$.fields.fields.length()").value(34))
+                .andExpect(jsonPath("$.fields.fields.length()").value(35))
                 .andExpect(jsonPath("$.fields.fields[0].name").value("ID_LINEA"))
                 .andExpect(jsonPath("$.fields.fields[0].externalCode").value("id_linea"))
                 .andExpect(jsonPath("$.fields.fields[0].type").value("int"))

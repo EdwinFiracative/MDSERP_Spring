@@ -32,6 +32,7 @@ public class BiConnectorTables {
                 new Column<>("sede_codigo", "Codigo sede", Type.STRING, BiOrderLineRow::sedeCodigo),
                 new Column<>("sede_ciudad", "Ciudad sede", Type.STRING, BiOrderLineRow::sedeCiudad),
                 new Column<>("sede_direccion", "Direccion sede", Type.STRING, BiOrderLineRow::sedeDireccion),
+                new Column<>("sede_zona", "Zona sede", Type.STRING, BiOrderLineRow::sedeZona),
                 new Column<>("cliente_id", "Id cliente", Type.INT, BiOrderLineRow::clienteId),
                 new Column<>("cliente_nit", "NIT cliente", Type.STRING, BiOrderLineRow::clienteNit),
                 new Column<>("cliente_nombre", "Cliente", Type.STRING, BiOrderLineRow::clienteNombre),

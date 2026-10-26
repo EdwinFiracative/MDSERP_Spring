@@ -51,7 +51,7 @@ class BiConnectorControllerTest {
         BiOrderLineRow row = BiOrderDatasetService.toLineRows(BiOrderDatasetServiceTest.sample().get(0)).get(0);
         return new BiOrderLineRow(row.idLinea(), orderNumber + "-" + position, row.idPedido(), orderNumber, date,
                 row.condicionPago(), row.condicionPagoNorm(), row.descripcionPedido(), row.sedeId(), row.sedeCodigo(),
-                row.sedeCiudad(), row.sedeDireccion(), row.clienteId(), row.clienteNit(), row.clienteNombre(),
+                row.sedeCiudad(), row.sedeDireccion(), row.sedeZona(), row.clienteId(), row.clienteNit(), row.clienteNombre(),
                 row.vendedorId(), row.vendedorCodigo(), row.vendedorNombre(), position, row.productoId(),
                 row.productoCodigo(), row.productoNombre(), row.productoDescripcion(), row.unidadMedida(),
                 row.lineaNegocioId(), row.lineaNegocio(), row.cantidad(), row.precioUnitario(), row.valorTotal(),
@@ -96,13 +96,15 @@ class BiConnectorControllerTest {
         mockMvc.perform(call("table_description", KEY).param("table", "pedidos_lineas"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.length()").value(34))
+                .andExpect(jsonPath("$.length()").value(35))
                 .andExpect(jsonPath("$[0].code").value("id_linea"))
                 .andExpect(jsonPath("$[0].type").value("int"))
                 .andExpect(jsonPath("$[4].code").value("fecha_pedido"))
                 .andExpect(jsonPath("$[4].type").value("date"))
-                .andExpect(jsonPath("$[28].code").value("valor_total"))
-                .andExpect(jsonPath("$[28].type").value("double"));
+                .andExpect(jsonPath("$[12].code").value("sede_zona"))
+                .andExpect(jsonPath("$[12].type").value("string"))
+                .andExpect(jsonPath("$[29].code").value("valor_total"))
+                .andExpect(jsonPath("$[29].type").value("double"));
 
         mockMvc.perform(call("table_description", KEY).param("table", "pedidos_notas"))
                 .andExpect(jsonPath("$[*].code").value(org.hamcrest.Matchers.contains(

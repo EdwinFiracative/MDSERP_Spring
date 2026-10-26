@@ -71,6 +71,7 @@ public class BiOrderDatasetService {
                             branch.getBranchCode(),
                             branch.getBranchCity(),
                             branch.getBranchAddress(),
+                            branch.getBranchZone(),
                             branch.getBranchClient().getClientId(),
                             identNumber(client),
                             client.getThirdPartyName(),

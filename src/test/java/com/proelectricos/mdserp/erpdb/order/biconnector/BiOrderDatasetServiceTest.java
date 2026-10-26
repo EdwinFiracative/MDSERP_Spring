@@ -36,7 +36,7 @@ class BiOrderDatasetServiceTest {
         assertThat(lines).containsExactly(new BiOrderLineRow(
                 239499L, "49745-1", 102339L, 49745, LocalDate.of(2026, 10, 19),
                 "CREDITO  VS", "CREDITO VS", "OBRA EJEMPLO - TORRE 1",
-                982L, "01", "SOACHA (CUNDINAMARCA", "CL 00 # 00-00 (anonimizada)",
+                982L, "01", "SOACHA (CUNDINAMARCA", "CL 00 # 00-00 (anonimizada)", "Z01",
                 2836L, "900000000", "CLIENTE EJEMPLO S.A.S.",
                 184L, "27197", "VENDEDOR EJEMPLO",
                 1, 164973L, "32114974501", "TABLERO PALNTA ELECTRICA UN 208/120V - IN 2000A - ICC 35KA",
