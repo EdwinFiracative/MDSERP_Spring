@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +30,8 @@ import java.util.Set;
  * Registra en Bitrix24 el conector BI, su fuente y sus tablas con el token OAuth que recibe la instalacion
  * de la aplicacion local ({@link BitrixAppInstallController}). Los metodos biconnector.connector/source/table
  * no admiten webhook, solo contexto de aplicacion. Es idempotente: si ya existen (reinstalacion) se
- * actualizan las URL y la clave, y solo se crean las tablas que falten.
+ * actualizan las URL y la clave, se crean las tablas que falten y a las existentes se les agregan las
+ * columnas nuevas.
  * Ver https://apidocs.bitrix24.com/api-reference/biconnector/index.html
  */
 @Slf4j
@@ -64,7 +66,9 @@ public class BiConnectorRegistrationService {
         }
     }
 
-    public record Result(long connectorId, long sourceId, List<String> createdTables, List<String> existingTables) {
+    /** addedColumns: columnas agregadas a tablas que ya existian, por codigo de tabla. */
+    public record Result(long connectorId, long sourceId, List<String> createdTables, List<String> existingTables,
+                         Map<String, List<String>> addedColumns) {
     }
 
     private final RestClient client;
@@ -96,23 +100,48 @@ public class BiConnectorRegistrationService {
         // Al crear la fuente Bitrix24 llama a urlCheck con la clave: el backend ya debe estar desplegado
         long sourceId = upsertSource(accessToken, connectorId);
 
-        Set<String> existingCodes = new HashSet<>();
+        Map<String, Long> existingIds = new HashMap<>();
         for (JsonNode table : list(accessToken, "biconnector.table.list", Map.of("sourceId", sourceId))) {
-            existingCodes.add(table.path("externalCode").asText());
+            existingIds.put(table.path("externalCode").asText(), table.path("id").asLong());
         }
         List<String> created = new ArrayList<>();
         List<String> existing = new ArrayList<>();
+        Map<String, List<String>> addedColumns = new LinkedHashMap<>();
         for (BiTable<?> table : tables.all()) {
-            if (existingCodes.contains(table.code())) {
+            Long tableId = existingIds.get(table.code());
+            if (tableId != null) {
                 existing.add(table.code());
+                List<String> added = addMissingColumns(accessToken, tableId, table);
+                if (!added.isEmpty()) {
+                    addedColumns.put(table.code(), added);
+                }
             } else {
                 call(accessToken, "biconnector.table.add", Map.of("fields", tableFields(table, sourceId)));
                 created.add(table.code());
             }
         }
-        log.info("Conector BI registrado: conector {}, fuente {}, tablas creadas {}, ya existentes {}",
-                connectorId, sourceId, created, existing);
-        return new Result(connectorId, sourceId, created, existing);
+        log.info("Conector BI registrado: conector {}, fuente {}, tablas creadas {}, ya existentes {}, columnas agregadas {}",
+                connectorId, sourceId, created, existing, addedColumns);
+        return new Result(connectorId, sourceId, created, existing, addedColumns);
+    }
+
+    /*
+     * Bitrix24 guarda las columnas de la tabla al crearla (table.add); las que se agregan despues en
+     * BiConnectorTables no aparecen en BI Builder hasta registrarlas con table.fields.update. Solo se
+     * agregan: las columnas que ya no existan en el backend se dejan, para no romper graficos.
+     */
+    private List<String> addMissingColumns(String accessToken, long tableId, BiTable<?> table) {
+        Set<String> registered = new HashSet<>();
+        call(accessToken, "biconnector.table.get", Map.of("id", tableId)).path("item").path("fields")
+                .forEach(field -> registered.add(field.path("externalCode").asText()));
+        List<Map<String, Object>> missing = columnFields(table).stream()
+                .filter(field -> !registered.contains((String) field.get("externalCode")))
+                .toList();
+        if (missing.isEmpty()) {
+            return List.of();
+        }
+        call(accessToken, "biconnector.table.fields.update", Map.of("id", tableId, "add", missing));
+        return missing.stream().map(field -> (String) field.get("externalCode")).toList();
     }
 
     // El token se valida contra el portal configurado (nunca contra el dominio que llega en la peticion)
@@ -174,13 +203,17 @@ public class BiConnectorRegistrationService {
         fields.put("name", TABLE_PREFIX + table.code());
         fields.put("externalName", table.title());
         fields.put("externalCode", table.code());
-        fields.put("fields", table.columns().stream()
-                .map(column -> Map.of(
+        fields.put("fields", columnFields(table));
+        return fields;
+    }
+
+    private static List<Map<String, Object>> columnFields(BiTable<?> table) {
+        return table.columns().stream()
+                .map(column -> Map.<String, Object>of(
                         "name", column.code().toUpperCase(Locale.ROOT),
                         "externalCode", column.code(),
                         "type", column.type().code()))
-                .toList());
-        return fields;
+                .toList();
     }
 
     // Los *.list devuelven un arreglo plano de hasta 50 elementos por pagina

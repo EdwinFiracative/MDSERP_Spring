@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -34,7 +35,7 @@ class BitrixAppInstallControllerTest {
 
     @Test
     void registraElConectorConElTokenDeLaInstalacion() throws Exception {
-        when(registrationService.register("tok")).thenReturn(new Result(4, 7, List.of("pedidos_lineas"), List.of("pedidos_notas")));
+        when(registrationService.register("tok")).thenReturn(new Result(4, 7, List.of("pedidos_lineas"), List.of("pedidos_notas"), Map.of()));
 
         mockMvc.perform(post("/bitrix-app/install").contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("auth[access_token]", "tok")
@@ -49,7 +50,7 @@ class BitrixAppInstallControllerTest {
 
     @Test
     void aceptaTambienCuerpoJson() throws Exception {
-        when(registrationService.register("tok")).thenReturn(new Result(4, 7, List.of(), List.of()));
+        when(registrationService.register("tok")).thenReturn(new Result(4, 7, List.of(), List.of(), Map.of()));
 
         mockMvc.perform(post("/bitrix-app/install").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"auth\":{\"access_token\":\"tok\"}}"))

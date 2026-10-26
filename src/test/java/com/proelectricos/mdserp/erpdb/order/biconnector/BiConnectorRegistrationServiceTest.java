@@ -13,6 +13,8 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -93,7 +95,7 @@ class BiConnectorRegistrationServiceTest {
         Result result = service("local.abc").register(TOKEN);
 
         bitrix.verify();
-        assertThat(result).isEqualTo(new Result(4, 7, List.of("pedidos_lineas", "pedidos_notas"), List.of()));
+        assertThat(result).isEqualTo(new Result(4, 7, List.of("pedidos_lineas", "pedidos_notas"), List.of(), Map.of()));
     }
 
     @Test
@@ -111,11 +113,53 @@ class BiConnectorRegistrationServiceTest {
                 .andRespond(withSuccess("{\"result\":true}", MediaType.APPLICATION_JSON));
         expect("biconnector.table.list",
                 "{\"result\":[{\"id\":10,\"externalCode\":\"pedidos_lineas\"},{\"id\":11,\"externalCode\":\"pedidos_notas\"}]}");
+        bitrix.expect(requestTo(PORTAL + "biconnector.table.get"))
+                .andExpect(jsonPath("$.id").value(10))
+                .andRespond(withSuccess(tableGet(10, "pedidos_lineas"), MediaType.APPLICATION_JSON));
+        bitrix.expect(requestTo(PORTAL + "biconnector.table.get"))
+                .andExpect(jsonPath("$.id").value(11))
+                .andRespond(withSuccess(tableGet(11, "pedidos_notas"), MediaType.APPLICATION_JSON));
 
         Result result = service("").register(TOKEN);
 
         bitrix.verify();
-        assertThat(result).isEqualTo(new Result(4, 7, List.of(), List.of("pedidos_lineas", "pedidos_notas")));
+        assertThat(result).isEqualTo(new Result(4, 7, List.of(), List.of("pedidos_lineas", "pedidos_notas"), Map.of()));
+    }
+
+    // Una columna nueva en BiConnectorTables (sede_zona) se agrega a la tabla que Bitrix24 ya tenia
+    @Test
+    void reinstalacionAgregaColumnasNuevas() {
+        expect("app.info", "{\"result\":{\"ID\":1,\"CODE\":\"local.abc\"}}");
+        expect("biconnector.connector.list", "{\"result\":[{\"id\":4,\"title\":\"MDSERP Pedidos\"}]}");
+        expect("biconnector.connector.update", "{\"result\":true}");
+        expect("biconnector.source.list", "{\"result\":[{\"id\":7,\"connectorId\":4}]}");
+        expect("biconnector.source.update", "{\"result\":true}");
+        expect("biconnector.table.list",
+                "{\"result\":[{\"id\":10,\"externalCode\":\"pedidos_lineas\"},{\"id\":11,\"externalCode\":\"pedidos_notas\"}]}");
+        expect("biconnector.table.get", tableGet(10, "pedidos_lineas", "sede_zona"));
+        bitrix.expect(requestTo(PORTAL + "biconnector.table.fields.update"))
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.add.length()").value(1))
+                .andExpect(jsonPath("$.add[0].name").value("SEDE_ZONA"))
+                .andExpect(jsonPath("$.add[0].externalCode").value("sede_zona"))
+                .andExpect(jsonPath("$.add[0].type").value("string"))
+                .andRespond(withSuccess("{\"result\":true}", MediaType.APPLICATION_JSON));
+        expect("biconnector.table.get", tableGet(11, "pedidos_notas"));
+
+        Result result = service("").register(TOKEN);
+
+        bitrix.verify();
+        assertThat(result.addedColumns()).isEqualTo(Map.of("pedidos_lineas", List.of("sede_zona")));
+    }
+
+    // Respuesta de table.get con las columnas actuales de la tabla, menos las indicadas
+    private String tableGet(long id, String tableCode, String... without) {
+        List<String> skip = List.of(without);
+        String fields = tables.find(tableCode).orElseThrow().columns().stream()
+                .filter(column -> !skip.contains(column.code()))
+                .map(column -> "{\"externalCode\":\"" + column.code() + "\"}")
+                .collect(Collectors.joining(","));
+        return "{\"result\":{\"item\":{\"id\":" + id + ",\"fields\":[" + fields + "]}}}";
     }
 
     @Test
