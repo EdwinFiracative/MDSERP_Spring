@@ -57,6 +57,21 @@ class BitrixAppInstallControllerTest {
                 .andExpect(status().isOk());
     }
 
+    // Al reinstalar o abrir la app, Bitrix24 carga la URL en el iframe con el token en AUTH_ID
+    @Test
+    void aceptaElTokenDelIframeEnAuthId() throws Exception {
+        when(registrationService.register("tok")).thenReturn(
+                new Result(4, 7, List.of(), List.of("pedidos_lineas"), Map.of("pedidos_lineas", List.of("sede_zona"))));
+
+        mockMvc.perform(post("/bitrix-app/install").contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("DOMAIN", "proelectricos.bitrix24.es")
+                        .param("AUTH_ID", "tok")
+                        .param("REFRESH_ID", "ref")
+                        .param("PLACEMENT", "DEFAULT"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.addedColumns.pedidos_lineas[0]").value("sede_zona"));
+    }
+
     @Test
     void sinTokenResponde400() throws Exception {
         mockMvc.perform(post("/bitrix-app/install").contentType(MediaType.APPLICATION_FORM_URLENCODED)

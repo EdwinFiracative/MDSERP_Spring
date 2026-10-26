@@ -23,8 +23,9 @@ import java.util.Map;
 /**
  * Callback de instalacion de la aplicacion local de Bitrix24 ("Initial installation path"): Bitrix24 hace
  * un POST con auth[access_token] y auth[refresh_token] justo despues de agregar la aplicacion, y con ese
- * token se registra el conector BI ({@link BiConnectorRegistrationService}). Reinstalar la aplicacion
- * vuelve a ejecutar el registro. Los tokens no se guardan: solo se usan durante esta llamada.
+ * token se registra el conector BI ({@link BiConnectorRegistrationService}). Reinstalar la aplicacion, o
+ * abrirla si su "Handler path" apunta aqui, vuelve a ejecutar el registro (y agrega las columnas nuevas).
+ * Los tokens no se guardan: solo se usan durante esta llamada.
  * Ruta publica: {B24_APP_PUBLIC_BASE_URL}/bitrix-app/install.
  * Ver https://apidocs.bitrix24.com/settings/app-installation/local-apps/installation-callback.html
  */
@@ -41,8 +42,12 @@ public class BitrixAppInstallController {
 
     @PostMapping(value = "/install", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> install(HttpServletRequest request) throws IOException {
-        String accessToken = accessToken(request);
+        Map<String, Object> params = params(request);
+        // Solo los nombres de los parametros: los valores traen tokens
+        log.info("Instalacion app Bitrix24 desde {}: parametros {}", request.getRemoteAddr(), params.keySet());
+        String accessToken = accessToken(params);
         if (accessToken == null) {
+            log.warn("Instalacion app Bitrix24 sin token (ni auth[access_token] ni AUTH_ID): no se registra nada");
             return error(HttpStatus.BAD_REQUEST, "AUTH_REQUIRED", "Auth data is required");
         }
         try {
@@ -68,18 +73,26 @@ public class BitrixAppInstallController {
     }
 
     // La documentacion muestra el cuerpo como formulario (auth[access_token]=...); se acepta tambien JSON
-    private String accessToken(HttpServletRequest request) throws IOException {
-        Map<String, Object> params;
+    private Map<String, Object> params(HttpServletRequest request) throws IOException {
         if (request.getContentType() != null && request.getContentType().startsWith(MediaType.APPLICATION_JSON_VALUE)) {
             try (InputStream body = request.getInputStream()) {
-                params = objectMapper.readValue(body, new TypeReference<>() {
+                return objectMapper.readValue(body, new TypeReference<>() {
                 });
             }
-        } else {
-            params = FormParams.parse(request.getParameterMap());
         }
-        return params.get("auth") instanceof Map<?, ?> auth
-                && auth.get("access_token") instanceof String token && !token.isBlank() ? token : null;
+        return FormParams.parse(request.getParameterMap());
+    }
+
+    /*
+     * El callback servidor a servidor de la primera instalacion manda auth[access_token]; cuando Bitrix24
+     * abre la URL en el iframe de la app (reinstalar, abrir la app) manda el token como AUTH_ID.
+     */
+    private static String accessToken(Map<String, Object> params) {
+        if (params.get("auth") instanceof Map<?, ?> auth && auth.get("access_token") instanceof String token
+                && !token.isBlank()) {
+            return token;
+        }
+        return params.get("AUTH_ID") instanceof String token && !token.isBlank() ? token : null;
     }
 
     private static ResponseEntity<Map<String, Object>> error(HttpStatus status, String error, String description) {

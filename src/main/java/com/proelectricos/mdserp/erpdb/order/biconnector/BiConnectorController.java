@@ -80,7 +80,9 @@ public class BiConnectorController {
 
     @PostMapping(value = "/table_description", produces = JSON_UTF8)
     public List<Map<String, String>> tableDescription(@RequestParam String table) {
-        return findTable(table).columns().stream()
+        BiTable<?> found = findTable(table);
+        log.info("Conector BI: table_description {} ({} columnas)", found.code(), found.columns().size());
+        return found.columns().stream()
                 .map(column -> Map.of("code", column.code(), "name", column.name(), "type", column.type().code()))
                 .toList();
     }
