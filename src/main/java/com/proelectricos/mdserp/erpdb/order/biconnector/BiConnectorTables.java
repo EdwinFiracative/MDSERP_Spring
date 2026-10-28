@@ -38,6 +38,7 @@ public class BiConnectorTables {
                 new Column<>("cliente_nombre", "Cliente", Type.STRING, BiOrderLineRow::clienteNombre),
                 new Column<>("vendedor_id", "Id vendedor", Type.INT, BiOrderLineRow::vendedorId),
                 new Column<>("vendedor_codigo", "Codigo vendedor", Type.STRING, BiOrderLineRow::vendedorCodigo),
+                new Column<>("vendedor_cedula", "Cedula vendedor", Type.STRING, BiOrderLineRow::vendedorCedula),
                 new Column<>("vendedor_nombre", "Vendedor", Type.STRING, BiOrderLineRow::vendedorNombre),
                 new Column<>("posicion", "Posicion", Type.INT, BiOrderLineRow::posicion),
                 new Column<>("producto_id", "Id producto", Type.INT, BiOrderLineRow::productoId),
