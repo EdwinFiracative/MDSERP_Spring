@@ -27,6 +27,7 @@ public record BiOrderLineRow(
         String clienteNombre,
         Long vendedorId,
         String vendedorCodigo,
+        String vendedorCedula,
         String vendedorNombre,
         Integer posicion,
         Long productoId,

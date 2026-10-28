@@ -77,6 +77,7 @@ public class BiOrderDatasetService {
                             client.getThirdPartyName(),
                             vendor == null ? null : vendor.getVendorId(),
                             vendor == null ? null : vendor.getVendorCode(),
+                            identNumber(vendorThirdParty),
                             vendorThirdParty == null ? null : vendorThirdParty.getThirdPartyName(),
                             line.getOrderReferPosition(),
                             product.getReferId(),
