@@ -38,3 +38,6 @@ build/
 
 ### Secretos locales (chatbot) ###
 .env
+
+### Token de la app Bitrix24 ###
+data/

@@ -38,6 +38,7 @@ public class BitrixAppInstallController {
     public static final String INSTALL_PATH = "/bitrix-app/install";
 
     private final BiConnectorRegistrationService registrationService;
+    private final BitrixAppTokenService tokenService;
     private final ObjectMapper objectMapper;
 
     @PostMapping(value = "/install", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -52,6 +53,8 @@ public class BitrixAppInstallController {
         }
         try {
             Result result = registrationService.register(accessToken);
+            // Solo despues de validar el token: con el refresh_token BiConnectorAutoSync re-registra solo
+            tokenService.saveRefreshToken(refreshToken(params));
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("status", "success");
             body.put("connectorId", result.connectorId());
@@ -93,6 +96,14 @@ public class BitrixAppInstallController {
             return token;
         }
         return params.get("AUTH_ID") instanceof String token && !token.isBlank() ? token : null;
+    }
+
+    private static String refreshToken(Map<String, Object> params) {
+        if (params.get("auth") instanceof Map<?, ?> auth && auth.get("refresh_token") instanceof String token
+                && !token.isBlank()) {
+            return token;
+        }
+        return params.get("REFRESH_ID") instanceof String token && !token.isBlank() ? token : null;
     }
 
     private static ResponseEntity<Map<String, Object>> error(HttpStatus status, String error, String description) {
