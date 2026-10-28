@@ -24,13 +24,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BitrixAppInstallControllerTest {
 
     private BiConnectorRegistrationService registrationService;
+    private BitrixAppTokenService tokenService;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         registrationService = mock(BiConnectorRegistrationService.class);
+        tokenService = mock(BitrixAppTokenService.class);
         mockMvc = MockMvcBuilders.standaloneSetup(
-                new BitrixAppInstallController(registrationService, new ObjectMapper())).build();
+                new BitrixAppInstallController(registrationService, tokenService, new ObjectMapper())).build();
     }
 
     @Test
@@ -46,6 +48,7 @@ class BitrixAppInstallControllerTest {
                 .andExpect(jsonPath("$.connectorId").value(4))
                 .andExpect(jsonPath("$.sourceId").value(7))
                 .andExpect(jsonPath("$.createdTables[0]").value("pedidos_lineas"));
+        verify(tokenService).saveRefreshToken("ref");
     }
 
     @Test
@@ -70,6 +73,7 @@ class BitrixAppInstallControllerTest {
                         .param("PLACEMENT", "DEFAULT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.addedColumns.pedidos_lineas[0]").value("sede_zona"));
+        verify(tokenService).saveRefreshToken("ref");
     }
 
     @Test
@@ -88,5 +92,6 @@ class BitrixAppInstallControllerTest {
                         .param("auth[access_token]", "falso"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value("INVALID_TOKEN"));
+        verify(tokenService, never()).saveRefreshToken(any());
     }
 }
