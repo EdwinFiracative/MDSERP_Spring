@@ -208,4 +208,39 @@ class BiConnectorControllerTest {
         verify(datasetService).findNotes(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 30));
         verify(datasetService).findNotes(LocalDate.of(2026, 10, 1), TODAY);
     }
+
+    private MockMvc conFechaMinima(LocalDate minDate) {
+        Clock clock = Clock.fixed(TODAY.atStartOfDay().toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+        return MockMvcBuilders.standaloneSetup(new BiConnectorController(
+                        new BiConnectorTables(datasetService, marginService), new ObjectMapper(), 90, minDate, clock))
+                .addFilters(new BiConnectorKeyFilter(KEY)).build();
+    }
+
+    // Sin rango en el filtro: desde la fecha minima hasta hoy (no la ventana de 90 dias), por meses
+    @Test
+    void dataSinRangoConFechaMinimaEnviaDesdeEsaFecha() throws Exception {
+        when(marginService.findLines(any(), any())).thenReturn(List.of());
+
+        conFechaMinima(LocalDate.of(2026, 1, 1)).perform(call("data", KEY).param("table", "pedidos_margen"))
+                .andExpect(status().isOk());
+
+        verify(marginService).findLines(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31));
+        verify(marginService).findLines(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30));
+        verify(marginService).findLines(LocalDate.of(2026, 10, 1), TODAY);
+        verify(marginService, org.mockito.Mockito.times(10)).findLines(any(), any());
+    }
+
+    // Un rango que empieza antes de la fecha minima se recorta: nunca se envian pedidos de 2025
+    @Test
+    void dataConRangoAnteriorSeRecortaALaFechaMinima() throws Exception {
+        when(datasetService.findLines(any(), any())).thenReturn(List.of());
+
+        conFechaMinima(LocalDate.of(2026, 1, 1)).perform(call("data", KEY).param("table", "pedidos_lineas")
+                        .param("filter[>=fecha_pedido]", "2025-11-01")
+                        .param("filter[<=fecha_pedido]", "2026-01-15"))
+                .andExpect(status().isOk());
+
+        verify(datasetService).findLines(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 15));
+        verify(datasetService, org.mockito.Mockito.times(1)).findLines(any(), any());
+    }
 }
