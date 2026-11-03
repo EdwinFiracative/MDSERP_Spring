@@ -47,19 +47,34 @@ public class BiConnectorController {
     private final BiConnectorTables tables;
     private final ObjectMapper objectMapper;
     private final int defaultWindowDays;
+    private final LocalDate minDate;
     private final Clock clock;
 
     @Autowired
     public BiConnectorController(BiConnectorTables tables, ObjectMapper objectMapper,
-                                 @Value("${b24.connector-default-window-days:90}") int defaultWindowDays) {
+                                 @Value("${b24.connector-default-window-days:90}") int defaultWindowDays,
+                                 @Value("${b24.connector-min-date:}") String minDate) {
         // "Hoy" en hora de Colombia, aunque el contenedor corra en UTC
-        this(tables, objectMapper, defaultWindowDays, Clock.system(ZoneId.of("America/Bogota")));
+        this(tables, objectMapper, defaultWindowDays,
+                minDate == null || minDate.isBlank() ? null : LocalDate.parse(minDate.strip()),
+                Clock.system(ZoneId.of("America/Bogota")));
     }
 
     BiConnectorController(BiConnectorTables tables, ObjectMapper objectMapper, int defaultWindowDays, Clock clock) {
+        this(tables, objectMapper, defaultWindowDays, null, clock);
+    }
+
+    /**
+     * @param minDate primera fecha_pedido que se envia a Bitrix24 (null = sin limite). Sin rango en el filtro,
+     *                el conector envia desde minDate hasta hoy en vez de la ventana de defaultWindowDays; con
+     *                rango, un inicio anterior se sube a minDate.
+     */
+    BiConnectorController(BiConnectorTables tables, ObjectMapper objectMapper, int defaultWindowDays,
+                          LocalDate minDate, Clock clock) {
         this.tables = tables;
         this.objectMapper = objectMapper;
         this.defaultWindowDays = defaultWindowDays;
+        this.minDate = minDate;
         this.clock = clock;
     }
 
@@ -162,10 +177,14 @@ public class BiConnectorController {
         }
     }
 
-    // Rango del filtro completado con la ventana por defecto que termina hoy
+    // Rango del filtro completado hasta hoy y desde minDate (o la ventana por defecto si no hay minDate)
     private DateRange window(DateRange filtered) {
         LocalDate to = filtered.to() != null ? filtered.to() : LocalDate.now(clock);
-        LocalDate from = filtered.from() != null ? filtered.from() : to.minusDays(defaultWindowDays);
+        LocalDate from = filtered.from() != null ? filtered.from()
+                : minDate != null ? minDate : to.minusDays(defaultWindowDays);
+        if (minDate != null && from.isBefore(minDate)) {
+            from = minDate;
+        }
         return new DateRange(from, to);
     }
 
