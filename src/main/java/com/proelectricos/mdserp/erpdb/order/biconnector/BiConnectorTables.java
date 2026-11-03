@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Tablas que el conector BI publica en Bitrix24 BI Builder: "pedidos_lineas" y "pedidos_notas".
+ * Tablas que el conector BI publica en Bitrix24 BI Builder: "pedidos_lineas", "pedidos_notas" y
+ * "pedidos_margen" (margen por linea con costo de las OP, desde vw_MargenPedidoReferencia).
  * Todas tienen la columna fecha_pedido, que es la que acota el rango de consulta.
  */
 @Component
@@ -18,7 +19,7 @@ public class BiConnectorTables {
 
     private final List<BiTable<?>> tables;
 
-    public BiConnectorTables(BiOrderDatasetService datasetService) {
+    public BiConnectorTables(BiOrderDatasetService datasetService, BiMarginDatasetService marginService) {
         BiTable<BiOrderLineRow> lines = new BiTable<>("pedidos_lineas", "Pedidos - lineas", List.of(
                 new Column<>("id_linea", "Id linea", Type.INT, BiOrderLineRow::idLinea),
                 new Column<>("clave_linea", "Clave linea", Type.STRING, BiOrderLineRow::claveLinea),
@@ -66,7 +67,42 @@ public class BiConnectorTables {
                 new Column<>("texto", "Texto", Type.STRING, BiOrderNoteRow::texto)),
                 datasetService::findNotes);
 
-        this.tables = List.of(lines, notes);
+        BiTable<BiMarginRow> margin = new BiTable<>("pedidos_margen", "Pedidos - margen por referencia", List.of(
+                new Column<>("id_linea", "Id linea", Type.INT, BiMarginRow::idLinea),
+                new Column<>("clave_linea", "Clave linea", Type.STRING, BiMarginRow::claveLinea),
+                new Column<>("id_pedido", "Id pedido", Type.INT, BiMarginRow::idPedido),
+                new Column<>("numero_pedido", "Numero pedido", Type.INT, BiMarginRow::numeroPedido),
+                new Column<>(DATE_COLUMN, "Fecha pedido", Type.DATE, BiMarginRow::fechaPedido),
+                new Column<>("orden_cliente", "Orden de compra cliente", Type.STRING, BiMarginRow::ordenCliente),
+                new Column<>("sede_codigo", "Codigo sede", Type.STRING, BiMarginRow::sedeCodigo),
+                new Column<>("cliente_id", "Id cliente", Type.INT, BiMarginRow::clienteId),
+                new Column<>("cliente_nit", "NIT cliente", Type.STRING, BiMarginRow::clienteNit),
+                new Column<>("cliente_nombre", "Cliente", Type.STRING, BiMarginRow::clienteNombre),
+                new Column<>("vendedor_codigo", "Codigo vendedor", Type.STRING, BiMarginRow::vendedorCodigo),
+                new Column<>("vendedor_nombre", "Vendedor", Type.STRING, BiMarginRow::vendedorNombre),
+                new Column<>("posicion", "Posicion", Type.INT, BiMarginRow::posicion),
+                new Column<>("producto_id", "Id producto", Type.INT, BiMarginRow::productoId),
+                new Column<>("producto_codigo", "Codigo producto", Type.STRING, BiMarginRow::productoCodigo),
+                new Column<>("producto_nombre", "Producto", Type.STRING, BiMarginRow::productoNombre),
+                new Column<>("estado", "Estado", Type.STRING, BiMarginRow::estado),
+                new Column<>("cantidad", "Cantidad", Type.DOUBLE, BiMarginRow::cantidad),
+                new Column<>("precio_unitario", "Precio unitario (COP)", Type.DOUBLE, BiMarginRow::precioUnitario),
+                new Column<>("costo_unitario", "Costo unitario (COP)", Type.DOUBLE, BiMarginRow::costoUnitario),
+                new Column<>("mp_unitario", "Materia prima unitaria (COP)", Type.DOUBLE, BiMarginRow::mpUnitario),
+                new Column<>("mo_unitario", "Mano de obra unitaria (COP)", Type.DOUBLE, BiMarginRow::moUnitario),
+                new Column<>("cif_unitario", "CIF unitario (COP)", Type.DOUBLE, BiMarginRow::cifUnitario),
+                new Column<>("st_unitario", "Servicios de terceros unitario (COP)", Type.DOUBLE, BiMarginRow::stUnitario),
+                new Column<>("venta", "Venta sin impuestos (COP)", Type.DOUBLE, BiMarginRow::venta),
+                new Column<>("venta_con_costo", "Venta con costo (COP)", Type.DOUBLE, BiMarginRow::ventaConCosto),
+                new Column<>("costo", "Costo (COP)", Type.DOUBLE, BiMarginRow::costo),
+                new Column<>("margen", "Margen (COP)", Type.DOUBLE, BiMarginRow::margen),
+                new Column<>("margen_pct", "Margen % de la linea", Type.DOUBLE, BiMarginRow::margenPct),
+                new Column<>("fuente_costo", "Fuente del costo", Type.STRING, BiMarginRow::fuenteCosto),
+                new Column<>("num_op", "Numero de OP usadas", Type.INT, BiMarginRow::numOp),
+                new Column<>("ultima_op", "Ultima OP", Type.INT, BiMarginRow::ultimaOp)),
+                marginService::findLines);
+
+        this.tables = List.of(lines, notes, margin);
     }
 
     public List<BiTable<?>> all() {

@@ -160,7 +160,7 @@ public class BiConnectorRegistrationService {
     private long upsertConnector(String accessToken) {
         Map<String, Object> fields = new LinkedHashMap<>();
         fields.put("title", CONNECTOR_TITLE);
-        fields.put("description", "Pedidos de venta de ErpDb (lineas y notas) servidos por el backend MDSERP");
+        fields.put("description", "Pedidos de venta de ErpDb (lineas, notas y margen por referencia) servidos por el backend MDSERP");
         fields.put("logo", LOGO);
         fields.put("urlCheck", publicBaseUrl + BiConnectorKeyFilter.PATH_PREFIX + "check");
         fields.put("urlTableList", publicBaseUrl + BiConnectorKeyFilter.PATH_PREFIX + "table_list");
