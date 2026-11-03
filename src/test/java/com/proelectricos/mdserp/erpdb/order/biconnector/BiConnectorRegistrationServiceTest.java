@@ -41,7 +41,7 @@ class BiConnectorRegistrationServiceTest {
         RestClient.Builder builder = RestClient.builder().baseUrl(PORTAL);
         bitrix = MockRestServiceServer.bindTo(builder).build();
         client = builder.build();
-        tables = new BiConnectorTables(mock(BiOrderDatasetService.class));
+        tables = new BiConnectorTables(mock(BiOrderDatasetService.class), mock(BiMarginDatasetService.class));
     }
 
     private BiConnectorRegistrationService service(String clientId) {
@@ -91,11 +91,15 @@ class BiConnectorRegistrationServiceTest {
         bitrix.expect(requestTo(PORTAL + "biconnector.table.add"))
                 .andExpect(jsonPath("$.fields.name").value("mdserp_pedidos_notas"))
                 .andRespond(withSuccess("{\"result\":{\"id\":11}}", MediaType.APPLICATION_JSON));
+        bitrix.expect(requestTo(PORTAL + "biconnector.table.add"))
+                .andExpect(jsonPath("$.fields.name").value("mdserp_pedidos_margen"))
+                .andExpect(jsonPath("$.fields.fields.length()").value(42))
+                .andRespond(withSuccess("{\"result\":{\"id\":12}}", MediaType.APPLICATION_JSON));
 
         Result result = service("local.abc").register(TOKEN);
 
         bitrix.verify();
-        assertThat(result).isEqualTo(new Result(4, 7, List.of("pedidos_lineas", "pedidos_notas"), List.of(), Map.of()));
+        assertThat(result).isEqualTo(new Result(4, 7, List.of("pedidos_lineas", "pedidos_notas", "pedidos_margen"), List.of(), Map.of()));
     }
 
     @Test
@@ -119,11 +123,17 @@ class BiConnectorRegistrationServiceTest {
         bitrix.expect(requestTo(PORTAL + "biconnector.table.get"))
                 .andExpect(jsonPath("$.id").value(11))
                 .andRespond(withSuccess(tableGet(11, "pedidos_notas"), MediaType.APPLICATION_JSON));
+        // pedidos_margen aun no existe en el portal: se crea sin tocar las otras dos
+        bitrix.expect(requestTo(PORTAL + "biconnector.table.add"))
+                .andExpect(jsonPath("$.fields.sourceId").value(7))
+                .andExpect(jsonPath("$.fields.externalCode").value("pedidos_margen"))
+                .andRespond(withSuccess("{\"result\":{\"id\":12}}", MediaType.APPLICATION_JSON));
 
         Result result = service("").register(TOKEN);
 
         bitrix.verify();
-        assertThat(result).isEqualTo(new Result(4, 7, List.of(), List.of("pedidos_lineas", "pedidos_notas"), Map.of()));
+        assertThat(result).isEqualTo(new Result(4, 7, List.of("pedidos_margen"),
+                List.of("pedidos_lineas", "pedidos_notas"), Map.of()));
     }
 
     // Una columna nueva en BiConnectorTables (sede_zona) se agrega a la tabla que Bitrix24 ya tenia
@@ -135,7 +145,8 @@ class BiConnectorRegistrationServiceTest {
         expect("biconnector.source.list", "{\"result\":[{\"id\":7,\"connectorId\":4}]}");
         expect("biconnector.source.update", "{\"result\":true}");
         expect("biconnector.table.list",
-                "{\"result\":[{\"id\":10,\"externalCode\":\"pedidos_lineas\"},{\"id\":11,\"externalCode\":\"pedidos_notas\"}]}");
+                "{\"result\":[{\"id\":10,\"externalCode\":\"pedidos_lineas\"},{\"id\":11,\"externalCode\":\"pedidos_notas\"},"
+                        + "{\"id\":12,\"externalCode\":\"pedidos_margen\"}]}");
         expect("biconnector.table.get", tableGet(10, "pedidos_lineas", "sede_zona"));
         bitrix.expect(requestTo(PORTAL + "biconnector.table.fields.update"))
                 .andExpect(jsonPath("$.id").value(10))
@@ -145,6 +156,7 @@ class BiConnectorRegistrationServiceTest {
                 .andExpect(jsonPath("$.add[0].type").value("string"))
                 .andRespond(withSuccess("{\"result\":true}", MediaType.APPLICATION_JSON));
         expect("biconnector.table.get", tableGet(11, "pedidos_notas"));
+        expect("biconnector.table.get", tableGet(12, "pedidos_margen"));
 
         Result result = service("").register(TOKEN);
 
