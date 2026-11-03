@@ -13,8 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Lee la vista ErpDb.dbo.vw_MargenPedidoReferencia (margen por linea de pedido con costo de las OP de
- * EMP001_INV) para la tabla "pedidos_margen" del conector BI. Cada linea consulta OP, por eso siempre se
+ * Lee la vista ErpDb.dbo.vw_MargenPedidoReferencia (margen real con costo de las OP de EMP001_INV y margen
+ * estandar con MAESTRO.CSTD, por linea de pedido) para la tabla "pedidos_margen" del conector BI. Cada linea consulta OP, por eso siempre se
  * filtra por fecha: el controlador pide de a un mes (~1.500 lineas, pocos segundos).
  */
 @Service
@@ -22,9 +22,12 @@ public class BiMarginDatasetService {
 
     static final String SQL = """
             SELECT orderReferId, orderHeaderId, Pedido, Fecha, OrdenCliente, Sede, clientId, NitCliente, Cliente,
-                   CodigoVendedor, Vendedor, Item, referId, CodigoReferencia, Referencia, EstadoLinea,
-                   Cantidad, PrecioUnitario, CostoUnitario, MPUnit, MOUnit, CIFUnit, STUnit,
-                   Venta, VentaConCosto, Costo, Margen, MargenPct, FuenteCosto, NumOP, UltimaOP
+                   CodigoVendedor, Vendedor, EstadoLinea, referId, LineaNegocioId, Item, CodigoReferencia,
+                   Referencia, LineaNegocio, Cantidad, PrecioUnitario, ValorPedido,
+                   CostoRealUnitario, CostoEstandarUnitario, DiferenciaCostoPct, MargenRealPct, MargenEstandarPct,
+                   CostoReal, CostoEstandar, DiferenciaCosto, MargenReal, MargenEstandar,
+                   FuenteCostoReal, NumOP, UltimaOP, MPUnit, MOUnit, CIFUnit, STUnit,
+                   DiferenciaCostoUnitario, ValorConCostoReal, ValorConCostoEstandar
             FROM ErpDb.dbo.vw_MargenPedidoReferencia
             WHERE Fecha >= ? AND Fecha <= ?
             ORDER BY Pedido, Item""";
@@ -68,26 +71,36 @@ public class BiMarginDatasetService {
                 trim(rs.getString("Cliente")),
                 trim(rs.getString("CodigoVendedor")),
                 trim(rs.getString("Vendedor")),
-                item,
+                rs.getString("EstadoLinea"),
                 rs.getObject("referId", Long.class),
+                rs.getObject("LineaNegocioId", Long.class),
+                item,
                 trim(rs.getString("CodigoReferencia")),
                 BiOrderDatasetService.singleLine(trim(rs.getString("Referencia"))),
-                rs.getString("EstadoLinea"),
+                rs.getString("LineaNegocio"),
                 rs.getBigDecimal("Cantidad"),
                 rs.getBigDecimal("PrecioUnitario"),
-                rs.getBigDecimal("CostoUnitario"),
+                rs.getBigDecimal("ValorPedido"),
+                rs.getBigDecimal("CostoRealUnitario"),
+                rs.getBigDecimal("CostoEstandarUnitario"),
+                rs.getBigDecimal("DiferenciaCostoPct"),
+                rs.getBigDecimal("MargenRealPct"),
+                rs.getBigDecimal("MargenEstandarPct"),
+                rs.getBigDecimal("CostoReal"),
+                rs.getBigDecimal("CostoEstandar"),
+                rs.getBigDecimal("DiferenciaCosto"),
+                rs.getBigDecimal("MargenReal"),
+                rs.getBigDecimal("MargenEstandar"),
+                rs.getString("FuenteCostoReal"),
+                rs.getObject("NumOP", Integer.class),
+                rs.getObject("UltimaOP", Integer.class),
                 rs.getBigDecimal("MPUnit"),
                 rs.getBigDecimal("MOUnit"),
                 rs.getBigDecimal("CIFUnit"),
                 rs.getBigDecimal("STUnit"),
-                rs.getBigDecimal("Venta"),
-                rs.getBigDecimal("VentaConCosto"),
-                rs.getBigDecimal("Costo"),
-                rs.getBigDecimal("Margen"),
-                rs.getBigDecimal("MargenPct"),
-                rs.getString("FuenteCosto"),
-                rs.getObject("NumOP", Integer.class),
-                rs.getObject("UltimaOP", Integer.class));
+                rs.getBigDecimal("DiferenciaCostoUnitario"),
+                rs.getBigDecimal("ValorConCostoReal"),
+                rs.getBigDecimal("ValorConCostoEstandar"));
     }
 
     private static String trim(String value) {
