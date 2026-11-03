@@ -49,7 +49,7 @@ public class BiConnectorTables {
                 new Column<>("unidad_medida", "Unidad de medida", Type.STRING, BiOrderLineRow::unidadMedida),
                 new Column<>("linea_negocio_id", "Id linea de negocio", Type.INT, BiOrderLineRow::lineaNegocioId),
                 new Column<>("linea_negocio", "Linea de negocio", Type.STRING, BiOrderLineRow::lineaNegocio),
-                new Column<>("cantidad", "Cantidad", Type.INT, BiOrderLineRow::cantidad),
+                new Column<>("cantidad", "Cantidad", Type.DOUBLE, BiOrderLineRow::cantidad),
                 new Column<>("precio_unitario", "Precio unitario (COP)", Type.DOUBLE, BiOrderLineRow::precioUnitario),
                 new Column<>("valor_total", "Valor total sin impuestos (COP)", Type.DOUBLE, BiOrderLineRow::valorTotal),
                 new Column<>("fecha_entrega", "Fecha entrega", Type.DATE, BiOrderLineRow::fechaEntrega),

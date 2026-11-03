@@ -21,7 +21,8 @@ public class OrderDetailReferenceDto implements Serializable {
     ReferenceDto orderReferReference;
     /** Linea de negocio de la referencia; null si no esta clasificada. */
     OrderBusinessLineDto orderReferBusinessLine;
-    Integer orderReferQuantity;
+    /** Cantidad con hasta 4 decimales (decimal(14,4) en la base). */
+    BigDecimal orderReferQuantity;
     BigDecimal orderReferUnitPrice;
     /** Cantidad * valor unitario (sin impuestos); no existe en la base. */
     BigDecimal valorTotal;

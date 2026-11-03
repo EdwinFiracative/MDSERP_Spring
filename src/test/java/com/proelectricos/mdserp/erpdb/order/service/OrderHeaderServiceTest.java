@@ -159,7 +159,8 @@ class OrderHeaderServiceTest {
             assertThat(reference.getReferDescription()).isEqualTo(row[6]);
             assertThat(reference.getReferMeasuUnit().getMeasuUnitId()).isEqualTo(((Number) row[7]).longValue());
             assertThat(reference.getReferMeasuUnit().getMeasuUnitName()).isEqualTo(row[8]);
-            assertThat(line.getOrderReferQuantity()).isEqualTo(((Number) row[9]).intValue());
+            // Con decimales (2.75 no debe llegar como 2)
+            assertThat(line.getOrderReferQuantity()).isEqualByComparingTo((BigDecimal) row[9]);
             assertThat(line.getOrderReferUnitPrice()).isEqualByComparingTo((BigDecimal) row[10]);
             assertThat(line.getValorTotal()).isEqualByComparingTo((BigDecimal) row[11]);
             assertThat(line.getOrderReferDelivDate()).isEqualTo(((Date) row[12]).toLocalDate());
