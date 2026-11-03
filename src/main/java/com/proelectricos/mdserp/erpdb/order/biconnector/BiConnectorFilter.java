@@ -7,12 +7,14 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -29,6 +31,10 @@ final class BiConnectorFilter {
     private static final DateTimeFormatter DMY = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final Pattern ISO_DATE = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}.*");
     private static final Pattern DMY_DATE = Pattern.compile("^\\d{2}\\.\\d{2}\\.\\d{4}.*");
+    // Filtros de fecha de los tableros de BI Builder en el portal en espanol: "01/11/2026 12:00:00 am" (dia/mes)
+    private static final DateTimeFormatter SLASH_DMY = DateTimeFormatter.ofPattern("d/M/uuuu")
+            .withResolverStyle(ResolverStyle.STRICT);
+    private static final Pattern SLASH_DMY_DATE = Pattern.compile("^(\\d{1,2}/\\d{1,2}/\\d{4})(\\s.*)?$");
 
     private sealed interface Node permits Group, Condition {
     }
@@ -230,6 +236,11 @@ final class BiConnectorFilter {
             }
             if (DMY_DATE.matcher(text).matches()) {
                 return LocalDate.parse(text.substring(0, 10), DMY);
+            }
+            // La hora (siempre "12:00:00 am" = medianoche) se descarta: fecha_pedido no tiene hora
+            Matcher slash = SLASH_DMY_DATE.matcher(text);
+            if (slash.matches()) {
+                return LocalDate.parse(slash.group(1), SLASH_DMY);
             }
         } catch (DateTimeParseException e) {
             return null;

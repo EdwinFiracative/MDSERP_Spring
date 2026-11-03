@@ -42,7 +42,7 @@ class BiOrderDatasetServiceTest {
                 1, 164973L, "32114974501", "TABLERO PALNTA ELECTRICA UN 208/120V - IN 2000A - ICC 35KA",
                 "TADI.T.2000A.65KA.IP43.IN.CR", "CONJUNTO",
                 1154L, "celdas y tableros",
-                1, new BigDecimal("17661953.0000"), new BigDecimal("17661953.0000"), LocalDate.of(2026, 11, 23),
+                new BigDecimal("1"), new BigDecimal("17661953.0000"), new BigDecimal("17661953.0000"), LocalDate.of(2026, 11, 23),
                 14079L, "PROYECTO EJEMPLO", 2L, "Aprobado"));
         assertThat(notes).containsExactly(
                 new BiOrderNoteRow(49745, LocalDate.of(2026, 10, 19), 59857L, 1, "NOTA DE EJEMPLO 1"));

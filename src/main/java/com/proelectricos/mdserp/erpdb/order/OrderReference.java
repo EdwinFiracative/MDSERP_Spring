@@ -35,8 +35,9 @@ public class OrderReference {
     private Reference orderReferReference;
 
     @NotNull
-    @Column(name = "orderReferQuantity", nullable = false)
-    private Integer orderReferQuantity;
+    // decimal(14,4) en la base (igual que emp001_fact.dbo.PEDIDOS.CANT): hay cantidades como 2.75 o 0.5
+    @Column(name = "orderReferQuantity", nullable = false, precision = 14, scale = 4)
+    private BigDecimal orderReferQuantity;
 
     @NotNull
     @Column(name = "orderReferUnitPrice", nullable = false)
