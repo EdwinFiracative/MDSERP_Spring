@@ -114,11 +114,11 @@ class BiConnectorControllerTest {
                         "numero_pedido", "fecha_pedido", "id_nota", "posicion", "texto")));
 
         mockMvc.perform(call("table_description", KEY).param("table", "pedidos_margen"))
-                .andExpect(jsonPath("$.length()").value(32))
+                .andExpect(jsonPath("$.length()").value(42))
                 .andExpect(jsonPath("$[4].code").value("fecha_pedido"))
                 .andExpect(jsonPath("$[4].type").value("date"))
-                .andExpect(jsonPath("$[28].code").value("margen_pct"))
-                .andExpect(jsonPath("$[28].type").value("double"));
+                .andExpect(jsonPath("$[25].code").value("margen_real_pct"))
+                .andExpect(jsonPath("$[25].type").value("double"));
 
         mockMvc.perform(call("table_description", KEY).param("table", "no_existe"))
                 .andExpect(status().isNotFound());

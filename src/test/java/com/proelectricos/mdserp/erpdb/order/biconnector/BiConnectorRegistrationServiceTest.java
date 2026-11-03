@@ -93,7 +93,7 @@ class BiConnectorRegistrationServiceTest {
                 .andRespond(withSuccess("{\"result\":{\"id\":11}}", MediaType.APPLICATION_JSON));
         bitrix.expect(requestTo(PORTAL + "biconnector.table.add"))
                 .andExpect(jsonPath("$.fields.name").value("mdserp_pedidos_margen"))
-                .andExpect(jsonPath("$.fields.fields.length()").value(32))
+                .andExpect(jsonPath("$.fields.fields.length()").value(42))
                 .andRespond(withSuccess("{\"result\":{\"id\":12}}", MediaType.APPLICATION_JSON));
 
         Result result = service("local.abc").register(TOKEN);
