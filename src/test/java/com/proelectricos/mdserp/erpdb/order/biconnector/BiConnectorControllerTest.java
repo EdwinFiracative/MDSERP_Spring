@@ -29,14 +29,16 @@ class BiConnectorControllerTest {
     private static final LocalDate TODAY = LocalDate.of(2026, 10, 20);
 
     private BiOrderDatasetService datasetService;
+    private BiMarginDatasetService marginService;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         datasetService = mock(BiOrderDatasetService.class);
+        marginService = mock(BiMarginDatasetService.class);
         Clock clock = Clock.fixed(TODAY.atStartOfDay().toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         BiConnectorController controller = new BiConnectorController(
-                new BiConnectorTables(datasetService), new ObjectMapper(), 90, clock);
+                new BiConnectorTables(datasetService, marginService), new ObjectMapper(), 90, clock);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).addFilters(new BiConnectorKeyFilter(KEY)).build();
     }
 
@@ -67,7 +69,7 @@ class BiConnectorControllerTest {
     @Test
     void sinClaveConfiguradaRechazaTodo() throws Exception {
         MockMvc sinClave = MockMvcBuilders.standaloneSetup(new BiConnectorController(
-                        new BiConnectorTables(datasetService), new ObjectMapper(), 90, Clock.systemUTC()))
+                        new BiConnectorTables(datasetService, marginService), new ObjectMapper(), 90, Clock.systemUTC()))
                 .addFilters(new BiConnectorKeyFilter("")).build();
 
         sinClave.perform(call("check", "")).andExpect(status().isUnauthorized());
@@ -79,12 +81,13 @@ class BiConnectorControllerTest {
     }
 
     @Test
-    void tableListDevuelveLasDosTablas() throws Exception {
+    void tableListDevuelveLasTresTablas() throws Exception {
         mockMvc.perform(call("table_list", KEY).param("searchString", ""))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$.length()").value(3))
                 .andExpect(jsonPath("$[0].code").value("pedidos_lineas"))
-                .andExpect(jsonPath("$[1].code").value("pedidos_notas"));
+                .andExpect(jsonPath("$[1].code").value("pedidos_notas"))
+                .andExpect(jsonPath("$[2].code").value("pedidos_margen"));
 
         mockMvc.perform(call("table_list", KEY).param("searchString", "notas"))
                 .andExpect(jsonPath("$.length()").value(1))
@@ -109,6 +112,13 @@ class BiConnectorControllerTest {
         mockMvc.perform(call("table_description", KEY).param("table", "pedidos_notas"))
                 .andExpect(jsonPath("$[*].code").value(org.hamcrest.Matchers.contains(
                         "numero_pedido", "fecha_pedido", "id_nota", "posicion", "texto")));
+
+        mockMvc.perform(call("table_description", KEY).param("table", "pedidos_margen"))
+                .andExpect(jsonPath("$.length()").value(32))
+                .andExpect(jsonPath("$[4].code").value("fecha_pedido"))
+                .andExpect(jsonPath("$[4].type").value("date"))
+                .andExpect(jsonPath("$[28].code").value("margen_pct"))
+                .andExpect(jsonPath("$[28].type").value("double"));
 
         mockMvc.perform(call("table_description", KEY).param("table", "no_existe"))
                 .andExpect(status().isNotFound());
