@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -228,6 +229,31 @@ class BiConnectorControllerTest {
         verify(marginService).findLines(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30));
         verify(marginService).findLines(LocalDate.of(2026, 10, 1), TODAY);
         verify(marginService, org.mockito.Mockito.times(10)).findLines(any(), any());
+    }
+
+    // Filtro de periodo de un tablero de BI Builder (portal en espanol), tal como llega en produccion:
+    // dia/mes/anio con hora y "<" exclusivo. Antes se ignoraba y se devolvia todo 2026 para cualquier periodo
+    @Test
+    void dataConFechasDelTableroDiaMesAnioConHoraFiltraElPeriodo() throws Exception {
+        when(marginService.findLines(any(), any())).thenReturn(List.of());
+
+        conFechaMinima(LocalDate.of(2026, 1, 1)).perform(call("data", KEY).param("table", "pedidos_margen")
+                        .param("filter[>=FECHA_PEDIDO]", "01/10/2026 12:00:00 am")
+                        .param("filter[<FECHA_PEDIDO]", "02/11/2026 12:00:00 am"))
+                .andExpect(status().isOk());
+
+        // Del 1 de octubre al 1 de noviembre (el "<" 2 de noviembre lo deja fuera), por meses
+        verify(marginService).findLines(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31));
+        verify(marginService).findLines(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 1));
+        verify(marginService, org.mockito.Mockito.times(2)).findLines(any(), any());
+    }
+
+    @Test
+    void parseDateAceptaDiaMesAnioConYSinHora() {
+        assertThat(BiConnectorFilter.parseDate("01/11/2026 12:00:00 am")).isEqualTo(LocalDate.of(2026, 11, 1));
+        assertThat(BiConnectorFilter.parseDate("02/12/2026")).isEqualTo(LocalDate.of(2026, 12, 2));
+        assertThat(BiConnectorFilter.parseDate("1/4/2026 12:00:00 AM")).isEqualTo(LocalDate.of(2026, 4, 1));
+        assertThat(BiConnectorFilter.parseDate("31/02/2026")).isNull();
     }
 
     // Un rango que empieza antes de la fecha minima se recorta: nunca se envian pedidos de 2025
