@@ -138,7 +138,7 @@ public class OrderHeaderMapper {
 
     private OrderDetailReferenceDto toReferenceDto(OrderReference line, Map<Long, ReferClassification> businessLineByClassId) {
         OrderDetailReferenceDto dto = modelMapper.map(line, OrderDetailReferenceDto.class);
-        dto.setValorTotal(line.getOrderReferUnitPrice().multiply(BigDecimal.valueOf(line.getOrderReferQuantity())));
+        dto.setValorTotal(line.getOrderReferUnitPrice().multiply(line.getOrderReferQuantity()));
         ReferClassification businessLine = businessLineOf(line, businessLineByClassId);
         if (businessLine != null) {
             dto.setOrderReferBusinessLine(modelMapper.map(businessLine, OrderBusinessLineDto.class));

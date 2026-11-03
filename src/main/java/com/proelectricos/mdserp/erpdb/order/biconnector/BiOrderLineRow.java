@@ -37,7 +37,7 @@ public record BiOrderLineRow(
         String unidadMedida,
         Long lineaNegocioId,
         String lineaNegocio,
-        Integer cantidad,
+        BigDecimal cantidad,
         BigDecimal precioUnitario,
         BigDecimal valorTotal,
         LocalDate fechaEntrega,
