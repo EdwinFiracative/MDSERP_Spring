@@ -2,6 +2,7 @@ package com.proelectricos.mdserp.chatbot.bitrix;
 
 import com.proelectricos.mdserp.chatbot.config.ChatbotProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
@@ -62,6 +63,7 @@ public class BitrixDealQueries {
     private final String portalUrl;
     private volatile Embudos embudos;
 
+    @Autowired
     public BitrixDealQueries(ChatbotProperties properties) {
         this(cliente(properties.bitrix()), properties.bitrix().webhookUrl());
     }
