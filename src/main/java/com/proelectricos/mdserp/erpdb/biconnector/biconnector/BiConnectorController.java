@@ -1,10 +1,10 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorFilter.DateRange;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiTable.Column;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorFilter.DateRange;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiTable.Column;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

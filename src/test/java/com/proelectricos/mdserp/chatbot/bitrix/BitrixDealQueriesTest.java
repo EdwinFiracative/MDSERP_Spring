@@ -59,16 +59,19 @@ class BitrixDealQueriesTest {
     private static final String TRES_NEGOCIOS = """
             {"result":[
               {"ID":"10","TITLE":"Tablero A","CATEGORY_ID":"1","STAGE_ID":"C1:WON","STAGE_SEMANTIC_ID":"S",
-               "OPPORTUNITY":"1000.00","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-02T20:00:00+03:00","ASSIGNED_BY_ID":"51"},
+               "OPPORTUNITY":"1000.00","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-02T20:00:00+03:00","ASSIGNED_BY_ID":"51",
+               "UF_CRM_1574869875":"124"},
               {"ID":"11","TITLE":"Tablero B","CATEGORY_ID":"1","STAGE_ID":"C1:LOSE","STAGE_SEMANTIC_ID":"F",
                "OPPORTUNITY":"500","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-03T20:00:00+03:00","ASSIGNED_BY_ID":"51"},
               {"ID":"12","TITLE":"Diseño","CATEGORY_ID":"3","STAGE_ID":"C3:NEW","STAGE_SEMANTIC_ID":"P",
-               "OPPORTUNITY":"250.5","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-06T20:00:00+03:00","ASSIGNED_BY_ID":"21"}],
+               "OPPORTUNITY":"250.5","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-06T20:00:00+03:00","ASSIGNED_BY_ID":"21",
+               "UF_CRM_1574869875":"124"}],
              "total":3}""";
 
     private static final String USUARIOS = """
             {"result":{"result":{"u51":[{"ID":"51","NAME":"Ana","LAST_NAME":"Pérez"}],
-             "u21":[{"ID":"21","NAME":"Luis","LAST_NAME":"Gómez"}]},"result_error":[]}}""";
+             "u21":[{"ID":"21","NAME":"Luis","LAST_NAME":"Gómez"}],
+             "u124":[{"ID":"124","NAME":"Marta","LAST_NAME":"Ruiz"}]},"result_error":[]}}""";
 
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> lista(Map<String, Object> r, String clave) {
@@ -102,7 +105,7 @@ class BitrixDealQueriesTest {
         responde("batch", USUARIOS);
 
         Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                null, null, null, null, false);
+                null, null, null, null, null, null, false);
 
         server.verify();
         assertThat((Map<String, Object>) r.get("totales"))
@@ -129,7 +132,7 @@ class BitrixDealQueriesTest {
         responde("batch", USUARIOS);
 
         Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                null, null, null, "semana", false);
+                null, null, null, null, "semana", null, false);
 
         server.verify();
         assertThat(r.get("agrupado_por")).isEqualTo("semana");
@@ -150,7 +153,7 @@ class BitrixDealQueriesTest {
         responde("batch", USUARIOS);
 
         Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 10, 31),
-                null, null, "luis gomez", "mes", false);
+                null, null, "luis gomez", null, "mes", null, false);
 
         server.verify();
         assertThat((Map<String, Object>) r.get("totales")).containsEntry("Negocios", 1);
@@ -169,14 +172,14 @@ class BitrixDealQueriesTest {
         responde("crm.deal.list", TRES_NEGOCIOS);
 
         Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                null, null, null, null, false);
+                null, null, null, null, null, null, false);
 
         assertThat(r.get("aviso_responsables")).isEqualTo(BitrixDealQueries.AVISO_SIN_PERMISO_USUARIOS);
         assertThat(lista(r, "por_responsable")).extracting(f -> f.get("Responsable")).containsExactly("ID 51", "ID 21");
 
         // Sin permiso tampoco se puede buscar un responsable por nombre
         assertThatThrownBy(() -> queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                null, null, "ana", null, false))
+                null, null, "ana", null, null, null, false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("permiso 'user'");
         server.verify();
@@ -190,7 +193,7 @@ class BitrixDealQueriesTest {
                 .andRespond(withSuccess("{\"result\":[],\"total\":0}", MediaType.APPLICATION_JSON));
 
         Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                18, "ganado", null, null, false);
+                18, "ganado", null, null, null, null, false);
 
         server.verify();
         assertThat((Map<String, Object>) r.get("totales")).containsEntry("Negocios", 0);
@@ -204,7 +207,8 @@ class BitrixDealQueriesTest {
                 .andExpect(content().json("{\"filter\":{\"ASSIGNED_BY_ID\":\"51\"}}"))
                 .andRespond(withSuccess("{\"result\":[],\"total\":0}", MediaType.APPLICATION_JSON));
 
-        queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), null, null, "51", null, false);
+        queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), null, null, "51", null,
+                null, null, false);
 
         server.verify();
     }
@@ -213,7 +217,7 @@ class BitrixDealQueriesTest {
     void embudoFueraDeLosDeVentaSeRechaza() {
         esperaEmbudos();
         assertThatThrownBy(() -> queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                8, null, null, null, false))
+                8, null, null, null, null, null, false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Embudo no consultable");
     }
@@ -247,8 +251,56 @@ class BitrixDealQueriesTest {
                 .containsEntry("EtapaCambiadaEl", "2026-11-06 12:50")
                 .containsEntry("Compania", "FILIA SAS")
                 .containsEntry("Responsable", "Ana Pérez")
+                .containsEntry("Presupuestador", "Sin presupuestador")
                 .containsEntry("FechaCierre", "2026-11-06")
                 .containsEntry("Enlace", "https://portal.bitrix24.es/crm/deal/details/74506/");
+    }
+
+    @Test
+    void reportePorPresupuestadorAsignado() {
+        esperaEmbudos();
+        responde("crm.deal.list", TRES_NEGOCIOS);
+        responde("batch", USUARIOS);
+
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, null, "marta", "semana", "presupuestador", true);
+
+        server.verify();
+        assertThat((Map<String, Object>) r.get("totales")).containsEntry("Negocios", 2)
+                .containsEntry("Importe", new BigDecimal("1251"));
+        assertThat(lista(r, "por_presupuestador")).extracting(f -> f.get("Presupuestador"))
+                .containsExactly("Marta Ruiz");
+        assertThat(lista(r, "por_periodo_y_presupuestador"))
+                .extracting(f -> f.get("Periodo") + " / " + f.get("Presupuestador"))
+                .containsExactly("2026-10-01 a 2026-10-04 / Marta Ruiz", "2026-10-05 a 2026-10-11 / Marta Ruiz");
+        assertThat(r).doesNotContainKey("por_periodo_y_responsable");
+        assertThat(lista(r, "negocios")).allSatisfy(n -> assertThat(n).containsEntry("Presupuestador", "Marta Ruiz"));
+    }
+
+    @Test
+    void negocioSinPresupuestadorSeAgrupaComoSinPresupuestador() {
+        esperaEmbudos();
+        responde("crm.deal.list", TRES_NEGOCIOS);
+        responde("batch", USUARIOS);
+
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, null, null, null, null, false);
+
+        assertThat(lista(r, "por_presupuestador")).extracting(f -> f.get("Presupuestador") + "=" + f.get("Negocios"))
+                .containsExactly("Marta Ruiz=2", "Sin presupuestador=1");
+    }
+
+    @Test
+    void presupuestadorPorIdSeFiltraEnBitrix() {
+        esperaEmbudos();
+        server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
+                .andExpect(content().json("{\"filter\":{\"UF_CRM_1574869875\":\"124\"}}"))
+                .andRespond(withSuccess("{\"result\":[],\"total\":0}", MediaType.APPLICATION_JSON));
+
+        queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), null, null, null, "124",
+                null, null, false);
+
+        server.verify();
     }
 
     @Test

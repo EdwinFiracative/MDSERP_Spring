@@ -126,13 +126,18 @@ public class ErpDbChatTools {
                 .description("Reporte de negocios de Bitrix24 de los embudos de venta 1 (Celdas y Tableros), "
                         + "18 (Celdas y Tableros - No Construcción), 3 (Ingeniería) y 16 (C de A Celdas y Tableros) "
                         + "cuya etapa cambió en un rango de fechas ('La etapa cambiada el'): totales, por embudo, "
-                        + "por embudo y etapa y por persona responsable, con cantidad e importe separados en ganados, "
-                        + "perdidos y en proceso. Con periodo='semana' o 'mes' agrega el desglose por semana o mes, "
-                        + "total y por responsable. Filtros opcionales: embudo, etapa y responsable; y detalle de negocios.")
+                        + "por embudo y etapa, por persona responsable y por presupuestador asignado, con cantidad e "
+                        + "importe separados en ganados, perdidos y en proceso. Con periodo='semana' o 'mes' agrega el "
+                        + "desglose por semana o mes, total y por responsable o presupuestador (desglose_periodo). "
+                        + "Filtros opcionales: embudo, etapa, responsable y presupuestador; y detalle de negocios.")
                 .parameters(objeto(Map.ofEntries(
                         Map.entry("responsable", texto("Opcional: nombre (o parte) o ID de la persona responsable")),
+                        Map.entry("presupuestador", texto("Opcional: nombre (o parte) o ID del presupuestador "
+                                + "asignado")),
                         Map.entry("periodo", texto("Opcional: 'semana' (lunes a domingo) o 'mes' para desglosar "
                                 + "el rango por periodos")),
+                        Map.entry("desglose_periodo", texto("Opcional, con periodo: 'responsable' (por defecto) o "
+                                + "'presupuestador'; persona por la que se desglosa cada semana o mes")),
                         Map.entry("fecha_inicial", texto("Primer día incluido, formato YYYY-MM-DD "
                                 + "(fecha 'La etapa cambiada el')")),
                         Map.entry("fecha_final", texto("Último día incluido, formato YYYY-MM-DD "
@@ -143,7 +148,8 @@ public class ErpDbChatTools {
                                 + "'perdido', 'Presentar', 'Comprometer'")),
                         Map.entry("detalle", Schema.builder().type(Type.Known.BOOLEAN)
                                 .description("true para incluir la lista de negocios (ID, nombre, proyecto, etapa, "
-                                        + "importe, responsable, compañía), máximo 100, los más recientes primero")
+                                        + "importe, responsable, presupuestador, compañía), máximo 100, los más "
+                                        + "recientes primero")
                                 .build())),
                         "fecha_inicial", "fecha_final"))
                 .build();
@@ -181,7 +187,9 @@ public class ErpDbChatTools {
                 case NEGOCIOS_BITRIX -> bitrix.reporteNegocios(
                         fecha(args.get("fecha_inicial")), fecha(args.get("fecha_final")),
                         args.get("embudo") == null ? null : entero(args.get("embudo"), "embudo"),
-                        cadena(args.get("etapa")), cadena(args.get("responsable")), cadena(args.get("periodo")),
+                        cadena(args.get("etapa")), cadena(args.get("responsable")),
+                        cadena(args.get("presupuestador")), cadena(args.get("periodo")),
+                        cadena(args.get("desglose_periodo")),
                         Boolean.parseBoolean(String.valueOf(args.get("detalle"))));
                 default -> Map.of("error", "Función desconocida: " + nombre);
             };

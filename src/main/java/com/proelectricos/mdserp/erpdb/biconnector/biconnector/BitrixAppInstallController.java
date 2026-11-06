@@ -1,10 +1,10 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.BitrixApiException;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.InvalidAppTokenException;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.Result;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.BitrixApiException;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.InvalidAppTokenException;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.Result;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.Result;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.Result;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

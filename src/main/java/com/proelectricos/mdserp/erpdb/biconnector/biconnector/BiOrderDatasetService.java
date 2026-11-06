@@ -1,9 +1,8 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
 import com.proelectricos.mdserp.erpdb.branch.dto.BranchDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderBusinessLineDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailNoteDto;
-import com.proelectricos.mdserp.erpdb.order.dto.OrderDetailReferenceDto;
 import com.proelectricos.mdserp.erpdb.order.dto.OrderHeaderDto;
 import com.proelectricos.mdserp.erpdb.order.service.OrderHeaderService;
 import com.proelectricos.mdserp.erpdb.project.dto.ProjectDto;

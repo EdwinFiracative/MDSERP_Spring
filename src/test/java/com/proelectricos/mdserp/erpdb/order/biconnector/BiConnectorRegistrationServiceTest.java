@@ -1,9 +1,10 @@
 package com.proelectricos.mdserp.erpdb.order.biconnector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.BitrixApiException;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.InvalidAppTokenException;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorRegistrationService.Result;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.*;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.BitrixApiException;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.InvalidAppTokenException;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorRegistrationService.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;

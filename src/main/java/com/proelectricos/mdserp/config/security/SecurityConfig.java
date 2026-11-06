@@ -1,7 +1,7 @@
 package com.proelectricos.mdserp.config.security;
 
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiConnectorKeyFilter;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BitrixAppInstallController;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiConnectorKeyFilter;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BitrixAppInstallController;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

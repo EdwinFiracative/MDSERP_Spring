@@ -1,4 +1,4 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
