@@ -1,0 +1,162 @@
+package com.proelectricos.mdserp.chatbot.bitrix;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+class BitrixDealQueriesTest {
+
+    private static final String WEBHOOK = "https://portal.bitrix24.es/rest/1/token/";
+
+    private MockRestServiceServer server;
+    private BitrixDealQueries queries;
+
+    @BeforeEach
+    void setUp() {
+        RestClient.Builder builder = RestClient.builder().baseUrl(WEBHOOK);
+        server = MockRestServiceServer.bindTo(builder).build();
+        queries = new BitrixDealQueries(builder.build(), WEBHOOK);
+    }
+
+    private void esperaEmbudos() {
+        responde("crm.dealcategory.list", """
+                {"result":[{"ID":"1","NAME":"Celdas y Tableros"},{"ID":"3","NAME":"Ingeniería"},
+                 {"ID":"16","NAME":"C de A Celdas y Tableros"},{"ID":"18","NAME":"Celdas y Tableros - No Construcción"}]}""");
+        for (int id : BitrixDealQueries.EMBUDOS) {
+            responde("crm.dealcategory.stage.list", """
+                    {"result":[{"STATUS_ID":"C%1$d:NEW","NAME":"Diagnosticar y Calificar"},
+                     {"STATUS_ID":"C%1$d:EXECUTING","NAME":"Comprometer"},
+                     {"STATUS_ID":"C%1$d:WON","NAME":"Cerrado Ganado"},
+                     {"STATUS_ID":"C%1$d:LOSE","NAME":"Cerrado Perdido"}]}""".formatted(id));
+        }
+    }
+
+    private void responde(String metodo, String json) {
+        server.expect(requestTo(WEBHOOK + metodo + ".json"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void negociosPorEtapaFiltraPorEtapaCambiadaEnHoraDeColombiaYAgrupa() {
+        esperaEmbudos();
+        server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
+                .andExpect(content().json("""
+                        {"filter":{"CATEGORY_ID":[1,18,3,16],">=MOVED_TIME":"2026-10-01T00:00-05:00",
+                         "<MOVED_TIME":"2026-11-01T00:00-05:00"},"start":0}"""))
+                .andRespond(withSuccess("""
+                        {"result":[
+                          {"ID":"10","TITLE":"Tablero A","CATEGORY_ID":"1","STAGE_ID":"C1:WON","STAGE_SEMANTIC_ID":"S",
+                           "OPPORTUNITY":"1000.00","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-02T20:00:00+03:00"},
+                          {"ID":"11","TITLE":"Tablero B","CATEGORY_ID":"1","STAGE_ID":"C1:WON","STAGE_SEMANTIC_ID":"S",
+                           "OPPORTUNITY":"500","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-03T20:00:00+03:00"}],
+                         "next":2,"total":3}""", MediaType.APPLICATION_JSON));
+        server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
+                .andExpect(jsonPath("$.start").value(2))
+                .andRespond(withSuccess("""
+                        {"result":[
+                          {"ID":"12","TITLE":"Diseño","CATEGORY_ID":"3","STAGE_ID":"C3:NEW","STAGE_SEMANTIC_ID":"P",
+                           "OPPORTUNITY":"250.5","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-04T20:00:00+03:00"}],
+                         "total":3}""", MediaType.APPLICATION_JSON));
+
+        Map<String, Object> r = queries.negociosPorEtapa(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, false);
+
+        server.verify();
+        assertThat(r.get("total_negocios")).isEqualTo(3);
+        assertThat(r.get("importe_total")).isEqualTo(new BigDecimal("1751"));
+        assertThat(r.get("truncado")).isEqualTo(false);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> porEtapa = (List<Map<String, Object>>) r.get("por_embudo_y_etapa");
+        assertThat(porEtapa).hasSize(2);
+        assertThat(porEtapa.get(0)).containsEntry("Embudo", "Celdas y Tableros").containsEntry("Etapa", "Cerrado Ganado")
+                .containsEntry("Negocios", 2).containsEntry("Importe", new BigDecimal("1500"));
+        assertThat(porEtapa.get(1)).containsEntry("Embudo", "Ingeniería").containsEntry("Grupo", "En proceso");
+        @SuppressWarnings("unchecked")
+        Map<String, BigDecimal> grupos = (Map<String, BigDecimal>) r.get("importe_por_grupo");
+        assertThat(grupos).containsEntry("Ganado", new BigDecimal("1500")).containsEntry("En proceso", new BigDecimal("251"));
+    }
+
+    @Test
+    void etapaPorTextoSeTraduceAStageIdDelEmbudo() {
+        esperaEmbudos();
+        server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
+                .andExpect(content().json("{\"filter\":{\"CATEGORY_ID\":[18],\"STAGE_ID\":[\"C18:WON\"]}}"))
+                .andRespond(withSuccess("{\"result\":[],\"total\":0}", MediaType.APPLICATION_JSON));
+
+        Map<String, Object> r = queries.negociosPorEtapa(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                18, "ganado", false);
+
+        server.verify();
+        assertThat(r.get("total_negocios")).isEqualTo(0);
+        assertThat(r.get("filtro_etapas")).isEqualTo(List.of("Cerrado Ganado"));
+    }
+
+    @Test
+    void embudoFueraDeLosDeVentaSeRechaza() {
+        esperaEmbudos();
+        assertThatThrownBy(() -> queries.negociosPorEtapa(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                8, null, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Embudo no consultable");
+    }
+
+    @Test
+    void consultarNegocioDevuelveProyectoImporteYFechaDeEtapa() {
+        server.expect(requestTo(WEBHOOK + "crm.deal.get.json"))
+                .andExpect(content().json("{\"id\":74506}"))
+                .andRespond(withSuccess("""
+                        {"result":{"ID":"74506","TITLE":"Tablero 3600A","UF_CRM_1571078216102":"Torre Filia",
+                         "CATEGORY_ID":"1","STAGE_ID":"C1:EXECUTING","STAGE_SEMANTIC_ID":"P","OPPORTUNITY":"88101856.00",
+                         "CURRENCY_ID":"COP","MOVED_TIME":"2026-11-06T20:50:53+03:00","COMPANY_ID":"15028",
+                         "ASSIGNED_BY_ID":"51","DATE_CREATE":"2026-10-30T22:22:47+03:00",
+                         "CLOSEDATE":"2026-11-06T03:00:00+03:00"}}""", MediaType.APPLICATION_JSON));
+        esperaEmbudos();
+        responde("crm.company.list", "{\"result\":[{\"ID\":\"15028\",\"TITLE\":\"FILIA SAS\"}]}");
+
+        Map<String, Object> r = queries.consultarNegocio(74506);
+
+        server.verify();
+        assertThat(r).containsEntry("encontrado", true).containsEntry("embudo_de_venta_consultado", true);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> negocio = (Map<String, Object>) r.get("negocio");
+        assertThat(negocio)
+                .containsEntry("NombreProyecto", "Torre Filia")
+                .containsEntry("Embudo", "Celdas y Tableros")
+                .containsEntry("Etapa", "Comprometer")
+                .containsEntry("Importe", new BigDecimal("88101856"))
+                .containsEntry("EtapaCambiadaEl", "2026-11-06 12:50")
+                .containsEntry("Compania", "FILIA SAS")
+                .containsEntry("FechaCierre", "2026-11-06")
+                .containsEntry("Enlace", "https://portal.bitrix24.es/crm/deal/details/74506/");
+    }
+
+    @Test
+    void negocioInexistente() {
+        server.expect(requestTo(WEBHOOK + "crm.deal.get.json"))
+                .andRespond(withStatus(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"error\":\"\",\"error_description\":\"Not found\"}"));
+
+        Map<String, Object> r = queries.consultarNegocio(999);
+
+        assertThat(r).containsEntry("encontrado", false);
+    }
+}
