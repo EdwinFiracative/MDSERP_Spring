@@ -22,6 +22,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+@SuppressWarnings("unchecked")
 class BitrixDealQueriesTest {
 
     private static final String WEBHOOK = "https://portal.bitrix24.es/rest/1/token/";
@@ -55,8 +56,27 @@ class BitrixDealQueriesTest {
                 .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
     }
 
+    private static final String TRES_NEGOCIOS = """
+            {"result":[
+              {"ID":"10","TITLE":"Tablero A","CATEGORY_ID":"1","STAGE_ID":"C1:WON","STAGE_SEMANTIC_ID":"S",
+               "OPPORTUNITY":"1000.00","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-02T20:00:00+03:00","ASSIGNED_BY_ID":"51"},
+              {"ID":"11","TITLE":"Tablero B","CATEGORY_ID":"1","STAGE_ID":"C1:LOSE","STAGE_SEMANTIC_ID":"F",
+               "OPPORTUNITY":"500","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-03T20:00:00+03:00","ASSIGNED_BY_ID":"51"},
+              {"ID":"12","TITLE":"Diseño","CATEGORY_ID":"3","STAGE_ID":"C3:NEW","STAGE_SEMANTIC_ID":"P",
+               "OPPORTUNITY":"250.5","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-06T20:00:00+03:00","ASSIGNED_BY_ID":"21"}],
+             "total":3}""";
+
+    private static final String USUARIOS = """
+            {"result":{"result":{"u51":[{"ID":"51","NAME":"Ana","LAST_NAME":"Pérez"}],
+             "u21":[{"ID":"21","NAME":"Luis","LAST_NAME":"Gómez"}]},"result_error":[]}}""";
+
+    @SuppressWarnings("unchecked")
+    private static List<Map<String, Object>> lista(Map<String, Object> r, String clave) {
+        return (List<Map<String, Object>>) r.get(clave);
+    }
+
     @Test
-    void negociosPorEtapaFiltraPorEtapaCambiadaEnHoraDeColombiaYAgrupa() {
+    void reporteFiltraPorEtapaCambiadaEnHoraDeColombiaYAgrupa() {
         esperaEmbudos();
         server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
                 .andExpect(content().json("""
@@ -65,34 +85,101 @@ class BitrixDealQueriesTest {
                 .andRespond(withSuccess("""
                         {"result":[
                           {"ID":"10","TITLE":"Tablero A","CATEGORY_ID":"1","STAGE_ID":"C1:WON","STAGE_SEMANTIC_ID":"S",
-                           "OPPORTUNITY":"1000.00","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-02T20:00:00+03:00"},
+                           "OPPORTUNITY":"1000.00","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-02T20:00:00+03:00",
+                           "ASSIGNED_BY_ID":"51"},
                           {"ID":"11","TITLE":"Tablero B","CATEGORY_ID":"1","STAGE_ID":"C1:WON","STAGE_SEMANTIC_ID":"S",
-                           "OPPORTUNITY":"500","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-03T20:00:00+03:00"}],
+                           "OPPORTUNITY":"500","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-03T20:00:00+03:00",
+                           "ASSIGNED_BY_ID":"51"}],
                          "next":2,"total":3}""", MediaType.APPLICATION_JSON));
         server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
                 .andExpect(jsonPath("$.start").value(2))
                 .andRespond(withSuccess("""
                         {"result":[
                           {"ID":"12","TITLE":"Diseño","CATEGORY_ID":"3","STAGE_ID":"C3:NEW","STAGE_SEMANTIC_ID":"P",
-                           "OPPORTUNITY":"250.5","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-04T20:00:00+03:00"}],
+                           "OPPORTUNITY":"250.5","CURRENCY_ID":"COP","MOVED_TIME":"2026-10-04T20:00:00+03:00",
+                           "ASSIGNED_BY_ID":"21"}],
                          "total":3}""", MediaType.APPLICATION_JSON));
+        responde("batch", USUARIOS);
 
-        Map<String, Object> r = queries.negociosPorEtapa(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                null, null, false);
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, null, null, false);
 
         server.verify();
-        assertThat(r.get("total_negocios")).isEqualTo(3);
-        assertThat(r.get("importe_total")).isEqualTo(new BigDecimal("1751"));
+        assertThat((Map<String, Object>) r.get("totales"))
+                .containsEntry("Negocios", 3)
+                .containsEntry("Importe", new BigDecimal("1751"))
+                .containsEntry("ImporteGanado", new BigDecimal("1500"))
+                .containsEntry("ImporteEnProceso", new BigDecimal("251"));
         assertThat(r.get("truncado")).isEqualTo(false);
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> porEtapa = (List<Map<String, Object>>) r.get("por_embudo_y_etapa");
+        assertThat(r).doesNotContainKey("aviso_responsables").doesNotContainKey("por_periodo");
+        List<Map<String, Object>> porEtapa = lista(r, "por_embudo_y_etapa");
         assertThat(porEtapa).hasSize(2);
         assertThat(porEtapa.get(0)).containsEntry("Embudo", "Celdas y Tableros").containsEntry("Etapa", "Cerrado Ganado")
                 .containsEntry("Negocios", 2).containsEntry("Importe", new BigDecimal("1500"));
         assertThat(porEtapa.get(1)).containsEntry("Embudo", "Ingeniería").containsEntry("Grupo", "En proceso");
-        @SuppressWarnings("unchecked")
-        Map<String, BigDecimal> grupos = (Map<String, BigDecimal>) r.get("importe_por_grupo");
-        assertThat(grupos).containsEntry("Ganado", new BigDecimal("1500")).containsEntry("En proceso", new BigDecimal("251"));
+        List<Map<String, Object>> porResponsable = lista(r, "por_responsable");
+        assertThat(porResponsable).extracting(f -> f.get("Responsable")).containsExactly("Ana Pérez", "Luis Gómez");
+        assertThat(porResponsable.get(0)).containsEntry("Negocios", 2).containsEntry("Ganados", 2);
+    }
+
+    @Test
+    void reporteSemanalPorResponsable() {
+        esperaEmbudos();
+        responde("crm.deal.list", TRES_NEGOCIOS);
+        responde("batch", USUARIOS);
+
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, null, "semana", false);
+
+        server.verify();
+        assertThat(r.get("agrupado_por")).isEqualTo("semana");
+        List<Map<String, Object>> periodos = lista(r, "por_periodo");
+        assertThat(periodos).extracting(f -> f.get("Periodo"))
+                .containsExactly("2026-10-01 a 2026-10-04", "2026-10-05 a 2026-10-11");
+        assertThat(periodos.get(0)).containsEntry("Negocios", 2).containsEntry("ImporteGanado", new BigDecimal("1000"))
+                .containsEntry("ImportePerdido", new BigDecimal("500"));
+        assertThat(lista(r, "por_periodo_y_responsable"))
+                .extracting(f -> f.get("Periodo") + " / " + f.get("Responsable"))
+                .containsExactly("2026-10-01 a 2026-10-04 / Ana Pérez", "2026-10-05 a 2026-10-11 / Luis Gómez");
+    }
+
+    @Test
+    void reporteMensualFiltradoPorNombreDeResponsable() {
+        esperaEmbudos();
+        responde("crm.deal.list", TRES_NEGOCIOS);
+        responde("batch", USUARIOS);
+
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 9, 1), LocalDate.of(2026, 10, 31),
+                null, null, "luis gomez", "mes", false);
+
+        server.verify();
+        assertThat((Map<String, Object>) r.get("totales")).containsEntry("Negocios", 1);
+        assertThat(lista(r, "por_periodo")).extracting(f -> f.get("Periodo")).containsExactly("2026-10");
+        assertThat(lista(r, "por_responsable")).extracting(f -> f.get("Responsable")).containsExactly("Luis Gómez");
+    }
+
+    @Test
+    void sinPermisoDeUsuariosMuestraIdYAvisa() {
+        esperaEmbudos();
+        responde("crm.deal.list", TRES_NEGOCIOS);
+        responde("batch", """
+                {"result":{"result":[],"result_error":{"u51":{"error":"insufficient_scope","error_description":""},
+                 "u21":{"error":"insufficient_scope","error_description":""}}}}""");
+        // Segunda consulta: mientras no haya permiso no se vuelve a pedir usuarios a Bitrix (no hay otro "batch")
+        responde("crm.deal.list", TRES_NEGOCIOS);
+
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, null, null, false);
+
+        assertThat(r.get("aviso_responsables")).isEqualTo(BitrixDealQueries.AVISO_SIN_PERMISO_USUARIOS);
+        assertThat(lista(r, "por_responsable")).extracting(f -> f.get("Responsable")).containsExactly("ID 51", "ID 21");
+
+        // Sin permiso tampoco se puede buscar un responsable por nombre
+        assertThatThrownBy(() -> queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                null, null, "ana", null, false))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("permiso 'user'");
+        server.verify();
     }
 
     @Test
@@ -102,25 +189,37 @@ class BitrixDealQueriesTest {
                 .andExpect(content().json("{\"filter\":{\"CATEGORY_ID\":[18],\"STAGE_ID\":[\"C18:WON\"]}}"))
                 .andRespond(withSuccess("{\"result\":[],\"total\":0}", MediaType.APPLICATION_JSON));
 
-        Map<String, Object> r = queries.negociosPorEtapa(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                18, "ganado", false);
+        Map<String, Object> r = queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                18, "ganado", null, null, false);
 
         server.verify();
-        assertThat(r.get("total_negocios")).isEqualTo(0);
+        assertThat((Map<String, Object>) r.get("totales")).containsEntry("Negocios", 0);
         assertThat(r.get("filtro_etapas")).isEqualTo(List.of("Cerrado Ganado"));
+    }
+
+    @Test
+    void responsablePorIdSeFiltraEnBitrix() {
+        esperaEmbudos();
+        server.expect(requestTo(WEBHOOK + "crm.deal.list.json"))
+                .andExpect(content().json("{\"filter\":{\"ASSIGNED_BY_ID\":\"51\"}}"))
+                .andRespond(withSuccess("{\"result\":[],\"total\":0}", MediaType.APPLICATION_JSON));
+
+        queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31), null, null, "51", null, false);
+
+        server.verify();
     }
 
     @Test
     void embudoFueraDeLosDeVentaSeRechaza() {
         esperaEmbudos();
-        assertThatThrownBy(() -> queries.negociosPorEtapa(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
-                8, null, false))
+        assertThatThrownBy(() -> queries.reporteNegocios(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31),
+                8, null, null, null, false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Embudo no consultable");
     }
 
     @Test
-    void consultarNegocioDevuelveProyectoImporteYFechaDeEtapa() {
+    void consultarNegocioDevuelveProyectoImporteResponsableYFechaDeEtapa() {
         server.expect(requestTo(WEBHOOK + "crm.deal.get.json"))
                 .andExpect(content().json("{\"id\":74506}"))
                 .andRespond(withSuccess("""
@@ -131,11 +230,13 @@ class BitrixDealQueriesTest {
                          "CLOSEDATE":"2026-11-06T03:00:00+03:00"}}""", MediaType.APPLICATION_JSON));
         esperaEmbudos();
         responde("crm.company.list", "{\"result\":[{\"ID\":\"15028\",\"TITLE\":\"FILIA SAS\"}]}");
+        responde("batch", USUARIOS);
 
         Map<String, Object> r = queries.consultarNegocio(74506);
 
         server.verify();
-        assertThat(r).containsEntry("encontrado", true).containsEntry("embudo_de_venta_consultado", true);
+        assertThat(r).containsEntry("encontrado", true).containsEntry("embudo_de_venta_consultado", true)
+                .doesNotContainKey("aviso_responsables");
         @SuppressWarnings("unchecked")
         Map<String, Object> negocio = (Map<String, Object>) r.get("negocio");
         assertThat(negocio)
@@ -145,6 +246,7 @@ class BitrixDealQueriesTest {
                 .containsEntry("Importe", new BigDecimal("88101856"))
                 .containsEntry("EtapaCambiadaEl", "2026-11-06 12:50")
                 .containsEntry("Compania", "FILIA SAS")
+                .containsEntry("Responsable", "Ana Pérez")
                 .containsEntry("FechaCierre", "2026-11-06")
                 .containsEntry("Enlace", "https://portal.bitrix24.es/crm/deal/details/74506/");
     }

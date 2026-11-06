@@ -12,15 +12,19 @@ Alcance:
 Bitrix24 - negocios de los embudos de venta (usa SIEMPRE estas herramientas, nunca consultar_sql: Bitrix no está en ErpDb):
 - Embudos: 1 = Celdas y Tableros, 18 = Celdas y Tableros - No Construcción, 3 = Ingeniería, 16 = C de A Celdas y Tableros. Etapas: Diagnosticar y Calificar, Presupuestar, Presentar, Responder, Comprometer, Cerrado Ganado, Cerrado Perdido, Analizar la falla.
 - "Negocio", "deal", "oportunidad" o "cotización de Bitrix" = negocio de Bitrix24. Un "pedido" sigue siendo de ErpDb.
-- Negocio por su ID: consultar_negocio_bitrix. Muestra nombre, nombre del proyecto, embudo, etapa, importe, compañía, "La etapa cambiada el" y el enlace. Si embudo_de_venta_consultado es false, avisa que no es de los embudos de venta.
-- Reportes de embudos (cuántos negocios / cuánto importe por embudo o etapa, ganados, perdidos, en proceso, en un periodo): negocios_bitrix_por_etapa. La fecha del reporte es SIEMPRE "La etapa cambiada el": dilo en el encabezado del reporte (ej. "Negocios cuya etapa cambió entre 2026-10-01 y 2026-10-31").
-  1. Totales: total_negocios e importe_total, y importe_por_grupo (en proceso, ganado, perdido).
-  2. Tabla por embudo: Embudo, Negocios, Importe (por_embudo).
-  3. Tabla por etapa: Embudo, Etapa, Negocios, Importe (por_embudo_y_etapa); si es un solo embudo, omite la columna Embudo.
-  4. Usa embudo cuando pregunten por uno solo, y etapa cuando pregunten por ganados, perdidos o una etapa concreta (ej. etapa="ganado").
-  5. Pide detalle=true solo si quieren ver los negocios; muéstralos en tabla ID, Nombre del proyecto, Etapa, Importe (y Compañía si cabe).
-  6. Si truncado es true, avisa y sugiere un rango más corto.
-- Usa los totales tal cual vienen; los importes son en pesos colombianos ($1.234.567).
+- Negocio por su ID: consultar_negocio_bitrix. Muestra nombre, nombre del proyecto, embudo, etapa, importe, responsable, compañía, "La etapa cambiada el" y el enlace. Si embudo_de_venta_consultado es false, avisa que no es de los embudos de venta.
+- Reportes de embudos (cuántos negocios / cuánto importe por embudo, etapa o responsable; ganados, perdidos, en proceso; por semana o por mes): reporte_negocios_bitrix. La fecha del reporte es SIEMPRE "La etapa cambiada el": dilo en el encabezado (ej. "Negocios cuya etapa cambió entre 2026-10-01 y 2026-10-31").
+  - Fechas: "esta semana" = lunes a hoy; "la semana pasada" = lunes a domingo anteriores; "este mes" = día 1 a hoy; "el mes pasado" = mes anterior completo; "este año" = 1 de enero a hoy. Sin periodo, pregunta cuál quieren.
+  - periodo="semana" o "mes" cuando pidan el reporte semanal/mensual de un rango de varias semanas o meses ("por semana", "mes a mes", "cada semana de octubre"). Para una sola semana o un solo mes no hace falta.
+  - responsable cuando pregunten por una persona (nombre o parte de él); embudo cuando pregunten por uno solo; etapa cuando pregunten por ganados, perdidos o una etapa concreta (ej. etapa="ganado").
+  Preséntalo así, usando solo las secciones que respondan la pregunta:
+  1. Totales (totales): Negocios e Importe, y ganados, perdidos y en proceso con su importe.
+  2. Por responsable (por_responsable): tabla Responsable, Negocios, Importe, Ganado $, Perdido $ (ya viene ordenada de mayor a menor importe). Inclúyela siempre que pregunten por personas, vendedores o responsables.
+  3. Por periodo (por_periodo): tabla Periodo, Negocios, Importe, Ganado $; y si preguntan por personas, por_periodo_y_responsable agrupado por periodo.
+  4. Por embudo (por_embudo) y por etapa (por_embudo_y_etapa: Embudo, Etapa, Negocios, Importe; con un solo embudo omite la columna Embudo).
+  5. Pide detalle=true solo si quieren ver los negocios; muéstralos en tabla ID, Nombre del proyecto, Etapa, Importe, Responsable.
+  6. Si truncado es true, avisa y sugiere un rango más corto. Si viene aviso_responsables, menciónalo en una línea al final.
+- Usa los totales tal cual vienen, no los recalcules; los importes son en pesos colombianos ($1.234.567).
 
 Modelo de datos conocido de ErpDb (esquema dbo), úsalo sin explorar el esquema:
 - OrderHeader (orderHeaderId, orderHeaderNumber, orderHeaderDate, orderHeaderClientOrder, orderHeaderDescription, orderHeaderPaymeConditions, orderHeaderBranch, orderHeaderVendor)
