@@ -5,6 +5,7 @@ import com.google.genai.types.FunctionDeclaration;
 import com.google.genai.types.Schema;
 import com.google.genai.types.Tool;
 import com.google.genai.types.Type;
+import com.proelectricos.mdserp.chatbot.bitrix.BitrixDealQueries;
 import com.proelectricos.mdserp.chatbot.erpdb.ErpDbReadOnlyQueries;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Herramientas (function calling) que el modelo puede usar. Todas consultan únicamente ErpDb.
+ * Herramientas (function calling) que el modelo puede usar: consultas de solo lectura a ErpDb y a los negocios
+ * de los embudos de venta de Bitrix24.
  * Las preguntas frecuentes tienen su propia herramienta con SQL fijo: responden en una sola llamada y sin errores de SQL.
  */
 @Slf4j
@@ -36,12 +38,15 @@ public class ErpDbChatTools {
     static final String VENTAS_POR_LINEA = "ventas_por_linea_negocio";
     static final String INFORME_SEMANAL = "informe_semanal_ventas";
     static final String CONSULTAR_SQL = "consultar_sql";
+    static final String NEGOCIO_BITRIX = "consultar_negocio_bitrix";
+    static final String NEGOCIOS_BITRIX = "negocios_bitrix_por_etapa";
 
     private static final Schema FECHA_INICIAL = texto("Fecha inicial incluida, formato YYYY-MM-DD (fecha del pedido)");
     private static final Schema FECHA_FINAL = texto("Fecha final incluida, formato YYYY-MM-DD (fecha del pedido)");
     private static final Schema VENDEDOR = texto("Opcional: código exacto o parte del nombre del vendedor para filtrar");
 
     private final ErpDbReadOnlyQueries queries;
+    private final BitrixDealQueries bitrix;
 
     public Tool tool() {
         FunctionDeclaration consultarPedido = FunctionDeclaration.builder()
@@ -105,9 +110,40 @@ public class ErpDbChatTools {
                         "consulta"))
                 .build();
 
+        FunctionDeclaration negocioBitrix = FunctionDeclaration.builder()
+                .name(NEGOCIO_BITRIX)
+                .description("Consulta en Bitrix24 un negocio (deal) por su ID: nombre, nombre del proyecto, embudo, "
+                        + "etapa, grupo (en proceso/ganado/perdido), importe $, moneda, fecha 'La etapa cambiada el', "
+                        + "compañía, fecha de creación, fecha de cierre y enlace.")
+                .parameters(objeto(Map.of("id", Schema.builder()
+                        .type(Type.Known.INTEGER)
+                        .description("ID del negocio en Bitrix24")
+                        .build()), "id"))
+                .build();
+
+        FunctionDeclaration negociosBitrix = FunctionDeclaration.builder()
+                .name(NEGOCIOS_BITRIX)
+                .description("Reporte de negocios de Bitrix24 de los embudos de venta 1 (Celdas y Tableros), "
+                        + "18 (Celdas y Tableros - No Construcción), 3 (Ingeniería) y 16 (C de A Celdas y Tableros) "
+                        + "cuya etapa cambió en un rango de fechas ('La etapa cambiada el'): cantidad e importe por "
+                        + "embudo, por embudo y etapa, y por grupo (en proceso/ganado/perdido). Opcional: un embudo, "
+                        + "una etapa y el detalle de negocios.")
+                .parameters(objeto(Map.of(
+                        "fecha_inicial", texto("Primer día incluido, formato YYYY-MM-DD (fecha 'La etapa cambiada el')"),
+                        "fecha_final", texto("Último día incluido, formato YYYY-MM-DD (fecha 'La etapa cambiada el')"),
+                        "embudo", Schema.builder().type(Type.Known.INTEGER)
+                                .description("Opcional: ID del embudo (1, 18, 3 o 16); sin él, los cuatro").build(),
+                        "etapa", texto("Opcional: texto del nombre de la etapa, ej. 'Cerrado Ganado', 'perdido', "
+                                + "'Presentar', 'Comprometer'"),
+                        "detalle", Schema.builder().type(Type.Known.BOOLEAN)
+                                .description("true para incluir la lista de negocios (ID, nombre, proyecto, etapa, "
+                                        + "importe, compañía), máximo 100, los más recientes primero").build()),
+                        "fecha_inicial", "fecha_final"))
+                .build();
+
         return Tool.builder()
                 .functionDeclarations(consultarPedido, ventasPorVendedor, ventasPorSemana, ventasPorLinea, informeSemanal,
-                        consultarSql)
+                        consultarSql, negocioBitrix, negociosBitrix)
                 .build();
     }
 
@@ -134,9 +170,17 @@ public class ErpDbChatTools {
                     yield queries.informeSemanal(periodo[0], periodo[1]);
                 }
                 case CONSULTAR_SQL -> queries.consultarSql(String.valueOf(args.get("consulta")));
+                case NEGOCIO_BITRIX -> bitrix.consultarNegocio(entero(args.get("id"), "ID del negocio"));
+                case NEGOCIOS_BITRIX -> bitrix.negociosPorEtapa(
+                        fecha(args.get("fecha_inicial")), fecha(args.get("fecha_final")),
+                        args.get("embudo") == null ? null : entero(args.get("embudo"), "embudo"),
+                        cadena(args.get("etapa")), Boolean.parseBoolean(String.valueOf(args.get("detalle"))));
                 default -> Map.of("error", "Función desconocida: " + nombre);
             };
         } catch (IllegalArgumentException e) {
+            return Map.of("error", e.getMessage());
+        } catch (IllegalStateException e) {
+            // Bitrix24 caído, sin permisos o con error: se le informa al modelo para que lo explique
             return Map.of("error", e.getMessage());
         } catch (SQLException e) {
             log.warn("Chatbot: error SQL en {}: {}", nombre, e.getMessage());
