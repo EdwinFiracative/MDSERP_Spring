@@ -39,7 +39,7 @@ public class ErpDbChatTools {
     static final String INFORME_SEMANAL = "informe_semanal_ventas";
     static final String CONSULTAR_SQL = "consultar_sql";
     static final String NEGOCIO_BITRIX = "consultar_negocio_bitrix";
-    static final String NEGOCIOS_BITRIX = "negocios_bitrix_por_etapa";
+    static final String NEGOCIOS_BITRIX = "reporte_negocios_bitrix";
 
     private static final Schema FECHA_INICIAL = texto("Fecha inicial incluida, formato YYYY-MM-DD (fecha del pedido)");
     private static final Schema FECHA_FINAL = texto("Fecha final incluida, formato YYYY-MM-DD (fecha del pedido)");
@@ -125,19 +125,26 @@ public class ErpDbChatTools {
                 .name(NEGOCIOS_BITRIX)
                 .description("Reporte de negocios de Bitrix24 de los embudos de venta 1 (Celdas y Tableros), "
                         + "18 (Celdas y Tableros - No Construcción), 3 (Ingeniería) y 16 (C de A Celdas y Tableros) "
-                        + "cuya etapa cambió en un rango de fechas ('La etapa cambiada el'): cantidad e importe por "
-                        + "embudo, por embudo y etapa, y por grupo (en proceso/ganado/perdido). Opcional: un embudo, "
-                        + "una etapa y el detalle de negocios.")
-                .parameters(objeto(Map.of(
-                        "fecha_inicial", texto("Primer día incluido, formato YYYY-MM-DD (fecha 'La etapa cambiada el')"),
-                        "fecha_final", texto("Último día incluido, formato YYYY-MM-DD (fecha 'La etapa cambiada el')"),
-                        "embudo", Schema.builder().type(Type.Known.INTEGER)
-                                .description("Opcional: ID del embudo (1, 18, 3 o 16); sin él, los cuatro").build(),
-                        "etapa", texto("Opcional: texto del nombre de la etapa, ej. 'Cerrado Ganado', 'perdido', "
-                                + "'Presentar', 'Comprometer'"),
-                        "detalle", Schema.builder().type(Type.Known.BOOLEAN)
+                        + "cuya etapa cambió en un rango de fechas ('La etapa cambiada el'): totales, por embudo, "
+                        + "por embudo y etapa y por persona responsable, con cantidad e importe separados en ganados, "
+                        + "perdidos y en proceso. Con periodo='semana' o 'mes' agrega el desglose por semana o mes, "
+                        + "total y por responsable. Filtros opcionales: embudo, etapa y responsable; y detalle de negocios.")
+                .parameters(objeto(Map.ofEntries(
+                        Map.entry("responsable", texto("Opcional: nombre (o parte) o ID de la persona responsable")),
+                        Map.entry("periodo", texto("Opcional: 'semana' (lunes a domingo) o 'mes' para desglosar "
+                                + "el rango por periodos")),
+                        Map.entry("fecha_inicial", texto("Primer día incluido, formato YYYY-MM-DD "
+                                + "(fecha 'La etapa cambiada el')")),
+                        Map.entry("fecha_final", texto("Último día incluido, formato YYYY-MM-DD "
+                                + "(fecha 'La etapa cambiada el')")),
+                        Map.entry("embudo", Schema.builder().type(Type.Known.INTEGER)
+                                .description("Opcional: ID del embudo (1, 18, 3 o 16); sin él, los cuatro").build()),
+                        Map.entry("etapa", texto("Opcional: texto del nombre de la etapa, ej. 'Cerrado Ganado', "
+                                + "'perdido', 'Presentar', 'Comprometer'")),
+                        Map.entry("detalle", Schema.builder().type(Type.Known.BOOLEAN)
                                 .description("true para incluir la lista de negocios (ID, nombre, proyecto, etapa, "
-                                        + "importe, compañía), máximo 100, los más recientes primero").build()),
+                                        + "importe, responsable, compañía), máximo 100, los más recientes primero")
+                                .build())),
                         "fecha_inicial", "fecha_final"))
                 .build();
 
@@ -171,10 +178,11 @@ public class ErpDbChatTools {
                 }
                 case CONSULTAR_SQL -> queries.consultarSql(String.valueOf(args.get("consulta")));
                 case NEGOCIO_BITRIX -> bitrix.consultarNegocio(entero(args.get("id"), "ID del negocio"));
-                case NEGOCIOS_BITRIX -> bitrix.negociosPorEtapa(
+                case NEGOCIOS_BITRIX -> bitrix.reporteNegocios(
                         fecha(args.get("fecha_inicial")), fecha(args.get("fecha_final")),
                         args.get("embudo") == null ? null : entero(args.get("embudo"), "embudo"),
-                        cadena(args.get("etapa")), Boolean.parseBoolean(String.valueOf(args.get("detalle"))));
+                        cadena(args.get("etapa")), cadena(args.get("responsable")), cadena(args.get("periodo")),
+                        Boolean.parseBoolean(String.valueOf(args.get("detalle"))));
                 default -> Map.of("error", "Función desconocida: " + nombre);
             };
         } catch (IllegalArgumentException e) {
