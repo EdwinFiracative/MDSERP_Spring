@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Consultas de solo lectura a los negocios (deals) de Bitrix24 para el chatbot, con su propio webhook
  * (chatbot.bitrix.webhook-url). Solo se consultan los embudos de venta configurados (1, 18, 3 y 16).
  * La fecha de los reportes es "La etapa cambiada el" (MOVED_TIME), interpretada en hora de Colombia.
- * Los nombres de los responsables requieren el permiso "user" del webhook; sin él se muestran por ID.
+ * Los nombres de responsables y presupuestadores requieren el permiso "user" del webhook; sin él se muestran por ID.
  */
 @Slf4j
 @Component
@@ -54,9 +54,14 @@ public class BitrixDealQueries {
 
     // Campo personalizado "Nombre del Proyecto" del negocio
     static final String CAMPO_NOMBRE_PROYECTO = "UF_CRM_1571078216102";
+    // Campo personalizado "Presupuestador asignado" (tipo empleado: ID de usuario, puede venir vacío)
+    static final String CAMPO_PRESUPUESTADOR = "UF_CRM_1574869875";
+    private static final Persona RESPONSABLE = new Persona("Responsable", "ASSIGNED_BY_ID", "Sin responsable");
+    private static final Persona PRESUPUESTADOR = new Persona("Presupuestador", CAMPO_PRESUPUESTADOR,
+            "Sin presupuestador");
     private static final List<String> CAMPOS = List.of("ID", "TITLE", CAMPO_NOMBRE_PROYECTO, "CATEGORY_ID", "STAGE_ID",
             "STAGE_SEMANTIC_ID", "OPPORTUNITY", "CURRENCY_ID", "MOVED_TIME", "COMPANY_ID", "ASSIGNED_BY_ID",
-            "DATE_CREATE", "CLOSEDATE");
+            CAMPO_PRESUPUESTADOR, "DATE_CREATE", "CLOSEDATE");
     // Bitrix devuelve 50 negocios por página; el tope evita reportes de minutos (≈2 páginas por segundo)
     private static final int MAX_NEGOCIOS = 3000;
     private static final int MAX_DETALLE = 100;
@@ -66,12 +71,12 @@ public class BitrixDealQueries {
 
     private static final Duration REINTENTO_PERMISO_USUARIOS = Duration.ofMinutes(10);
     static final String AVISO_SIN_PERMISO_USUARIOS = "El webhook de Bitrix24 no tiene el permiso 'user' (Usuarios): "
-            + "los responsables se muestran por ID. Agrega ese permiso al webhook para ver los nombres.";
+            + "responsables y presupuestadores se muestran por ID. Agrega ese permiso al webhook para ver los nombres.";
 
     private final RestClient client;
     private final String portalUrl;
     private volatile Embudos embudos;
-    // Nombres de los usuarios ya leídos (responsables)
+    // Nombres de los usuarios ya leídos (responsables y presupuestadores)
     private final Map<String, String> usuarios = new ConcurrentHashMap<>();
     private volatile Instant sinPermisoUsuariosHasta;
 
@@ -95,9 +100,13 @@ public class BitrixDealQueries {
             Map<String, Object> fila = fila(deal);
             Object compania = deal.get("COMPANY_ID");
             fila.put("Compania", nombresCompanias(Set.of(String.valueOf(compania))).get(String.valueOf(compania)));
-            String responsableId = String.valueOf(deal.get("ASSIGNED_BY_ID"));
-            fila.put("Responsable", nombresUsuarios(Set.of(responsableId)).get(responsableId));
-            fila.put("ResponsableId", responsableId);
+            Set<String> ids = new LinkedHashSet<>();
+            ids.add(RESPONSABLE.id(deal));
+            ids.add(PRESUPUESTADOR.id(deal));
+            ids.remove(null);
+            Map<String, String> nombres = nombresUsuarios(ids);
+            fila.put("Responsable", RESPONSABLE.nombre(deal, nombres));
+            fila.put("Presupuestador", PRESUPUESTADOR.nombre(deal, nombres));
             fila.put("Creado", fechaHora(deal.get("DATE_CREATE")));
             fila.put("FechaCierre", fecha(deal.get("CLOSEDATE")));
             fila.put("Enlace", portalUrl + "crm/deal/details/" + id + "/");
@@ -119,11 +128,13 @@ public class BitrixDealQueries {
 
     /**
      * Reporte de negocios cuya etapa cambió entre dos fechas (ambas incluidas, hora de Colombia): totales, por embudo,
-     * por embudo y etapa y por responsable; opcionalmente por semana (lunes a domingo) o por mes, también por
-     * responsable. Filtros opcionales: embudo, etapa (texto del nombre, p. ej. "ganado") y responsable (ID o nombre).
+     * por embudo y etapa, por responsable y por presupuestador asignado; opcionalmente por semana (lunes a domingo)
+     * o por mes, también desglosado por responsable o por presupuestador. Filtros opcionales: embudo, etapa (texto
+     * del nombre, p. ej. "ganado"), responsable y presupuestador (ID o nombre).
      */
     public Map<String, Object> reporteNegocios(LocalDate desde, LocalDate hasta, Integer embudo, String etapa,
-                                               String responsable, String periodo, boolean detalle) {
+                                               String responsable, String presupuestador, String periodo,
+                                               String desglosePeriodo, boolean detalle) {
         if (desde.isAfter(hasta)) {
             throw new IllegalArgumentException("La fecha inicial no puede ser posterior a la final");
         }
@@ -135,6 +146,11 @@ public class BitrixDealQueries {
         if (agrupacion != null && !agrupacion.equals("semana") && !agrupacion.equals("mes")) {
             throw new IllegalArgumentException("periodo debe ser 'semana' o 'mes'");
         }
+        String desglose = desglosePeriodo == null || desglosePeriodo.isBlank() ? "responsable" : normalizar(desglosePeriodo);
+        if (!desglose.equals("responsable") && !desglose.equals("presupuestador")) {
+            throw new IllegalArgumentException("desglose_periodo debe ser 'responsable' o 'presupuestador'");
+        }
+        Persona personaPeriodo = desglose.equals("presupuestador") ? PRESUPUESTADOR : RESPONSABLE;
         Embudos catalogo = embudos();
         List<Integer> categorias = embudo == null ? EMBUDOS : List.of(embudo);
 
@@ -150,26 +166,32 @@ public class BitrixDealQueries {
             }
             filtro.put("STAGE_ID", etapas);
         }
-        String buscado = responsable == null || responsable.isBlank() ? null : responsable.trim();
-        if (buscado != null && buscado.matches("\\d+")) {
-            filtro.put("ASSIGNED_BY_ID", buscado);
-            buscado = null;
-        }
+        // Un ID se filtra en Bitrix; un nombre se filtra aquí, después de leer los nombres de los usuarios
+        String nombreResponsable = filtroPorId(filtro, RESPONSABLE, responsable);
+        String nombrePresupuestador = filtroPorId(filtro, PRESUPUESTADOR, presupuestador);
 
         List<Map<String, Object>> negocios = new ArrayList<>();
         boolean truncado = listar(filtro, negocios);
 
-        Set<String> idsResponsables = new LinkedHashSet<>();
-        negocios.forEach(n -> idsResponsables.add(String.valueOf(n.get("ASSIGNED_BY_ID"))));
-        Map<String, String> responsables = nombresUsuarios(idsResponsables);
+        Set<String> idsUsuarios = new LinkedHashSet<>();
+        negocios.forEach(n -> {
+            idsUsuarios.add(RESPONSABLE.id(n));
+            idsUsuarios.add(PRESUPUESTADOR.id(n));
+        });
+        idsUsuarios.remove(null);
+        Map<String, String> nombres = nombresUsuarios(idsUsuarios);
         boolean conNombres = permisoUsuarios();
-        if (buscado != null) {
-            if (!conNombres) {
-                throw new IllegalArgumentException("No puedo buscar responsables por nombre porque el webhook de "
-                        + "Bitrix24 no tiene el permiso 'user'; indica el ID del responsable.");
-            }
-            String texto = normalizar(buscado);
-            negocios.removeIf(n -> !normalizar(responsables.get(String.valueOf(n.get("ASSIGNED_BY_ID")))).contains(texto));
+        if ((nombreResponsable != null || nombrePresupuestador != null) && !conNombres) {
+            throw new IllegalArgumentException("No puedo buscar personas por nombre porque el webhook de Bitrix24 "
+                    + "no tiene el permiso 'user'; indica el ID de la persona.");
+        }
+        if (nombreResponsable != null) {
+            String texto = normalizar(nombreResponsable);
+            negocios.removeIf(n -> !normalizar(RESPONSABLE.nombre(n, nombres)).contains(texto));
+        }
+        if (nombrePresupuestador != null) {
+            String texto = normalizar(nombrePresupuestador);
+            negocios.removeIf(n -> !normalizar(PRESUPUESTADOR.nombre(n, nombres)).contains(texto));
         }
 
         // Los totales se calculan aquí, no en el modelo
@@ -177,8 +199,9 @@ public class BitrixDealQueries {
         Map<Integer, Acumulado> porEmbudo = new LinkedHashMap<>();
         categorias.forEach(c -> porEmbudo.put(c, new Acumulado()));
         Map<String, Acumulado> porResponsable = new LinkedHashMap<>();
+        Map<String, Acumulado> porPresupuestador = new LinkedHashMap<>();
         Map<LocalDate, Acumulado> porPeriodo = new TreeMap<>();
-        Map<LocalDate, Map<String, Acumulado>> porPeriodoYResponsable = new TreeMap<>();
+        Map<LocalDate, Map<String, Acumulado>> porPeriodoYPersona = new TreeMap<>();
         Acumulado total = new Acumulado();
         Set<String> monedas = new LinkedHashSet<>();
         negocios.sort(Comparator.comparing((Map<String, Object> n) -> catalogo.orden(n.get("STAGE_ID"))));
@@ -187,7 +210,6 @@ public class BitrixDealQueries {
             String etapaId = String.valueOf(negocio.get("STAGE_ID"));
             String grupo = String.valueOf(negocio.get("STAGE_SEMANTIC_ID"));
             BigDecimal importe = decimal(negocio.get("OPPORTUNITY"));
-            String nombreResponsable = responsables.get(String.valueOf(negocio.get("ASSIGNED_BY_ID")));
 
             Map<String, Object> filaEtapa = porEtapa.computeIfAbsent(categoria + "|" + etapaId, k -> {
                 Map<String, Object> f = new LinkedHashMap<>();
@@ -203,14 +225,18 @@ public class BitrixDealQueries {
 
             total.sumar(grupo, importe);
             porEmbudo.computeIfAbsent(categoria, k -> new Acumulado()).sumar(grupo, importe);
-            porResponsable.computeIfAbsent(nombreResponsable, k -> new Acumulado()).sumar(grupo, importe);
+            porResponsable.computeIfAbsent(RESPONSABLE.nombre(negocio, nombres), k -> new Acumulado())
+                    .sumar(grupo, importe);
+            porPresupuestador.computeIfAbsent(PRESUPUESTADOR.nombre(negocio, nombres), k -> new Acumulado())
+                    .sumar(grupo, importe);
             if (agrupacion != null) {
                 LocalDate dia = instante(negocio.get("MOVED_TIME")).atZone(ZONA).toLocalDate();
                 LocalDate inicioPeriodo = agrupacion.equals("mes") ? dia.withDayOfMonth(1)
                         : dia.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 porPeriodo.computeIfAbsent(inicioPeriodo, k -> new Acumulado()).sumar(grupo, importe);
-                porPeriodoYResponsable.computeIfAbsent(inicioPeriodo, k -> new LinkedHashMap<>())
-                        .computeIfAbsent(nombreResponsable, k -> new Acumulado()).sumar(grupo, importe);
+                porPeriodoYPersona.computeIfAbsent(inicioPeriodo, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(personaPeriodo.nombre(negocio, nombres), k -> new Acumulado())
+                        .sumar(grupo, importe);
             }
             if (negocio.get("CURRENCY_ID") != null) {
                 monedas.add(String.valueOf(negocio.get("CURRENCY_ID")));
@@ -227,6 +253,9 @@ public class BitrixDealQueries {
         if (responsable != null && !responsable.isBlank()) {
             resultado.put("filtro_responsable", porResponsable.keySet());
         }
+        if (presupuestador != null && !presupuestador.isBlank()) {
+            resultado.put("filtro_presupuestador", porPresupuestador.keySet());
+        }
         resultado.put("monedas", monedas);
         resultado.put("totales", total.fila(new LinkedHashMap<>()));
         List<Map<String, Object>> filasEmbudo = new ArrayList<>();
@@ -238,24 +267,26 @@ public class BitrixDealQueries {
         });
         resultado.put("por_embudo", filasEmbudo);
         resultado.put("por_embudo_y_etapa", new ArrayList<>(porEtapa.values()));
-        resultado.put("por_responsable", filasPorResponsable(porResponsable));
+        resultado.put("por_responsable", filasPorPersona(porResponsable, RESPONSABLE.columna()));
+        resultado.put("por_presupuestador", filasPorPersona(porPresupuestador, PRESUPUESTADOR.columna()));
         if (agrupacion != null) {
             List<Map<String, Object>> periodos = new ArrayList<>();
-            List<Map<String, Object>> periodosResponsable = new ArrayList<>();
+            List<Map<String, Object>> periodosPersona = new ArrayList<>();
             porPeriodo.forEach((inicio, a) -> {
                 Map<String, Object> f = new LinkedHashMap<>();
                 f.put("Periodo", etiquetaPeriodo(agrupacion, inicio, desde, hasta));
                 periodos.add(a.fila(f));
-                for (Map<String, Object> filaResponsable : filasPorResponsable(porPeriodoYResponsable.get(inicio))) {
+                for (Map<String, Object> filaPersona
+                        : filasPorPersona(porPeriodoYPersona.get(inicio), personaPeriodo.columna())) {
                     Map<String, Object> g = new LinkedHashMap<>();
                     g.put("Periodo", f.get("Periodo"));
-                    g.putAll(filaResponsable);
-                    periodosResponsable.add(g);
+                    g.putAll(filaPersona);
+                    periodosPersona.add(g);
                 }
             });
             resultado.put("agrupado_por", agrupacion);
             resultado.put("por_periodo", periodos);
-            resultado.put("por_periodo_y_responsable", periodosResponsable);
+            resultado.put("por_periodo_y_" + desglose, periodosPersona);
         }
         if (!conNombres) {
             resultado.put("aviso_responsables", AVISO_SIN_PERMISO_USUARIOS);
@@ -271,12 +302,13 @@ public class BitrixDealQueries {
                     .toList();
             Set<String> companias = new LinkedHashSet<>();
             recientes.forEach(n -> companias.add(String.valueOf(n.get("COMPANY_ID"))));
-            Map<String, String> nombres = nombresCompanias(companias);
+            Map<String, String> nombresCompania = nombresCompanias(companias);
             List<Map<String, Object>> filas = new ArrayList<>();
             for (Map<String, Object> negocio : recientes) {
                 Map<String, Object> f = fila(negocio);
-                f.put("Responsable", responsables.get(String.valueOf(negocio.get("ASSIGNED_BY_ID"))));
-                f.put("Compania", nombres.get(String.valueOf(negocio.get("COMPANY_ID"))));
+                f.put("Responsable", RESPONSABLE.nombre(negocio, nombres));
+                f.put("Presupuestador", PRESUPUESTADOR.nombre(negocio, nombres));
+                f.put("Compania", nombresCompania.get(String.valueOf(negocio.get("COMPANY_ID"))));
                 filas.add(f);
             }
             resultado.put("negocios", filas);
@@ -285,15 +317,40 @@ public class BitrixDealQueries {
         return resultado;
     }
 
-    private static List<Map<String, Object>> filasPorResponsable(Map<String, Acumulado> porResponsable) {
-        return porResponsable.entrySet().stream()
+    // Si el filtro de persona es un ID lo agrega al filtro de Bitrix y devuelve null; si es un nombre lo devuelve
+    private static String filtroPorId(Map<String, Object> filtro, Persona persona, String valor) {
+        String texto = valor == null || valor.isBlank() ? null : valor.trim();
+        if (texto != null && texto.matches("\\d+")) {
+            filtro.put(persona.campo(), texto);
+            return null;
+        }
+        return texto;
+    }
+
+    private static List<Map<String, Object>> filasPorPersona(Map<String, Acumulado> porPersona, String columna) {
+        return porPersona.entrySet().stream()
                 .sorted(Comparator.comparing((Map.Entry<String, Acumulado> e) -> e.getValue().importe).reversed())
                 .map(e -> {
                     Map<String, Object> f = new LinkedHashMap<>();
-                    f.put("Responsable", e.getKey());
+                    f.put(columna, e.getKey());
                     return e.getValue().fila(f);
                 })
                 .toList();
+    }
+
+    /** Campo de usuario del negocio por el que se agrupa (responsable o presupuestador asignado). */
+    private record Persona(String columna, String campo, String sinValor) {
+
+        String id(Map<String, Object> negocio) {
+            Object valor = negocio.get(campo);
+            String id = valor == null ? "" : String.valueOf(valor).trim();
+            return id.isEmpty() || "0".equals(id) || !id.matches("\\d+") ? null : id;
+        }
+
+        String nombre(Map<String, Object> negocio, Map<String, String> nombres) {
+            String id = id(negocio);
+            return id == null ? sinValor : nombres.getOrDefault(id, "ID " + id);
+        }
     }
 
     // Semana: "2026-10-27 a 2026-11-02" recortada al rango pedido; mes: "2026-10"
@@ -350,7 +407,7 @@ public class BitrixDealQueries {
     }
 
     /**
-     * Nombre de cada usuario de Bitrix24 (responsable), con caché. Requiere el permiso "user" del webhook;
+     * Nombre de cada usuario de Bitrix24 (responsable o presupuestador), con caché. Requiere el permiso "user" del webhook;
      * sin él se devuelve "ID n" y se vuelve a intentar cada pocos minutos (por si se agrega el permiso).
      */
     Map<String, String> nombresUsuarios(Set<String> ids) {
