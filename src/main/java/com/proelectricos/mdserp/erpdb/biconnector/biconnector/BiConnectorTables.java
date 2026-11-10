@@ -1,7 +1,7 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiTable.Column;
-import com.proelectricos.mdserp.erpdb.order.biconnector.BiTable.Type;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiTable.Column;
+import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiTable.Type;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

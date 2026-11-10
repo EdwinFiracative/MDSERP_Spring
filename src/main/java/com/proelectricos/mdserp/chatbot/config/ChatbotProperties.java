@@ -13,7 +13,8 @@ public record ChatbotProperties(
         boolean enabled,
         Gemini gemini,
         Telegram telegram,
-        Database database) {
+        Database database,
+        Bitrix bitrix) {
 
     /**
      * @param maxToolCalls       rondas máximas de llamadas a herramientas por mensaje del usuario
@@ -40,5 +41,12 @@ public record ChatbotProperties(
      * Lo ideal es un usuario SQL con solo db_datareader sobre ErpDb.
      */
     public record Database(String url, String username, String password, int maxRows, int queryTimeoutSeconds) {
+    }
+
+    /**
+     * Webhook entrante de Bitrix24 que usa el chatbot para leer negocios (solo métodos de lectura crm.*).
+     * Es distinto de bitrix.webhook-url, que el backend usa para actualizar negocios.
+     */
+    public record Bitrix(String webhookUrl) {
     }
 }

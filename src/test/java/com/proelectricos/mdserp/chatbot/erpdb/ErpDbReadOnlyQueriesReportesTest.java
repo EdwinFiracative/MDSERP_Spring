@@ -39,7 +39,7 @@ class ErpDbReadOnlyQueriesReportesTest {
     void crear() {
         ChatbotProperties.Database db = new ChatbotProperties.Database(env.getProperty("chatbot.database.url"),
                 env.getProperty("chatbot.database.username"), env.getProperty("chatbot.database.password"), 200, 60);
-        queries = new ErpDbReadOnlyQueries(new ChatbotProperties(true, null, null, db));
+        queries = new ErpDbReadOnlyQueries(new ChatbotProperties(true, null, null, db, null));
     }
 
     @AfterAll

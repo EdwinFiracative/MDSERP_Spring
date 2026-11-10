@@ -1,4 +1,4 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
 import lombok.extern.slf4j.Slf4j;
 
