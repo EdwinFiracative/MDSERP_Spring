@@ -1,7 +1,5 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
-import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiMarginDatasetService;
-import com.proelectricos.mdserp.erpdb.biconnector.biconnector.BiMarginRow;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;

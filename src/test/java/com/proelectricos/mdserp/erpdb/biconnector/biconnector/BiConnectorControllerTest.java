@@ -1,7 +1,6 @@
-package com.proelectricos.mdserp.erpdb.order.biconnector;
+package com.proelectricos.mdserp.erpdb.biconnector.biconnector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proelectricos.mdserp.erpdb.biconnector.biconnector.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
