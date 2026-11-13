@@ -17,4 +17,5 @@ docker --context $ctx build -t  mdserp:1.0.0 .
 # The local .env file (chatbot secrets, not versioned) is passed as environment variables when it exists.
 $envFile = @()
 if (Test-Path ".env") { $envFile = @("--env-file", ".env") }
-docker --context $ctx run -d --name mdsback-container --restart unless-stopped -p 8181:8181 -v mdserp-logs:/app/logs -v mdserp-data:/app/data @envFile mdserp:1.0.0
+# SPRING_PROFILES_ACTIVE=prod selects the production settings (e.g. TELEGRAM_BOT_TOKEN_PROD).
+docker --context $ctx run -d --name mdsback-container --restart unless-stopped -p 8181:8181 -v mdserp-logs:/app/logs -v mdserp-data:/app/data -e SPRING_PROFILES_ACTIVE=prod @envFile mdserp:1.0.0

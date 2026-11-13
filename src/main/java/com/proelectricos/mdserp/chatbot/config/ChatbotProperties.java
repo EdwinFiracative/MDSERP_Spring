@@ -2,6 +2,8 @@ package com.proelectricos.mdserp.chatbot.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,6 +35,32 @@ public record ChatbotProperties(
 
         public boolean autorizado(long chatId) {
             return allowedChatIds != null && allowedChatIds.contains(chatId);
+        }
+
+        /**
+         * Devuelve el token o lanza un error claro indicando qué variable falta según el perfil activo
+         * (dev -> TELEGRAM_BOT_TOKEN_DEV, prod -> TELEGRAM_BOT_TOKEN_PROD).
+         *
+         * @param perfilesActivos perfiles de Spring activos (Environment#getActiveProfiles)
+         */
+        public String exigirToken(String... perfilesActivos) {
+            if (token != null && !token.isBlank()) {
+                return token;
+            }
+            List<String> perfiles = perfilesActivos == null ? List.of() : Arrays.asList(perfilesActivos);
+            String variable;
+            if (perfiles.contains("prod")) {
+                variable = "TELEGRAM_BOT_TOKEN_PROD";
+            } else if (perfiles.contains("dev")) {
+                variable = "TELEGRAM_BOT_TOKEN_DEV";
+            } else {
+                throw new IllegalStateException("chatbot.enabled=true pero ningún perfil activo (" + perfiles
+                        + ") define chatbot.telegram.token. Active el perfil dev o prod (SPRING_PROFILES_ACTIVE)"
+                        + " o desactive el chatbot con CHATBOT_ENABLED=false.");
+            }
+            throw new IllegalStateException("chatbot.enabled=true pero falta el token del bot de Telegram para el"
+                    + " perfil " + perfiles + ": defina " + variable + " en .env o como variable de entorno,"
+                    + " o desactive el chatbot con CHATBOT_ENABLED=false.");
         }
     }
 
