@@ -41,3 +41,6 @@ build/
 
 ### Token de la app Bitrix24 ###
 data/
+
+# Worktrees de Claude Code
+.claude/worktrees/
